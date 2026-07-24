@@ -101,3 +101,49 @@ WITH (FORMAT csv, HEADER true, NULL '');
 - COPY recipe_inputs_raw
 FROM '/tmp/recipeInputs.csv'
 WITH (FORMAT csv, HEADER true, NULL '');
+
+# Data Engineering With DBT
+## Chapter 1
+When working with dbt, you will not need to write create table or create view
+statements, as dbt will create them for us. It is nevertheless good to get familiar with these
+basic SQL commands as these are the commands executed in the database and you will see
+them if you look in the logs.
+
+To create the TEST database and the SOME_DATA schema in it, we can use the following commands:
+CREATE DATABASE TEST;
+CREATE SCHEMA TEST.SOME_DATA;
+
+### Users and roles
+The following is an example of a simple setup with one role and a couple of users:
+CREATE ROLE DBT_SAMPLE_ROLE;
+CREATE USER MY_NAME; -- Personal user
+CREATE USER SAMPLE_SERVICE; -- Service user
+GRANT ROLE DBT_SAMPLE_ROLE TO USER MY_NAME;
+GRANT ROLE DBT_SAMPLE_ROLE TO USER SAMPLE_SERVICE;
+
+A more complex setup could have one role to read and one to write for each source system (represented
+by a schema with the data from the system), for the data warehouse (one or more schemata where the
+data is processed), and for each data mart (one schema for each data mart).
+
+You could then control in much more detail who can read and write what, at the cost of more effort.
+
+The below syntax is available for postgres:
+SELECT * FROM ( VALUES
+('IT', 'ITA', 'Italy')
+,('US', 'USA', 'United States of America')
+,('SF', 'FIN', 'Finland (Suomi)')
+);
+
+### Query clause order of evaluation
+1) FROM and its JOIN subclause, which are used to identify the source data for the query.
+2) The WHERE clause, which is used to filter out the source data that we do not want.
+This is probably the most important clause for performance, because the less data a query
+works on, the quicker it is. Use WHERE whenever possible to just bring in the data you need.
+3) The GROUP BY clause, which groups the source data left after applying the WHERE clause and
+calculates the aggregate functions on the grouped data.
+4) The HAVING clause, which filters on the results of GROUP BY.
+5) Partitioning of the windows and calculation of the window functions.
+6) The QUALIFY clause, which filters on the results of the window functions.
+7) The DISTINCT keyword, if applied to the SELECT clause, which removes duplicated rows.
+8) The ORDER BY clause, which puts the resulting rows in the desired order.
+9) The LIMIT clause, which caps the rows returned by the query to the desired amount.
