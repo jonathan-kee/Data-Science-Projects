@@ -12,6 +12,37 @@ https://github.com/massgravel/Microsoft-Activation-Scripts
 Link to website download for Mac Os:
 https://massgrave.dev/office_for_mac
 
+# DBT Setup
+Link:
+https://www.youtube.com/watch?v=ALuYdar1vCc&t=986s
+
+(Not needed) python -m pip install dbt-core dbt-postgres
+
+Create schema for current docker postgres called STAGING
+
+python3 -m venv dbt-demo
+
+Virtual environment to keep dependencies local to repo
+source dbt-demo/bin/activate
+pip freeze
+pip install -r requirements.txt
+pip freeze
+
+Initialize dbt project
+dbt init
+
+To check database connection is correct:
+/Users/jonathankee/.dbt/profiles.yml
+
+Check if connection is correct:
+dbt debug
+
+Make dbt create table or view inside postgres:
+dbt run
+
+Make dbt run specific model:
+dbt run --select 
+
 # Download CSV from api /csv/prices 
 - cd csv
 - curl -s -X GET "https://api.fnar.net/csv/prices?include_header=true" -H "accept: text/csv" -o prices.csv
