@@ -15,6 +15,7 @@ https://massgrave.dev/office_for_mac
 # Download CSV from api /csv/prices 
 - cd csv
 - curl -s -X GET "https://api.fnar.net/csv/prices?include_header=true" -H "accept: text/csv" -o prices.csv
+- curl -X 'GET' 'https://api.fnar.net/csv/recipeinputs?include_header=true' -H 'accept: text/csv' -o recipeInputs.csv
 - copy over csv file to docker container
 
 # Test Postgres docker connection & location
@@ -22,6 +23,9 @@ https://massgrave.dev/office_for_mac
 - docker cp \
     ./csv/prices.csv \
     postgres-container:/tmp/prices.csv
+- docker cp \
+    ./csv/recipeInputs.csv \
+    postgres-container:/tmp/recipeInputs.csv
 
 # Docker Postgres Import CSV File Into PostgreSQL Table
 - CREATE TABLE market_depth_raw (
@@ -86,4 +90,14 @@ https://massgrave.dev/office_for_mac
 
 - COPY market_depth_raw
 FROM '/tmp/prices.csv'
+WITH (FORMAT csv, HEADER true, NULL '');
+
+- CREATE TABLE recipe_inputs_raw (
+    "Key"       VARCHAR(100) NOT NULL,
+    "Material"  VARCHAR(20),
+    "Amount"    INTEGER NOT NULL
+);
+
+- COPY recipe_inputs_raw
+FROM '/tmp/recipeInputs.csv'
 WITH (FORMAT csv, HEADER true, NULL '');
