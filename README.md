@@ -147,3 +147,57 @@ calculates the aggregate functions on the grouped data.
 7) The DISTINCT keyword, if applied to the SELECT clause, which removes duplicated rows.
 8) The ORDER BY clause, which puts the resulting rows in the desired order.
 9) The LIMIT clause, which caps the rows returned by the query to the desired amount.
+
+## Chapter 2
+### Comparing dbt Core and dbt Cloud workflows
+There are two dbt versions that you can decide to use:
+- dbt Core: This is open source software created by dbt Labs, developed in Python, that you can
+freely download and use locally from the command line on many operating systems, such as
+Windows, Mac, and Linux. It provides all the core functionalities of dbt and can also be used
+for commercial projects.
+
+- dbt Cloud: This is a commercial software created by dbt Labs that offers a Software-as-a-Service
+(SaaS) experience that includes all the functionalities from dbt Core wrapped in a web interface
+that makes it easier to use the dbt Core functionalities, adding many features that are useful
+when running a real-life data project.
+
+### dbt Core workflows (Long read)
+
+### Exploring the dbt default model
+#### Analysis of my_first_dbt_model
+Probably the most interesting row is line 1, as it is not SQL code, but an inline configuration that
+directs dbt to materialize the result of this query as a table. If you preview the model, you will see the
+result of its SQL, in the dbt Cloud IDE, but you will generate nothing on your DB. To affect your DB,
+you need to run your model using the dbt run or dbt build command.
+
+Important note
+Doing a preview of a model will run the query in the model as it is, while when running a
+model, using the dbt run command will wrap the SELECT query with the correct DDL to
+materialize the model in the DB in the desired way, such as a table or a view.
+
+#### Analysis of my_first_dbt_model
+If you try to preview this model before you have used the dbt run command, you will get an error,
+as the first model that you reference does not exist on your DB. Most probably, the schema with your
+selected schema name will not exist either.
+
+We will use the dbt run command in the next section, so for the moment, we can just note that
+this model just selects everything from your first model that is referenced simply by its name using
+the dbt ref function.
+
+The curly brackets symbols, { and }, are used to start and end the blocks of Jinja code in our models.
+We will look at Jinja in more detail in the second part of the book. For the moment, note that double
+curly brackets symbols, {{, are used to print out values from Jinja expressions.
+
+We then expect that the {{ ref('my_first_dbt_model') SQL name to reference the table or view containing the first model.
+
+#### Analysis of schema.yml
+
+### Using ref and source to connect models
+The ref and source functions are the keystones of how dbt works; by using them, we provide dbt
+with the information needed to build the graph of dependencies of the whole project, and dbt is then
+able to generate the SQL code dynamically, making it simple to write a model once and deploy it to
+multiple environments.
+
+### Further Reading
+https://docs.getdbt.com/docs/introduction?version=2.0&name=v2
+https://docs.getdbt.com/reference/dbt_project.yml?version=2.0&name=v2
