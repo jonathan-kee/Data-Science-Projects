@@ -8,7 +8,7 @@ CREATE TABLE raw.recipe_inputs_time_raw
 );
 
 -- Pasted from recipes.js --
-INSERT INTO raw.recipe_inputs_time_raw (Key, TimeMs)
+INSERT INTO raw.recipe_inputs_time_raw ("Key", "TimeMs")
 VALUES ('RIG#=>',17280000),
 ('TNP#1xTC 4xREA 4xFLX=>1xETC',69120000),
 ('TNP#1xTCO=>1xTC 1xO',58752000),
