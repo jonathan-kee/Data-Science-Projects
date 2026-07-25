@@ -65,6 +65,19 @@ Make dbt create table or view inside postgres:
 Make dbt run specific model:
 - dbt run --select 
 
+# DBT column lineage
+Change dictory to dbtproject to run dbt commands:
+- cd dbtproject
+
+Run dbt to generate the required artifacts:
+- dbt compile
+- dbt docs generate
+
+Generate lineage report:
+- colibri generate
+
+View results: Open dist/index.html in your browser
+
 # Download CSV from api /csv/prices 
 - cd csv
 - curl -s -X GET "https://api.fnar.net/csv/prices?include_header=true" -H "accept: text/csv" -o prices.csv
