@@ -246,6 +246,17 @@ stream: sessions, transactions, orders, stories, votes
 Each row is a person, place, or thing; Mutable, through slowly changing: customers,
 products, candidates, buildings, employees
 
+https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=10
+
+Staging models best practices is to use view, these are connected to sources, and constantly new records in sources,
+does not make sense to store staging record in a table, view will allow us to get the most up to date source records.
+
+Marts models best practices is to use table, these are the data getting queried by PowerBi, Excel. If this was a view
+everytime someone a query from Power Bi tool, this is going to execute the view which is inneficient to run a lot of transformations.
+if marts models materialize as table, the records are already transformed and no need to spend time to do transformation. 
+
+The + for +materialized is to indicate it's a property and not a folder.
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
