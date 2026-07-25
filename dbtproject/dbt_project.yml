@@ -31,6 +31,12 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   dbtproject:
-    # Config indicated by + and applies to all files under models/example/
-    example:
+    # Staging models best practices is to use view, these are connected to sources, and constantly new records in sources,
+    # does not make sense to store staging record in a table, view will allow us to get the most up to date source records.
+    staging:
       +materialized: view
+    # Marts models best practices is to use table, these are the data getting queried by PowerBi, Excel. If this was a view
+    # everytime someone a query from Power Bi tool, this is going to execute the view which is inneficient to run a lot of transformations.
+    # if marts models materialize as table, the records are already transformed and no need to spend time to do transformation. 
+    marts:
+      +materialized: table
