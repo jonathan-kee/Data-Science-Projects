@@ -31,7 +31,8 @@ totalCost.materialOutput,
 stg_market_depth."AI1-Average" as "material output's AI1-Average",
 totalCost.materialOutputQuantity * stg_market_depth."AI1-Average" as "material output's total price",
 (totalCost.materialOutputQuantity * stg_market_depth."AI1-Average") - totalCost."total cost" as profit,
-stg_recipe_inputs_time.time_ms as "time taken per run"
+(stg_recipe_inputs_time.time_ms / 60000) as "time taken per order in minutes",
+(24* 60) / (stg_recipe_inputs_time.time_ms / 60000) as "total_order_per_day"
 from stg_market_depth 
 left join totalCost on totalCost.materialOutput = stg_market_depth."Ticker"
 left join stg_recipe_inputs_time on stg_recipe_inputs_time.prefix = totalCost.prefix 
