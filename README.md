@@ -81,57 +81,14 @@ Generate lineage report:
 
 View results: Open dist/index.html in your browser
 
-# Resources to learn DBT:
-https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=3
-
-Default materialization is a view in dbt
-
-The below will overide the default materialization, using table instead of view
-{{ config(materialized='table') }}
-
-dbt_project.yml will contain global configuration for materialization:
-models:
-  dbtproject:
-    # Config indicated by + and applies to all files under models/example/
-    example:
-      +materialized: view
-
-example for the above is reffering to models/example folder
-
-Gemini Explanation on Staging:
-
-In Medallion Architecture (Bronze $\rightarrow$ Silver $\rightarrow$ Gold), **Bronze** represents raw data, whereas dbt's **Staging** layer is the *first light transformation* step immediately on top of Bronze.
-
-Here is how the concepts map directly to each other:
-
-| Layer Concept | Medallion Architecture | dbt Layer | What Lives There |
-| --- | --- | --- | --- |
-| **Raw Ingestion** | **Bronze** | Raw Warehouse / `source()` | Exact copy of source data (JSON, messy schemas, uncast types, duplicates). |
-| **Cleaned & Standardized** | **Silver** | **Staging (`stg_`)** & Intermediate | Renamed columns, cast types, light filtering, deduplication, and initial business logic. |
-| **Business / Analytics** | **Gold** | **Marts (`fct_`, `dim_`)** | Aggregated data, dimensional models, and star schemas built for BI tools. |
-
----
-
-### The Fine Print: Bronze vs. Staging
-
-If you want to be precise:
-
-* **Raw Data = Bronze:** The untouched landing table inside your Snowflake, BigQuery, or Databricks instance.
-* **dbt Staging = Light Silver (or Bronze+):** The SQL view that reads from Bronze (`{{ source(...) }}`), renames `usr_id` to `user_id`, casts strings to timestamps, and standardizes types.
-
-Because dbt doesn't handle the ingestion step itself (tools like Fivetran, Airbyte, or custom Python pipelines dump data into Bronze), **Staging is dbt’s entry point for Bronze data.**
-
-So while your raw warehouse tables are technically the true Bronze layer, your dbt **Staging models act as the bridge between Bronze and Silver.**
-
-*** DBT does not handle ingestion ***
-
-# Download CSV from api /csv/prices 
+# Ingestion
+## Download CSV from api /csv/prices 
 - cd csv
 - curl -s -X GET "https://api.fnar.net/csv/prices?include_header=true" -H "accept: text/csv" -o prices.csv
 - curl -X 'GET' 'https://api.fnar.net/csv/recipeinputs?include_header=true' -H 'accept: text/csv' -o recipeInputs.csv
 - copy over csv file to docker container
 
-# Test Postgres docker connection & location
+## Test Postgres docker connection & location
 - docker exec -it postgres-container sh
 - docker cp \
     ./csv/prices.csv \
@@ -140,7 +97,7 @@ So while your raw warehouse tables are technically the true Bronze layer, your d
     ./csv/recipeInputs.csv \
     postgres-container:/tmp/recipeInputs.csv
 
-# Docker Postgres Import CSV File Into PostgreSQL Table
+## Docker Postgres Import CSV File Into PostgreSQL Table
 - CREATE TABLE market_depth_raw (
     "Ticker"        VARCHAR(10) PRIMARY KEY,
     "MMBuy"         NUMERIC(15, 2),
@@ -214,6 +171,50 @@ WITH (FORMAT csv, HEADER true, NULL '');
 - COPY recipe_inputs_raw
 FROM '/tmp/recipeInputs.csv'
 WITH (FORMAT csv, HEADER true, NULL '');
+
+# Resources to learn DBT:
+https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=3
+
+Default materialization is a view in dbt
+
+The below will overide the default materialization, using table instead of view
+{{ config(materialized='table') }}
+
+dbt_project.yml will contain global configuration for materialization:
+models:
+  dbtproject:
+    # Config indicated by + and applies to all files under models/example/
+    example:
+      +materialized: view
+
+example for the above is reffering to models/example folder
+
+Gemini Explanation on Staging:
+
+In Medallion Architecture (Bronze $\rightarrow$ Silver $\rightarrow$ Gold), **Bronze** represents raw data, whereas dbt's **Staging** layer is the *first light transformation* step immediately on top of Bronze.
+
+Here is how the concepts map directly to each other:
+
+| Layer Concept | Medallion Architecture | dbt Layer | What Lives There |
+| --- | --- | --- | --- |
+| **Raw Ingestion** | **Bronze** | Raw Warehouse / `source()` | Exact copy of source data (JSON, messy schemas, uncast types, duplicates). |
+| **Cleaned & Standardized** | **Silver** | **Staging (`stg_`)** & Intermediate | Renamed columns, cast types, light filtering, deduplication, and initial business logic. |
+| **Business / Analytics** | **Gold** | **Marts (`fct_`, `dim_`)** | Aggregated data, dimensional models, and star schemas built for BI tools. |
+
+---
+
+### The Fine Print: Bronze vs. Staging
+
+If you want to be precise:
+
+* **Raw Data = Bronze:** The untouched landing table inside your Snowflake, BigQuery, or Databricks instance.
+* **dbt Staging = Light Silver (or Bronze+):** The SQL view that reads from Bronze (`{{ source(...) }}`), renames `usr_id` to `user_id`, casts strings to timestamps, and standardizes types.
+
+Because dbt doesn't handle the ingestion step itself (tools like Fivetran, Airbyte, or custom Python pipelines dump data into Bronze), **Staging is dbt’s entry point for Bronze data.**
+
+So while your raw warehouse tables are technically the true Bronze layer, your dbt **Staging models act as the bridge between Bronze and Silver.**
+
+*** DBT does not handle ingestion ***
 
 # Data Engineering With DBT
 ## Chapter 1
