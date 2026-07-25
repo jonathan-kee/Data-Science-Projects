@@ -20,7 +20,7 @@ with
             stg_recipe_inputs
             on stg_recipe_inputs.materialinput = stg_market_depth."Ticker"
     ),
-    final as (
+    material_output_total_cost as (
         select
             totalcost.original_query,
             totalcost.prefix,
@@ -55,6 +55,5 @@ with
     -- total cost,
     -- need to split the data
     )
-
 select *
-from final
+from material_output_total_cost
