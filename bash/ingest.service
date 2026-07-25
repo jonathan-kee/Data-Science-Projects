@@ -1,0 +1,8 @@
+[Unit]
+Description="Ingestion service"
+
+[Service]
+ExecStart=/usr/local/bin/ingest.bash
+
+[Install]
+WantedBy=multi-user.target
