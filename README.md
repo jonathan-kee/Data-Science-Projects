@@ -257,6 +257,13 @@ if marts models materialize as table, the records are already transformed and no
 
 The + for +materialized is to indicate it's a property and not a folder.
 
+https://learn.getdbt.com/learn/course/dbt-fundamentals/sources-60min/understanding-sources?page=5
+
+Sources and Staging models should have a 1 to 1 relationship, so each source should only feed into one staging model
+
+source functions is powerful because the schema name or table name changes in the database, you only have to update in one place
+models/staging/_src_jaffle_shop.yml
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
