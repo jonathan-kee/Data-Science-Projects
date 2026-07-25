@@ -264,6 +264,30 @@ Sources and Staging models should have a 1 to 1 relationship, so each source sho
 source functions is powerful because the schema name or table name changes in the database, you only have to update in one place
 models/staging/_src_jaffle_shop.yml
 
+Freshness (Advance topic)
+https://learn.getdbt.com/learn/course/dbt-fundamentals/sources-60min/understanding-sources?page=6
+
+Package (Utilies to save time, Advance topic)
+https://learn.getdbt.com/learn/course/dbt-fundamentals/sources-60min/understanding-sources?page=7
+
+Generate Models from staging yml (Utilies to save time)
+https://learn.getdbt.com/learn/course/dbt-fundamentals/sources-60min/understanding-sources?page=8
+
+After clicking generate, click save to save the generated staging model
+
+Cleaning up Staging Models (Best practises around transformation)
+https://learn.getdbt.com/learn/course/dbt-fundamentals/sources-60min/understanding-sources?page=9
+
+Best practises on Staging models CTE naming & functionality
+- renaming columns: for clarity and consistency
+- filtering rows: removing irrelevant or invalid records
+- type casting: converting data types for consistency
+- basic computations: i.e. converting cents to dollars
+- basic date transformations
+
+Further reading:
+https://docs.getdbt.com/best-practices/how-we-style/1-how-we-style-our-dbt-models?version=2.0
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
