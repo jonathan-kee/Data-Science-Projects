@@ -1,6 +1,6 @@
 sources:
   - name: prosperous_universe sources
-    database: postgres
+    database: prosperous_universe
     schema: raw
     tables:
       - name: market_depth_raw
