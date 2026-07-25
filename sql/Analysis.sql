@@ -1,14 +1,14 @@
 with aggregates as (
     select
-        Sum("material input's total cost") as "material input's total cost",
-        max("material output's total price") as "material output's total price",
-        max("total_order_per_day") as "total order per day"
+        Sum(material_input_total_cost) as "material_input_total_cost",
+        max(material_output_total_sell_price) as "material_output_total_sell_price",
+        max("total_order_per_day") as "total_order_per_day"
     from raw.dim_report
     where materialoutput = 'AL' and materialoutputquantity = 3
 ),
 RoiPerDay as (
     select
-        ("material output's total price" - "material input's total cost") * "total order per day" as RoiPerDay
+        ("material_input_total_cost" - "material_input_total_cost") * "total_order_per_day" as RoiPerDay
     from aggregates
 )
 select * from RoiPerDay
