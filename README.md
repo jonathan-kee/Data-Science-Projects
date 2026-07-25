@@ -5,6 +5,10 @@
 
 ![First Profitable Run](./screenshots/FirstProfitableRun.png)
 
+[Dbt Lineage working](./screenshots/dbtlineage.png)
+
+![Dbt Lineage working](./screenshots/dbtlineage.png)
+
 # Get Excel For free
 Link to github repo:
 https://github.com/massgravel/Microsoft-Activation-Scripts
@@ -443,8 +447,15 @@ shows that public is the default schema for postgres database, this is where all
 
 
 ## Creating Databases
+whanever we create a database, by default every single user has permission to connect to database, by default 
+the role public which is assigned by default to everybody has a connect privillage on the brand new database.
+For security purpose revoke connect on database on role public, this will revoke all normal users.
+
+Owner and Super user can still connect even if revoke from public role
 
 ## Users and Roles
+postgres is a predefined superuser in the default database cluster
+
 
 ## Access Control
 
