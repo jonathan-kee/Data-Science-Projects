@@ -9926,7 +9926,7 @@ let lengthOfArrayOfJson = data.length;
 let sb = `INSERT INTO raw.recipe_inputs_time_raw (Key, TimeMs)
 VALUES `
 for(let i = 0; i< lengthOfArrayOfJson;i++){
-    sb+="("+data[i].recipe_id+","+data[i].time_ms+ ")"+",\n";
+    sb+="('"+data[i].recipe_id+"',"+data[i].time_ms+ ")"+",\n";
 }
 sb=sb.slice(0, -2);
 sb+= ";"
