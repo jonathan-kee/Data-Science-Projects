@@ -13,49 +13,57 @@ Link to website download for Mac Os:
 https://massgrave.dev/office_for_mac
 
 # DBT Setup
-Link:
+Link (lastest dbt core has issue, downgrade to 1.8.0 for stable):
 https://www.youtube.com/watch?v=ALuYdar1vCc&t=986s
 
-(Not needed) python -m pip install dbt-core dbt-postgres
+Create schema for current docker postgres called STAGING in datagrip
+- create schema staging;
 
-Create schema for current docker postgres called STAGING
-
-python3 -m venv dbt-demo
+Create virtual environments:
+- python3 -m venv dbt-demo
 
 Virtual environment to keep dependencies local to repo
-source dbt-demo/bin/activate
+- source dbt-demo/bin/activate
 
-# 1. Deactivate the current environment
-deactivate
+## Incase Installation went wrong
+### 1. Deactivate the current environment
+- deactivate
 
-# 2. Delete the dbt-demo folder
+### 2. Delete the dbt-demo folder
 rm -rf dbt-demo
 
-# 3. Create a fresh virtual environment named dbt-demo
+### 3. Create a fresh virtual environment named dbt-demo
 python3 -m venv dbt-demo
 
-# 4. Activate it
+### 4. Activate it
 source dbt-demo/bin/activate
 
-pip freeze
-pip install -r requirements.txt
-pip freeze
+Check if virtual environment is fresh
+- pip freeze
+
+Install dependencies
+- pip install -r requirements.txt
+
+Check dependencies
+- pip freeze
 
 Initialize dbt project
-dbt init
+- dbt init
 
 To check database connection is correct:
-/Users/jonathankee/.dbt/profiles.yml
+- /Users/jonathankee/.dbt/profiles.yml
+
+Change dictory to dbtproject to run dbt commands:
+- cd dbtproject
 
 Check if connection is correct:
-cd dbtproject
-dbt debug
+- dbt debug
 
 Make dbt create table or view inside postgres:
-dbt run
+- dbt run
 
 Make dbt run specific model:
-dbt run --select 
+- dbt run --select 
 
 # Download CSV from api /csv/prices 
 - cd csv
