@@ -392,3 +392,62 @@ multiple environments.
 ### Further Reading
 https://docs.getdbt.com/docs/introduction?version=2.0&name=v2
 https://docs.getdbt.com/reference/dbt_project.yml?version=2.0&name=v2
+
+# Postgres DBA
+Link:
+https://training.enterprisedb.com/learn/courses/147/foundations-of-postgresqlr-v13/lessons/202:71/module6creatingandmanagingdatabases
+
+Command to enter postgres
+docker exec -it postgres-container psql --dbname=postgres --username=postgres --password  
+
+## Object Hierarchy
+postgres=# \l
+                                                    List of databases
+   Name    |  Owner   | Encoding | Locale Provider |  Collate   |   Ctype    | Locale | ICU Rules |   Access privileges   
+-----------+----------+----------+-----------------+------------+------------+--------+-----------+-----------------------
+ postgres  | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |        |           | 
+ template0 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |        |           | =c/postgres          +
+           |          |          |                 |            |            |        |           | postgres=CTc/postgres
+ template1 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |        |           | =c/postgres          +
+           |          |          |                 |            |            |        |           | postgres=CTc/postgres
+
+list of available databases
+
+postgres=# \du
+                             List of roles
+ Role name |                         Attributes                         
+-----------+------------------------------------------------------------
+ postgres  | Superuser, Create role, Create DB, Replication, Bypass RLS
+
+shows the list of roles available in database
+
+postgres=# \db
+       List of tablespaces
+    Name    |  Owner   | Location 
+------------+----------+----------
+ pg_default | postgres | 
+ pg_global  | postgres | 
+(2 rows)
+
+Not entirely sure the purpose of tablespace
+
+postgres=# \dn
+       List of schemas
+  Name   |       Owner       
+---------+-------------------
+ public  | pg_database_owner
+ staging | postgres
+(2 rows)
+
+shows that public is the default schema for postgres database, this is where all objects will go
+
+
+## Creating Databases
+
+## Users and Roles
+
+## Access Control
+
+## Creating Schemas
+
+## Schema Search Path
