@@ -12,6 +12,9 @@ https://github.com/massgravel/Microsoft-Activation-Scripts
 Link to website download for Mac Os:
 https://massgrave.dev/office_for_mac
 
+# DBT Website crendentials
+E4J8NLKAYRZ67GK5XWMDDKBR
+
 # DBT Setup
 Link (lastest dbt core has issue, downgrade to 1.8.0 for stable):
 https://www.youtube.com/watch?v=ALuYdar1vCc&t=986s
@@ -63,7 +66,7 @@ Make dbt create table or view inside postgres:
 - dbt run
 
 Make dbt run specific model:
-- dbt run --select 
+- dbt run --select my_first_dbt_model.sql
 
 # DBT column lineage
 Change dictory to dbtproject to run dbt commands:
@@ -77,6 +80,23 @@ Generate lineage report:
 - colibri generate
 
 View results: Open dist/index.html in your browser
+
+# Resources to learn DBT:
+https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=3
+
+Default materialization is a view in dbt
+
+The below will overide the default materialization, using table instead of view
+{{ config(materialized='table') }}
+
+dbt_project.yml will contain global configuration for materialization:
+models:
+  dbtproject:
+    # Config indicated by + and applies to all files under models/example/
+    example:
+      +materialized: view
+
+example for the above is refferting to models/example folder
 
 # Download CSV from api /csv/prices 
 - cd csv
