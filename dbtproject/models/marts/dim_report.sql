@@ -8,12 +8,13 @@ stg_recipe_inputs as (
 stg_recipe_inputs_time as (
     select * from {{ref("stg_recipe_inputs_time")}}
 ),
-totalCost AS (select stg_recipe_inputs.original_query,
+material_input_total_cost AS (select stg_recipe_inputs.original_query,
                       stg_recipe_inputs.prefix,
                       stg_recipe_inputs.materialInputQuantity,
                       stg_recipe_inputs.materialInput,
-                      stg_market_depth."AI1-Average",
-                      stg_recipe_inputs.materialInputQuantity * stg_market_depth."AI1-Average" as "total cost",
+                      -- Ask Price is seller, You buy from them --
+                      stg_market_depth."AI1-AskPrice",
+                      stg_recipe_inputs.materialInputQuantity * stg_market_depth."AI1-AskPrice" as "material_input_total_cost",
                       stg_recipe_inputs.materialOutputQuantity,
                       stg_recipe_inputs.materialOutput
                from stg_market_depth
