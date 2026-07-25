@@ -24,6 +24,19 @@ python3 -m venv dbt-demo
 
 Virtual environment to keep dependencies local to repo
 source dbt-demo/bin/activate
+
+# 1. Deactivate the current environment
+deactivate
+
+# 2. Delete the dbt-demo folder
+rm -rf dbt-demo
+
+# 3. Create a fresh virtual environment named dbt-demo
+python3 -m venv dbt-demo
+
+# 4. Activate it
+source dbt-demo/bin/activate
+
 pip freeze
 pip install -r requirements.txt
 pip freeze
@@ -35,6 +48,7 @@ To check database connection is correct:
 /Users/jonathankee/.dbt/profiles.yml
 
 Check if connection is correct:
+cd dbtproject
 dbt debug
 
 Make dbt create table or view inside postgres:
