@@ -173,6 +173,7 @@ FROM '/tmp/recipeInputs.csv'
 WITH (FORMAT csv, HEADER true, NULL '');
 
 # Resources to learn DBT:
+Building your First Model:
 https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=3
 
 Default materialization is a view in dbt
@@ -216,6 +217,7 @@ So while your raw warehouse tables are technically the true Bronze layer, your d
 
 *** DBT does not handle ingestion ***
 
+Troubleshooting dbt run
 https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=6
 
 Build customers upstreams objects (build the dependencies table / view first)
@@ -224,6 +226,7 @@ dbt run --select +customers
 Build customers upstreams & downstreams objects (build the dependencies table / view first)
 dbt run --select +customers+
 
+Naming Conventions
 https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=8
 
 Model Naming Conventions
@@ -246,6 +249,7 @@ stream: sessions, transactions, orders, stories, votes
 Each row is a person, place, or thing; Mutable, through slowly changing: customers,
 products, candidates, buildings, employees
 
+Materialization Strategies
 https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=10
 
 Staging models best practices is to use view, these are connected to sources, and constantly new records in sources,
@@ -257,6 +261,7 @@ if marts models materialize as table, the records are already transformed and no
 
 The + for +materialized is to indicate it's a property and not a folder.
 
+References Sources in Staging Models
 https://learn.getdbt.com/learn/course/dbt-fundamentals/sources-60min/understanding-sources?page=5
 
 Sources and Staging models should have a 1 to 1 relationship, so each source should only feed into one staging model
