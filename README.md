@@ -224,6 +224,28 @@ dbt run --select +customers
 Build customers upstreams & downstreams objects (build the dependencies table / view first)
 dbt run --select +customers+
 
+https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=8
+
+Model Naming Conventions
+- Source
+Tables of raw data that were loaded into your data warehouse
+
+- Staging
+Make the data look like what you wished it looked like. This involves things like
+renaming columns, casting data types, or currency conversions
+
+- Intermediate
+Joins and aggregations will occur. These should not depend directly on sources.
+Instead they should depend on the staging models
+
+- Fact
+Real-world processes that have occured or are occuring. Usually an immutable event
+stream: sessions, transactions, orders, stories, votes
+
+- Dimensions
+Each row is a person, place, or thing; Mutable, through slowly changing: customers,
+products, candidates, buildings, employees
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view

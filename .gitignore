@@ -146,3 +146,5 @@ vite.config.ts.timestamp-*
 dbt-demo
 # Intellij
 .idea
+# Mac
+.DS_Store
