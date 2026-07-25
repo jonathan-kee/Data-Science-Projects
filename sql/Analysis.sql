@@ -36,3 +36,10 @@ RoiPerDay as (
     from aggregates
 )
 select * from RoiPerDay
+
+-- 'AL' is ticker for aluminium
+-- Ask Price is seller, You buy from them
+-- Bid Price is buyer, You sell to them
+select "AI1-AskPrice" , "AI1-BidPrice"
+from raw.stg_market_depth
+where "Ticker" = 'AL'
