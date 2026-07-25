@@ -1,0 +1,7 @@
+sources:
+  - name: prosperous_universe sources
+    database: postgres
+    schema: raw
+    tables:
+      - name: market_depth_raw
+      - name: recipe_inputs_raw
