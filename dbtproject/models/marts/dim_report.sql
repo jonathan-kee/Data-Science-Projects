@@ -22,35 +22,35 @@ with
     ),
     material_output_total_cost as (
         select
-            totalcost.original_query,
-            totalcost.prefix,
-            totalcost.materialinputquantity,
-            totalcost.materialinput,
-            totalcost."AI1-Average" as "material input's AI1-Average",
-            totalcost."total cost" as "material input's total cost",
-            totalcost.materialoutputquantity,
-            totalcost.materialoutput,
+            material_input_total_cost.original_query,
+            material_input_total_cost.prefix,
+            material_input_total_cost.materialinputquantity,
+            material_input_total_cost.materialinput,
+            material_input_total_cost."AI1-Average" as "material input's AI1-Average",
+            material_input_total_cost."total cost" as "material input's total cost",
+            material_input_total_cost.materialoutputquantity,
+            material_input_total_cost.materialoutput,
             stg_market_depth."AI1-Average" as "material output's AI1-Average",
-            totalcost.materialoutputquantity
+            material_input_total_cost.materialoutputquantity
             * stg_market_depth."AI1-Average" as "material output's total price",
-            (totalcost.materialoutputquantity * stg_market_depth."AI1-Average")
-            - totalcost."total cost" as profit,
+            (material_input_total_cost.materialoutputquantity * stg_market_depth."AI1-Average")
+            - material_input_total_cost."total cost" as profit,
             (
                 stg_recipe_inputs_time.time_ms / 60000
             ) as "time taken per order in minutes",
             (24 * 60)
             / (stg_recipe_inputs_time.time_ms / 60000) as "total_order_per_day"
         from stg_market_depth
-        left join totalcost on totalcost.materialoutput = stg_market_depth."Ticker"
+        left join material_input_total_cost on material_input_total_cost.materialoutput = stg_market_depth."Ticker"
         left join
             stg_recipe_inputs_time
-            on stg_recipe_inputs_time.prefix = totalcost.prefix
+            on stg_recipe_inputs_time.prefix = material_input_total_cost.prefix
             and stg_recipe_inputs_time.materialinputquantity
-            = totalcost.materialinputquantity
-            and stg_recipe_inputs_time.materialinput = totalcost.materialinput
+            = material_input_total_cost.materialinputquantity
+            and stg_recipe_inputs_time.materialinput = material_input_total_cost.materialinput
             and stg_recipe_inputs_time.materialoutputquantity
-            = totalcost.materialoutputquantity
-            and stg_recipe_inputs_time.materialoutput = totalcost.materialoutput
+            = material_input_total_cost.materialoutputquantity
+            and stg_recipe_inputs_time.materialoutput = material_input_total_cost.materialoutput
     -- The problem with the above query is that I can only accurately get one of the
     -- total cost,
     -- need to split the data
