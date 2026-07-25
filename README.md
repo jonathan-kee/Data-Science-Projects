@@ -216,6 +216,14 @@ So while your raw warehouse tables are technically the true Bronze layer, your d
 
 *** DBT does not handle ingestion ***
 
+https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=6
+
+Build customers upstreams objects (build the dependencies table / view first)
+dbt run --select +customers
+
+Build customers upstreams & downstreams objects (build the dependencies table / view first)
+dbt run --select +customers+
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
