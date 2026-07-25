@@ -5,3 +5,4 @@ sources:
     tables:
       - name: market_depth_raw
       - name: recipe_inputs_raw
+      - name: recipe_inputs_time_raw

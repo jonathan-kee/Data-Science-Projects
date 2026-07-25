@@ -5,6 +5,9 @@ with stg_market_depth as (
 stg_recipe_inputs as (
     select * from {{ref("stg_recipe_inputs")}}
 ),
+stg_recipe_inputs_time as (
+    select * from {{ref("stg_recipe_inputs_time")}}
+),
 totalCost AS (select stg_recipe_inputs.original_query,
                       stg_recipe_inputs.prefix,
                       stg_recipe_inputs.materialInputQuantity,
@@ -27,8 +30,15 @@ totalCost.materialOutputQuantity,
 totalCost.materialOutput,
 stg_market_depth."AI1-Average" as "material output's AI1-Average",
 totalCost.materialOutputQuantity * stg_market_depth."AI1-Average" as "material output's total price",
-(totalCost.materialOutputQuantity * stg_market_depth."AI1-Average") - totalCost."total cost" as profit
-from stg_market_depth left join totalCost on totalCost.materialOutput = stg_market_depth."Ticker"
+(totalCost.materialOutputQuantity * stg_market_depth."AI1-Average") - totalCost."total cost" as profit,
+stg_recipe_inputs_time.time_ms as "time taken per run"
+from stg_market_depth 
+left join totalCost on totalCost.materialOutput = stg_market_depth."Ticker"
+left join stg_recipe_inputs_time on stg_recipe_inputs_time.prefix = totalCost.prefix 
+and stg_recipe_inputs_time.materialInputQuantity = totalCost.materialInputQuantity
+and stg_recipe_inputs_time.materialInput = totalCost.materialInput
+and stg_recipe_inputs_time.materialOutputQuantity = totalCost.materialOutputQuantity
+and stg_recipe_inputs_time.materialOutput = totalCost.materialOutput
 -- The problem with the above query is that I can only accurately get one of the total cost,
 -- need to split the data
 )
