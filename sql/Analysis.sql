@@ -5,6 +5,7 @@ with aggregates as (
         max(raw.dim_report.total_order_per_day) as "total_order_per_day"
     from raw.dim_report
     where materialoutput = 'AL' and materialoutputquantity = 3
+    -- and materialinput <> 'ALO' -- Comment Out to remove ALO because base already produce ALO
 ),
 RoiPerDay as (
     select
