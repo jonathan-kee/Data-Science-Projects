@@ -1,5 +1,9 @@
-CREATE DATABASE prosperous_universe
-CREATE SCHEMA IF NOT EXISTS raw
+CREATE DATABASE prosperous_universe;
+
+-- Make sure execute schema and table on correct database
+select current_database();
+
+CREATE SCHEMA IF NOT EXISTS raw;
 
 CREATE TABLE raw.market_depth_raw (
     "Ticker"        VARCHAR(10) PRIMARY KEY,
