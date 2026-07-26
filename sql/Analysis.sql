@@ -5,7 +5,7 @@ with aggregates as (
         max(raw.dim_report.material_output_total_sell_price) as "material_output_total_sell_price",
         max(raw.dim_report.total_order_per_day) as "total_order_per_day"
     from raw.dim_report
-    where materialoutput = 'AL' and materialoutputquantity = 3
+    where materialoutput = 'AL' and materialoutputquantity = 4
     -- and materialinput <> 'ALO' -- Comment Out to remove ALO because base already produce ALO
 ),
 RoiPerDay as (
@@ -43,3 +43,27 @@ select * from RoiPerDay
 select "AI1-AskPrice" , "AI1-BidPrice"
 from raw.stg_market_depth
 where "Ticker" = 'AL'
+
+-- Group By Aggregate for SME (Smelter) --
+-- PrunPlanner  4xAL    6568.92
+-- Mine         4xAL    6115.54
+-- If I group by common data like prefix and materialoutputquantity, materialoutput, I can squish the data
+with aggregates as (select prefix,
+                           materialoutputquantity,
+                           materialoutput,
+                           Sum(raw.dim_report.material_input_total_cost)        as "material_input_total_cost",
+                           max(raw.dim_report.material_output_total_sell_price) as "material_output_total_sell_price",
+                           max(raw.dim_report.total_order_per_day)              as "total_order_per_day"
+                    from raw.dim_report
+                    where prefix = 'SME'
+                    and materialinput <> 'ALO'
+                    group by prefix, materialoutputquantity, materialoutput),
+RoiPerDay as (
+    select
+        prefix,
+        materialoutputquantity,
+        materialoutput,
+        (aggregates."material_output_total_sell_price" - aggregates."material_input_total_cost") * aggregates."total_order_per_day" as RoiPerDay
+    from aggregates
+)
+select * from RoiPerDay order by RoiPerDay desc
