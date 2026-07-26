@@ -5,6 +5,10 @@
 
 ![First Profitable Run](./screenshots/FirstProfitableRun.png)
 
+[Report Lineage](./screenshots/SMEReportLineage.png)
+
+![Report Lineage](./screenshots/SMEReportLineage.png)
+
 [Dbt Lineage working](./screenshots/dbtlineage.png)
 
 ![Dbt Lineage working](./screenshots/dbtlineage.png)
