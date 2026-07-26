@@ -1,36 +1,61 @@
 import os
 import datetime
-import pandas as pd 
+import pandas as pd
+from pathlib import Path
 from sqlalchemy import create_engine
 
-path = "/Users/jonathankee/Data-Science-Projects/csv/prices_24072026.csv"
+def load_csv_to_postgres(path: str, engine) -> None:
+    """
+    Reads a CSV file, prepends a timestamp column, and writes the data 
+    into a PostgreSQL table named after the CSV file prefix.
+    """
+    # Parse filename information
+    filename = os.path.basename(path)  # 'prices_24072026.csv'
+    name_without_ext = os.path.splitext(filename)[0]  # 'prices_24072026'
+    prefix, date_str = name_without_ext.split("_")  # 'prices', '24072026'
 
-filename = os.path.basename(path)  # 'prices_24072026.csv'
-name_without_ext = os.path.splitext(filename)[0]  # 'prices_24072026'
-prefix, date_str = name_without_ext.split("_")  # 'prices', '24072026'
+    # Read data
+    df = pd.read_csv(path, sep=',', header='infer')
 
-df = pd.read_csv(path, sep=',', header='infer')
+    # Format date_str ('24072026') into 'DD/MM/YYYY'
+    formatted_date = f"{date_str[:2]}/{date_str[2:4]}/{date_str[4:]}"
+    
+    # Get current time (HH:MM:SS)
+    current_time = datetime.datetime.now().strftime("%H:%M:%S")
+    
+    # Combine formatted date with current time
+    load_time_str = f"{formatted_date} {current_time}"
+    
+    df.insert(0, "load time", load_time_str)
 
-# 1. Format the current time (DD/MM/YYYY HH:MM:SS)
-load_time_str = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    print(df)
 
-# 2. Insert at index position 0 (the front)
-# df.insert(location, column_name, value)
-df.insert(0, "load time", load_time_str)
+    # Write to database
+    target_schema = "raw"
+    with engine.begin() as connection:
+        df.to_sql(
+            name=prefix,          # Table name derived from filename prefix
+            con=connection, 
+            schema=target_schema, 
+            if_exists="append",
+            index=False
+        )
 
-print(df)
+    print(f"Successfully written to {target_schema}.{prefix}!")
 
-# Create sql alchemy engine object
-engine = create_engine("postgresql+psycopg2://postgres:abc123@localhost/prosperous_universe", echo=True)
 
-# Write to the 'raw' schema
-with engine.begin() as connection:
-    df.to_sql(
-        name=prefix, # Name of table: prices
-        con=connection, 
-        schema="raw",         # <--- Specify your target schema here
-        if_exists="replace", 
-        index=False
-    )
+# Example usage:
+if __name__ == "__main__":
+    folder = Path("/Users/jonathankee/Data-Science-Projects/csv")
 
-print("Successfully written to raw.testing!")
+    # Find all CSV files starting with "prices" inside the directory
+    price_paths = [str(p) for p in folder.glob("prices*.csv")]
+
+    print(price_paths)
+
+    db_engine = create_engine("postgresql+psycopg2://postgres:abc123@localhost/prosperous_universe", echo=True)
+
+    for path in price_paths:
+        print(f"Processing path: {path}")
+        load_csv_to_postgres(path, db_engine)
+    
