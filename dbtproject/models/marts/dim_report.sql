@@ -37,8 +37,7 @@ with
             (
                 stg_recipe_inputs_time.time_ms / 60000
             ) as "time_taken_per_order_in_minutes",
-            (24 * 60)
-            / (stg_recipe_inputs_time.time_ms / 60000) as "total_order_per_day"
+            CAST((24 * 60) / CAST((stg_recipe_inputs_time.time_ms / 60000) AS DECIMAL(10, 2)) AS DECIMAL(10, 2)) as "total_order_per_day"
         from stg_market_depth
         left join
             material_input_total_cost_cte
