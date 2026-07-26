@@ -34,7 +34,7 @@ def load_csv_to_postgres(path: str, engine) -> None:
     target_schema = "raw"
     with engine.begin() as connection:
         df.to_sql(
-            name=prefix,          # Table name derived from filename prefix
+            name=prefix + "_raw",          # Table name derived from filename prefix
             con=connection, 
             schema=target_schema, 
             if_exists="append",
