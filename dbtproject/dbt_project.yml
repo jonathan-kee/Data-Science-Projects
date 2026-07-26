@@ -40,3 +40,5 @@ models:
     # if marts models materialize as table, the records are already transformed and no need to spend time to do transformation. 
     marts:
       +materialized: table
+    analytics:
+      +materialized: view
