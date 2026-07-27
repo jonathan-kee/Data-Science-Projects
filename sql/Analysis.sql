@@ -67,3 +67,40 @@ RoiPerDay as (
     from aggregates
 )
 select * from RoiPerDay order by RoiPerDay desc
+
+
+-- The longer the time span, the less urgent you want to sell --
+WITH entire_period as (
+    select raw.stg_cxpc_al_ai1."date_part" ,raw.stg_cxpc_al_ai1."High"
+    from raw.stg_cxpc_al_ai1
+    WHERE "Interval" = 'DAY_ONE' and
+    "date_part" between (
+        select min("date_part") as "start_date"
+                   from raw.stg_cxpc_al_ai1
+                   WHERE "Interval" = 'DAY_ONE'
+        ) and (
+            select max("date_part") as "end_date"
+                   from raw.stg_cxpc_al_ai1
+                   WHERE "Interval" = 'DAY_ONE'
+        )
+    order by 1
+),
+maximum_high as (
+    select max("High")
+    from entire_period
+    )
+select * from maximum_high;
+
+-- The shorter the time span, the more urgent you want to sell --
+WITH one_month as (
+    select raw.stg_cxpc_al_ai1."date_part" ,raw.stg_cxpc_al_ai1."High"
+    from raw.stg_cxpc_al_ai1
+    WHERE "Interval" = 'DAY_ONE' and
+    "date_part" between '2026-07-01' and '2026-07-26'
+    order by 1 desc
+),
+maximum_high as (
+    select max("High")
+    from one_month
+    )
+select * from maximum_high;
