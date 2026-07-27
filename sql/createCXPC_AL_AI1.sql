@@ -1,4 +1,7 @@
-create table cxpc_AL_AI1
+-- Make sure execute schema and table on correct database
+SELECT current_database();
+
+CREATE TABLE raw.cxpc_AL_AI1
 (   "Interval"           varchar(20),
     "DateEpochMs"   numeric(15, 2),
     "Open"  numeric(15, 2),
