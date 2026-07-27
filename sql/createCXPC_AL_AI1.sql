@@ -1,7 +1,7 @@
 -- Make sure execute schema and table on correct database
 SELECT current_database();
 
-CREATE TABLE raw.cxpc_AL_AI1
+CREATE TABLE raw.cxpc_AL_AI1_raw
 (   "Interval"           varchar(20),
     "DateEpochMs"   numeric(15, 2),
     "Open"  numeric(15, 2),
@@ -12,7 +12,7 @@ CREATE TABLE raw.cxpc_AL_AI1
     "Traded"  numeric(15, 2)
 );
 
-INSERT INTO raw.cxpc_AL_AI1 ("Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume","Traded")
+INSERT INTO raw.cxpc_AL_AI1_raw ("Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume","Traded")
 VALUES ('DAY_ONE',1690156800000,550,526,577,525,340619,608),
 ('DAY_ONE',1690243200000,527,523,577,523,1200661,2217),
 ('DAY_ONE',1690329600000,535,535,550,535,155896,290),
