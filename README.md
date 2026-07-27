@@ -20,6 +20,26 @@ https://github.com/massgravel/Microsoft-Activation-Scripts
 Link to website download for Mac Os:
 https://massgrave.dev/office_for_mac
 
+# Excel Reports
+How to bucket data guide:
+https://edferrero.com/index.php/en/blog
+
+Resource to learn more:
+https://link.springer.com/book/10.1007/978-3-031-70584-7
+
+
+*** Important fact, you need to consult GBT if formula will apply on reference table that is filtered ***
+^
+The best way is to filter the data and just put the data into a new sheet, then formula on that new sheet.
+
+Excel Sheet: stg_cxpc_al_ai1
+
+[Bucket open price](./screenshots/bucketPrice.png)
+
+![Bucket open price](./screenshots/bucketPrice.png)
+
+I decided to bucket (20 bucket) the chart data for AL.A1 , so because Seller Price now is 1470, and it's position is tail end of the buckets, does this mean the Seller Price will go higher / trending up? 
+
 # DBT Website crendentials
 E4J8NLKAYRZ67GK5XWMDDKBR
 
