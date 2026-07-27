@@ -31323,7 +31323,7 @@ let data = [
 ]
 
 let lengthOfArrayOfJson = data.length;
-let sb = `INSERT INTO raw.cpx_AL_AI1 ("Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume","Traded")
+let sb = `INSERT INTO raw.cxpc_AL_AI1 ("Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume","Traded")
 VALUES `
 for(let i = 0; i< lengthOfArrayOfJson;i++){
     sb+="('"+data[i].Interval+"',"+data[i].DateEpochMs+","+data[i].Open+","+data[i].Close+","+data[i].High+","+data[i].Low+","+data[i].Volume+","+data[i].Traded+")"+",\n";
