@@ -31326,7 +31326,7 @@ let lengthOfArrayOfJson = data.length;
 let sb = `INSERT INTO raw.cpx_AL_AI1 ("Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume","Traded")
 VALUES `
 for(let i = 0; i< lengthOfArrayOfJson;i++){
-    sb+="('"+data[0].Interval+"',"+data[0].DateEpochMs+","+data[0].Open+","+data[0].Close+","+data[0].High+","+data[0].Low+","+data[0].Volume+","+data[0].Traded+")"+",\n";
+    sb+="('"+data[i].Interval+"',"+data[i].DateEpochMs+","+data[i].Open+","+data[i].Close+","+data[i].High+","+data[i].Low+","+data[i].Volume+","+data[i].Traded+")"+",\n";
 
 }
 sb=sb.slice(0, -2);
