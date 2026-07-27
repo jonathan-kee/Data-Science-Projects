@@ -114,17 +114,62 @@ maximum_high as (
     )
 select * from maximum_high;
 
-WITH two_month as (
+WITH three_month as (
     select raw.stg_cxpc_al_ai1."date_part"::date ,raw.stg_cxpc_al_ai1."High"
     from raw.stg_cxpc_al_ai1
     WHERE "Interval" = 'DAY_ONE' and
-    "date_part"::date between (date_trunc('month', '2026-07-26'::date) - INTERVAL '1 months')::date and '2026-07-26'::date
+    "date_part"::date between (date_trunc('month', '2026-07-26'::date) - INTERVAL '2 months')::date and '2026-07-26'::date
     order by 1 desc
 ),
 maximum_high as (
     select max("High"),
-        (date_trunc('month', '2026-07-26'::date) - INTERVAL '1 months')::date as "start_date",
+        (date_trunc('month', '2026-07-26'::date) - INTERVAL '2 months')::date as "start_date",
         '2026-07-26'::date as "end_date"
-    from two_month
+    from three_month
+    )
+select * from maximum_high;
+
+WITH six_month as (
+    select raw.stg_cxpc_al_ai1."date_part"::date ,raw.stg_cxpc_al_ai1."High"
+    from raw.stg_cxpc_al_ai1
+    WHERE "Interval" = 'DAY_ONE' and
+    "date_part"::date between (date_trunc('month', '2026-07-26'::date) - INTERVAL '5 months')::date and '2026-07-26'::date
+    order by 1 desc
+),
+maximum_high as (
+    select max("High"),
+        (date_trunc('month', '2026-07-26'::date) - INTERVAL '5 months')::date as "start_date",
+        '2026-07-26'::date as "end_date"
+    from six_month
+    )
+select * from maximum_high;
+
+WITH nine_month as (
+    select raw.stg_cxpc_al_ai1."date_part"::date ,raw.stg_cxpc_al_ai1."High"
+    from raw.stg_cxpc_al_ai1
+    WHERE "Interval" = 'DAY_ONE' and
+    "date_part"::date between (date_trunc('month', '2026-07-26'::date) - INTERVAL '8 months')::date and '2026-07-26'::date
+    order by 1 desc
+),
+maximum_high as (
+    select max("High"),
+        (date_trunc('month', '2026-07-26'::date) - INTERVAL '8 months')::date as "start_date",
+        '2026-07-26'::date as "end_date"
+    from nine_month
+    )
+select * from maximum_high;
+
+WITH twelve_month as (
+    select raw.stg_cxpc_al_ai1."date_part"::date ,raw.stg_cxpc_al_ai1."High"
+    from raw.stg_cxpc_al_ai1
+    WHERE "Interval" = 'DAY_ONE' and
+    "date_part"::date between (date_trunc('month', '2026-07-26'::date) - INTERVAL '11 months')::date and '2026-07-26'::date
+    order by 1 desc
+),
+maximum_high as (
+    select max("High"),
+        (date_trunc('month', '2026-07-26'::date) - INTERVAL '11 months')::date as "start_date",
+        '2026-07-26'::date as "end_date"
+    from twelve_month
     )
 select * from maximum_high;
