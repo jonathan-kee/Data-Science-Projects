@@ -83,10 +83,16 @@ WITH entire_period as (
                    from raw.stg_cxpc_al_ai1
                    WHERE "Interval" = 'DAY_ONE'
         )
-    order by 1
+    order by 1 desc
 ),
 maximum_high as (
-    select max("High")
+    select max("High"),
+           (select min("date_part") as "start_date"
+                   from raw.stg_cxpc_al_ai1
+                   WHERE "Interval" = 'DAY_ONE') as "start_date",
+    (select max("date_part") as "end_date"
+                   from raw.stg_cxpc_al_ai1
+                   WHERE "Interval" = 'DAY_ONE') as "end_date"
     from entire_period
     )
 select * from maximum_high;
@@ -100,7 +106,9 @@ WITH one_month as (
     order by 1 desc
 ),
 maximum_high as (
-    select max("High")
+    select max("High"),
+        '2026-07-01' as "start_date",
+        '2026-07-26' as "end_date"
     from one_month
     )
 select * from maximum_high;
