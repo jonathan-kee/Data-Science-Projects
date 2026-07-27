@@ -245,9 +245,14 @@ entire_period as (select raw.stg_cxpc_al_ai1."date_part", raw.stg_cxpc_al_ai1."H
                               from raw.stg_cxpc_al_ai1
                               WHERE "Interval" = 'DAY_ONE') as "end_date"
                       from entire_period)
+(SELECT 'today period' as "period", raw.stg_cxpc_al_ai1."High" as "max", '2026-07-26'::date as "start_date", '2026-07-26'::date as "end_date"
+from raw.stg_cxpc_al_ai1
+WHERE "Interval" = 'DAY_ONE'
+AND "date_part"::date = '2026-07-26'::date)
+UNION ALL
 SELECT '1st month period' as "period", * FROM begining_month_maximum_high
 UNION ALL
-SELECT '2nd month period' as "period",* FROM three_month_maximum_high
+SELECT '3rd month period' as "period",* FROM three_month_maximum_high
 UNION ALL
 SELECT '6th month period' as "period",* FROM six_month_maximum_high
 UNION ALL
@@ -256,4 +261,3 @@ UNION ALL
 SELECT '12th month period' as "period",* FROM twelve_month_maximum_high
 UNION ALL
 SELECT 'entire period' as "period",* FROM entire_period_maximum_high;
-
