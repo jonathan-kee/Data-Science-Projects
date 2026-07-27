@@ -69,6 +69,7 @@ RoiPerDay as (
 select * from RoiPerDay order by RoiPerDay desc
 
 
+-- (Need to convert to date for more accurate comparison)
 -- The longer the time span, the less urgent you want to sell --
 WITH entire_period as (
     select raw.stg_cxpc_al_ai1."date_part" ,raw.stg_cxpc_al_ai1."High"
@@ -98,17 +99,32 @@ maximum_high as (
 select * from maximum_high;
 
 -- The shorter the time span, the more urgent you want to sell --
-WITH one_month as (
-    select raw.stg_cxpc_al_ai1."date_part" ,raw.stg_cxpc_al_ai1."High"
+WITH begining_month as (
+    select raw.stg_cxpc_al_ai1."date_part"::date ,raw.stg_cxpc_al_ai1."High"
     from raw.stg_cxpc_al_ai1
     WHERE "Interval" = 'DAY_ONE' and
-    "date_part" between '2026-07-01' and '2026-07-26'
+    "date_part"::date between date_trunc('month', '2026-07-26'::date)::date and '2026-07-26'::date
     order by 1 desc
 ),
 maximum_high as (
     select max("High"),
-        '2026-07-01' as "start_date",
-        '2026-07-26' as "end_date"
-    from one_month
+        date_trunc('month', '2026-07-26'::date)::date as "start_date",
+        '2026-07-26'::date as "end_date"
+    from begining_month
+    )
+select * from maximum_high;
+
+WITH two_month as (
+    select raw.stg_cxpc_al_ai1."date_part"::date ,raw.stg_cxpc_al_ai1."High"
+    from raw.stg_cxpc_al_ai1
+    WHERE "Interval" = 'DAY_ONE' and
+    "date_part"::date between (date_trunc('month', '2026-07-26'::date) - INTERVAL '1 months')::date and '2026-07-26'::date
+    order by 1 desc
+),
+maximum_high as (
+    select max("High"),
+        (date_trunc('month', '2026-07-26'::date) - INTERVAL '1 months')::date as "start_date",
+        '2026-07-26'::date as "end_date"
+    from two_month
     )
 select * from maximum_high;
