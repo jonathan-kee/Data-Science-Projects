@@ -34,11 +34,19 @@ The best way is to filter the data and just put the data into a new sheet, then 
 
 Excel Sheet: stg_cxpc_al_ai1
 
-[Bucket open price](./screenshots/bucketPrice.png)
+[First Iteration of Bucket open price](./screenshots/bucketPrice.png)
 
-![Bucket open price](./screenshots/bucketPrice.png)
+![First Iteration of Bucket open price](./screenshots/bucketPrice.png)
+
+[Second Iteration of Bucket open price](./screenshots/bucketPrice2.png)
+
+![Second Iteration of Bucket open price](./screenshots/bucketPrice2.png)
 
 I decided to bucket (20 bucket) the chart data for AL.A1 , so because Seller Price now is 1470, and it's position is tail end of the buckets, does this mean the Seller Price will go higher / trending up? 
+
+Question: How do know which date do I want to filter the data? So that the chart make sense, it will not be entire data because 500 to 1000 range is too low, I think
+I have to find the new floor.
+I guess you can create a ranking for the lowest open prices, and their dates
 
 # DBT Website crendentials
 E4J8NLKAYRZ67GK5XWMDDKBR
