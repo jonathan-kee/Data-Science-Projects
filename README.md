@@ -1,5 +1,9 @@
 # Data-Science-Projects
 
+Resources to learn Python:
+https://www.syntaxshift.dev/courses/from-java-to-python
+https://blu3r4y.github.io/python-for-java-developers/excerpt.html
+
 # Project Highlights
 [First Profitable Run](./screenshots/FirstProfitableRun.png)
 
