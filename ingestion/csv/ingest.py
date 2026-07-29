@@ -46,7 +46,7 @@ def load_csv_to_postgres(path: str, engine) -> None:
 
 # Example usage:
 if __name__ == "__main__":
-    folder = Path("/Users/jonathankee/Data-Science-Projects/csv")
+    folder = Path("/Users/jonathankee/Data-Science-Projects/ingestion/csv")
     fileName = "inventory"
     # Find all CSV files starting with fileName inside the directory
     price_paths = [str(p) for p in folder.glob(fileName+"*.csv")]
