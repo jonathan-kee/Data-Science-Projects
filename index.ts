@@ -31,7 +31,7 @@ function getTodayDateFileName(filename: any, extension: any) {
     return filename + "_" + ddMMyyyy + extension;
 }
 
-function LambdaCreateTable(data: any, tablename:string = "cxpc_al_ai1") {
+function LambdaCreateTable(data: any, tablename:string) {
     const columns: string[] = Object.keys(data[0])
     const rowValues = Object.values(data[0]);
     let tuple: [string, string, any];
@@ -57,7 +57,7 @@ function LambdaCreateTable(data: any, tablename:string = "cxpc_al_ai1") {
     return createTable;
 }
 
-function LambdaInsertTable(data: any, tablename:string = "cxpc_al_ai1") {
+function LambdaInsertTable(data: any, tablename:string) {
     const lengthOfData = data.length
     // 1. Initialize string with TRUNCATE TABLE statement
     let insert = `TRUNCATE TABLE raw.${tablename}_raw;\n\n`;
