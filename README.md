@@ -117,17 +117,22 @@ Generate lineage report:
 
 View results: Open dist/index.html in your browser
 
-# Ingestion
+# Ingestion Pipeline commands
 cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
 
-Command to process:
-- cd ingestion/json
-- node cxpc_AL_AI1.js
+Array of Json ingestion:
+- tsc --build --clean 
+- tsc --build  
+- tsc && node ./build/index.js
+
+Csv file ingestion:
+- cd ingestion/csv
+- python ingest.py
 
 Docker command to feed sql file into docker postgres
 - cd injestion/sql
-- docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ./cxpc_AL_AI1_29072026.sql
-
+- docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ./cxpc_AL_AI1_30072026.sql
+- docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ./cxpc_ALO_AI1_30072026.sql
 ^
 This will truncate the existing table and insert the new data, the new data already contain historical data, so there's nothing to worry.
 
