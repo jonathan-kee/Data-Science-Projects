@@ -125,7 +125,11 @@ Command to process:
 - node cxpc_AL_AI1.js
 
 Docker command to feed sql file into docker postgres
-- docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=postgres --username=postgres < output/cxpc_AL_AI1_29072026.sql
+- cd injestion/sql
+- docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ./cxpc_AL_AI1_29072026.sql
+
+^
+This will truncate the existing table and insert the new data, the new data already contain historical data, so there's nothing to worry.
 
 ## Download CSV from api /csv/prices 
 - cd csv
