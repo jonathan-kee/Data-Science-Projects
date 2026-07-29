@@ -1,60 +1,77 @@
 import { readFile } from 'node:fs/promises';
 
-async function readJsonArray(filePath:any) {
-  try {
-    const data = await readFile(filePath, 'utf-8');
-    const jsonArray = JSON.parse(data);
+async function readJsonArray(filePath: any) {
+    try {
+        const data = await readFile(filePath, 'utf-8');
+        const jsonArray = JSON.parse(data);
 
-    if (!Array.isArray(jsonArray)) {
-      throw new Error('The JSON file does not contain a top-level array.');
+        if (!Array.isArray(jsonArray)) {
+            throw new Error('The JSON file does not contain a top-level array.');
+        }
+
+        console.log(`Loaded ${jsonArray.length} items successfully!`);
+        return jsonArray;
+    } catch (error: any) {
+        console.error('Failed to read or parse JSON file:', error.message);
     }
-
-    console.log(`Loaded ${jsonArray.length} items successfully!`);
-    return jsonArray;
-  } catch (error:any) {
-    console.error('Failed to read or parse JSON file:', error.message);
-  }
 }
 
-function getTodayDateFileName(filename:any, extension:any){
-  const today = new Date();
+function getTodayDateFileName(filename: any, extension: any) {
+    const today = new Date();
 
-  const day   = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-  const year  = today.getFullYear();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = today.getFullYear();
 
-  const ddMMyyyy = `${day}${month}${year}`;
-  console.log(ddMMyyyy); // Output: "29072026
+    const ddMMyyyy = `${day}${month}${year}`;
+    console.log(ddMMyyyy); // Output: "29072026
 
-  return filename + "_" + ddMMyyyy + extension;
-} 
+    return filename + "_" + ddMMyyyy + extension;
+}
 
-function Lambda(data:any){
-  console.log(data[0])
-  const columns: string[] = Object.keys(data[0])
-  const rowValues = Object.values(data[0]);
-  for (let i = 0; i < columns.length; i++) {
-    console.log(columns[i] + " : " + typeof rowValues[i] + " : " + rowValues[i])
-  }
+function Lambda(data: any) {
+    const columns: string[] = Object.keys(data[0])
+    const rowValues = Object.values(data[0]);
+    let tuple: [string, string, any];
+    let arrayOfTuple: [string, string, any][] = [];
+
+    for (let i = 0; i < columns.length; i++) {
+        if (typeof rowValues[i] == 'string') {
+            tuple = [columns[i], "varchar(20)", rowValues[i]]
+        } else if (typeof rowValues[i] == 'number') {
+            tuple = [columns[i], "numeric(15, 2)", rowValues[i]]
+        } else {
+            tuple = [columns[i], "varchar(20)", rowValues[i]]
+        }
+        arrayOfTuple.push(tuple);
+    }
+
+    for (let i = 0; i < arrayOfTuple.length; i++) {
+        let lengthOfTuple = arrayOfTuple[i].length
+        console.log(arrayOfTuple[i])
+        for (let j = 0; j < lengthOfTuple; j++) {
+            // console.log(arrayOfTuple[i][j])
+        }
+    }
 }
 
 async function main() {
-  
-  // label the data that can be generic
-  // generic variables
-  let apiGeneric:string = "https://rest.fnar.net/exchange/cxpc/AL.AI1";
-  let fileNameGeneric:string = "cxpc_AL_AI1";
-  let tableNameGeneric:string = "raw.cxpc_AL_AI1_raw";
-  let columnGeneric:string[] = ["Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume", "Traded"]
-  let lambdaToProcessTheArray;
 
-  const jsonFilePath = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed/' + getTodayDateFileName(fileNameGeneric, ".json");
+    // label the data that can be generic
+    // generic variables
+    let apiGeneric: string = "https://rest.fnar.net/exchange/cxpc/AL.AI1";
+    let fileNameGeneric: string = "cxpc_AL_AI1";
+    let tableNameGeneric: string = "raw.cxpc_AL_AI1_raw";
+    let columnGeneric: string[] = ["Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume", "Traded"]
+    let lambdaToProcessTheArray;
 
-  // Read file on disk
-  let data = await readJsonArray(jsonFilePath);
-  if (!data) return;
+    const jsonFilePath = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed/' + getTodayDateFileName(fileNameGeneric, ".json");
 
-  Lambda(data);
+    // Read file on disk
+    let data = await readJsonArray(jsonFilePath);
+    if (!data) return;
+
+    Lambda(data);
 }
 
 main();
