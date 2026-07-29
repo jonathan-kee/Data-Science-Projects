@@ -1,4 +1,5 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
 
 async function readJsonArray(filePath: any) {
     try {
@@ -46,47 +47,19 @@ function LambdaCreateTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
         arrayOfTuple.push(tuple);
     }
 
-    let createTable = `create table if not exists `+ tablename +`_raw\n(\n`
+    let createTable = `CREATE TABLE IF NOT EXISTS `+ tablename +`_raw\n(\n`
     for (let i = 0; i < arrayOfTuple.length; i++) {
         let lengthOfTuple = arrayOfTuple[i].length
         createTable += '"'+ arrayOfTuple[i][0] + '"      ' + arrayOfTuple[i][1] + ',\n'
     }
     createTable = createTable.slice(0, -2) + '\n);';
-    console.log(createTable)
-
-     // 1. Initialize string with TRUNCATE TABLE statement
-  let insert = `TRUNCATE TABLE ${tablename};\n\n`;
-
-  let insertParenthesis = "("
-  for (let i = 0; i < arrayOfTuple.length; i++) {
-    insertParenthesis += '"'+arrayOfTuple[i][0] + '"' + ","
-  }
-  insertParenthesis = insertParenthesis.slice(0, -1) + ")\nVALUES "
-
-  insert += `INSERT INTO ${tablename} ` + insertParenthesis
-  
-
-  insert += "("
-  for (let i = 0; i < arrayOfTuple.length; i++) {
-    if(typeof arrayOfTuple[i][2] == 'string') {
-        insert += `'${arrayOfTuple[i][2]}'`;
-    } else if (typeof arrayOfTuple[i][2] == 'number'){
-        insert += `${arrayOfTuple[i][2]}`;
-    }
-    insert+= ","
-  }
-  insert = insert.slice(0, -1) + "),"
-
-
-  console.log(insert)
-
-  console.log(arrayOfTuple)
+    return createTable;
 }
 
 function LambdaInsertTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
     const lengthOfData = data.length
     // 1. Initialize string with TRUNCATE TABLE statement
-    let insert = `TRUNCATE TABLE ${tablename};\n\n`;
+    let insert = `TRUNCATE TABLE ${tablename}_raw;\n\n`;
 
     for (let i = 0; i < lengthOfData - 2900; i++){
         const columns: string[] = Object.keys(data[i])
@@ -112,7 +85,7 @@ function LambdaInsertTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
             }
             insertParenthesis = insertParenthesis.slice(0, -1) + ")\nVALUES "
 
-            insert += `INSERT INTO ${tablename} ` + insertParenthesis
+            insert += `INSERT INTO ${tablename}_raw ` + insertParenthesis
         }
         
         insert += "("
@@ -127,7 +100,7 @@ function LambdaInsertTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
         insert = insert.slice(0, -1) + "),\n"
     }
     insert = insert.slice(0, -2) + ';';
-    console.log(insert);
+    return insert;
 }
 
 async function main() {
@@ -146,8 +119,23 @@ async function main() {
     let data = await readJsonArray(jsonFilePath,);
     if (!data) return;
 
-    // LambdaCreateTable(data, fileNameGeneric);
-    LambdaInsertTable(data, fileNameGeneric)
+    let createTable:string = LambdaCreateTable(data, fileNameGeneric);
+    let insertTable:string = LambdaInsertTable(data, fileNameGeneric);
+
+    let fullsql = createTable + "\n\n" + insertTable;
+    console.log(fullsql);
+
+    const outputFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sql';
+    const outputPath = join(outputFolder, getTodayDateFileName(fileNameGeneric, ".sql"));
+
+    try {
+        // 1. Ensure the SQL output folder exists and write the SQL file
+        await mkdir(outputFolder, { recursive: true });
+        await writeFile(outputPath, fullsql, 'utf-8');
+        console.log(`Successfully saved SQL file to: ${outputPath}`);
+      } catch (error:any) {
+        console.error('Error during output or file moving step:', error.message);
+      }
 }
 
 main();
