@@ -30,7 +30,7 @@ async function main() {
   
   // 2. Add INSERT statement header
   sb += `INSERT INTO ${tableName} ("Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume", "Traded")\nVALUES `;
-  
+
   for (let i = 0; i < lengthOfArrayOfJson; i++) {
     sb += `('${data[i].Interval}',${data[i].DateEpochMs},${data[i].Open},${data[i].Close},${data[i].High},${data[i].Low},${data[i].Volume},${data[i].Traded}),\n`;
   }
@@ -38,7 +38,7 @@ async function main() {
   sb = sb.slice(0, -2) + ';';
 
   // --- Output section ---
-  const outputFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed'; // Change to your desired folder path
+  const outputFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sql'; // Change to your desired folder path
   const fileName = 'cxpc_AL_AI1_29072026.sql';
   const outputPath = join(outputFolder, fileName);
 
