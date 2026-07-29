@@ -105,13 +105,15 @@ function LambdaInsertTable(data: any, tablename:string) {
 }
 
 async function main() {
+    const urlString = "https://rest.fnar.net/exchange/cxpc/AL.AI1";
+    const url = new URL(urlString);
+    // pathname will be: "/exchange/cxpc/AL.AI1"
+    const segments = url.pathname.split('/'); 
+    const lastSegment = segments[segments.length - 1]; // "AL.AI1"
+    const [part1, part2] = lastSegment.split('.');
+    let fileNameGeneric: string = "cxpc_"+part1+"_"+part2;
 
-    // label the data that can be generic
-    // generic variables
-    let apiGeneric: string = "https://rest.fnar.net/exchange/cxpc/AL.AI1";
-    let fileNameGeneric: string = "cxpc_AL_AI1";
-
-    const response = await axios.get(apiGeneric, {
+    const response = await axios.get(urlString, {
     headers: {
       'accept': 'application/json'
     },
