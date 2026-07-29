@@ -29,7 +29,7 @@ function getTodayDateFileName(filename: any, extension: any) {
     return filename + "_" + ddMMyyyy + extension;
 }
 
-function Lambda(data: any) {
+function LambdaCreateTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
     const columns: string[] = Object.keys(data[0])
     const rowValues = Object.values(data[0]);
     let tuple: [string, string, any];
@@ -46,13 +46,88 @@ function Lambda(data: any) {
         arrayOfTuple.push(tuple);
     }
 
+    let createTable = `create table if not exists `+ tablename +`_raw\n(\n`
     for (let i = 0; i < arrayOfTuple.length; i++) {
         let lengthOfTuple = arrayOfTuple[i].length
-        console.log(arrayOfTuple[i])
-        for (let j = 0; j < lengthOfTuple; j++) {
-            // console.log(arrayOfTuple[i][j])
-        }
+        createTable += '"'+ arrayOfTuple[i][0] + '"      ' + arrayOfTuple[i][1] + ',\n'
     }
+    createTable = createTable.slice(0, -2) + '\n);';
+    console.log(createTable)
+
+     // 1. Initialize string with TRUNCATE TABLE statement
+  let insert = `TRUNCATE TABLE ${tablename};\n\n`;
+
+  let insertParenthesis = "("
+  for (let i = 0; i < arrayOfTuple.length; i++) {
+    insertParenthesis += '"'+arrayOfTuple[i][0] + '"' + ","
+  }
+  insertParenthesis = insertParenthesis.slice(0, -1) + ")\nVALUES "
+
+  insert += `INSERT INTO ${tablename} ` + insertParenthesis
+  
+
+  insert += "("
+  for (let i = 0; i < arrayOfTuple.length; i++) {
+    if(typeof arrayOfTuple[i][2] == 'string') {
+        insert += `'${arrayOfTuple[i][2]}'`;
+    } else if (typeof arrayOfTuple[i][2] == 'number'){
+        insert += `${arrayOfTuple[i][2]}`;
+    }
+    insert+= ","
+  }
+  insert = insert.slice(0, -1) + "),"
+
+
+  console.log(insert)
+
+  console.log(arrayOfTuple)
+}
+
+function LambdaInsertTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
+    const lengthOfData = data.length
+    // 1. Initialize string with TRUNCATE TABLE statement
+    let insert = `TRUNCATE TABLE ${tablename};\n\n`;
+
+    for (let i = 0; i < lengthOfData - 2900; i++){
+        const columns: string[] = Object.keys(data[i])
+        const rowValues = Object.values(data[i]);
+        let tuple: [string, string, any];
+        let arrayOfTuple: [string, string, any][] = [];
+
+        for (let j = 0; j < columns.length; j++) {
+            if (typeof rowValues[j] == 'string') {
+                tuple = [columns[j], "varchar(20)", rowValues[j]]
+            } else if (typeof rowValues[j] == 'number') {
+                tuple = [columns[j], "numeric(15, 2)", rowValues[j]]
+            } else {
+                tuple = [columns[j], "varchar(20)", rowValues[j]]
+            }
+            arrayOfTuple.push(tuple);
+        }
+
+        if(i==0) {
+            let insertParenthesis = "("
+            for (let i = 0; i < arrayOfTuple.length; i++) {
+                insertParenthesis += '"'+arrayOfTuple[i][0] + '"' + ","
+            }
+            insertParenthesis = insertParenthesis.slice(0, -1) + ")\nVALUES "
+
+            insert += `INSERT INTO ${tablename} ` + insertParenthesis
+        }
+        
+        insert += "("
+        for (let i = 0; i < arrayOfTuple.length; i++) {
+            if(typeof arrayOfTuple[i][2] == 'string') {
+                insert += `'${arrayOfTuple[i][2]}'`;
+            } else if (typeof arrayOfTuple[i][2] == 'number'){
+                insert += `${arrayOfTuple[i][2]}`;
+            }
+            insert+= ","
+        }
+        insert = insert.slice(0, -1) + "),\n"
+    }
+    insert = insert.slice(0, -2) + ';';
+    console.log(insert);
 }
 
 async function main() {
@@ -68,10 +143,11 @@ async function main() {
     const jsonFilePath = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed/' + getTodayDateFileName(fileNameGeneric, ".json");
 
     // Read file on disk
-    let data = await readJsonArray(jsonFilePath);
+    let data = await readJsonArray(jsonFilePath,);
     if (!data) return;
 
-    Lambda(data);
+    // LambdaCreateTable(data, fileNameGeneric);
+    LambdaInsertTable(data, fileNameGeneric)
 }
 
 main();
