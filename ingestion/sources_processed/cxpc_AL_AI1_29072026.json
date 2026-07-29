@@ -9213,11 +9213,11 @@
     "Interval": "DAY_ONE",
     "DateEpochMs": 1785283200000,
     "Open": 1410,
-    "Close": 1500,
+    "Close": 1400,
     "High": 1500,
     "Low": 1400,
-    "Volume": 6687280,
-    "Traded": 4675
+    "Volume": 7391480,
+    "Traded": 5178
   },
   {
     "Interval": "DAY_THREE",
@@ -12293,31 +12293,11 @@
     "Interval": "DAY_THREE",
     "DateEpochMs": 1785110400000,
     "Open": 1320,
-    "Close": 1500,
+    "Close": 1400,
     "High": 1500,
     "Low": 1320,
-    "Volume": 63531408,
-    "Traded": 44433
-  },
-  {
-    "Interval": "HOUR_FOUR",
-    "DateEpochMs": 1782691200000,
-    "Open": 1250,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1210,
-    "Volume": 1947500,
-    "Traded": 1586
-  },
-  {
-    "Interval": "HOUR_FOUR",
-    "DateEpochMs": 1782705600000,
-    "Open": 1210,
-    "Close": 1210,
-    "High": 1290,
-    "Low": 1210,
-    "Volume": 636010,
-    "Traded": 511
+    "Volume": 64235608,
+    "Traded": 44936
   },
   {
     "Interval": "HOUR_FOUR",
@@ -14110,44 +14090,14 @@
     "Traded": 4675
   },
   {
-    "Interval": "HOUR_ONE",
-    "DateEpochMs": 1782691200000,
-    "Open": 1250,
-    "Close": 1250,
-    "High": 1250,
-    "Low": 1250,
-    "Volume": 462500,
-    "Traded": 370
-  },
-  {
-    "Interval": "HOUR_ONE",
-    "DateEpochMs": 1782694800000,
-    "Open": 1210,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1210,
-    "Volume": 1485000,
-    "Traded": 1216
-  },
-  {
-    "Interval": "HOUR_ONE",
-    "DateEpochMs": 1782709200000,
-    "Open": 1210,
-    "Close": 1290,
-    "High": 1290,
-    "Low": 1210,
-    "Volume": 380600,
-    "Traded": 300
-  },
-  {
-    "Interval": "HOUR_ONE",
-    "DateEpochMs": 1782712800000,
-    "Open": 1210,
-    "Close": 1210,
-    "High": 1220,
-    "Low": 1210,
-    "Volume": 255410,
-    "Traded": 211
+    "Interval": "HOUR_FOUR",
+    "DateEpochMs": 1785297600000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 704200,
+    "Traded": 503
   },
   {
     "Interval": "HOUR_ONE",
@@ -19610,24 +19560,44 @@
     "Traded": 304
   },
   {
-    "Interval": "HOUR_SIX",
-    "DateEpochMs": 1782691200000,
-    "Open": 1250,
-    "Close": 1290,
-    "High": 1300,
-    "Low": 1210,
-    "Volume": 2328100,
-    "Traded": 1886
+    "Interval": "HOUR_ONE",
+    "DateEpochMs": 1785297600000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 140000,
+    "Traded": 100
   },
   {
-    "Interval": "HOUR_SIX",
-    "DateEpochMs": 1782712800000,
-    "Open": 1210,
-    "Close": 1260,
-    "High": 1260,
-    "Low": 1210,
-    "Volume": 1768050,
-    "Traded": 1430
+    "Interval": "HOUR_ONE",
+    "DateEpochMs": 1785301200000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 117600,
+    "Traded": 84
+  },
+  {
+    "Interval": "HOUR_ONE",
+    "DateEpochMs": 1785304800000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 295400,
+    "Traded": 211
+  },
+  {
+    "Interval": "HOUR_ONE",
+    "DateEpochMs": 1785308400000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 151200,
+    "Traded": 108
   },
   {
     "Interval": "HOUR_SIX",
@@ -20813,21 +20783,21 @@
     "Interval": "HOUR_SIX",
     "DateEpochMs": 1785283200000,
     "Open": 1410,
-    "Close": 1500,
+    "Close": 1400,
     "High": 1500,
     "Low": 1400,
-    "Volume": 6687280,
-    "Traded": 4675
+    "Volume": 6944880,
+    "Traded": 4859
   },
   {
-    "Interval": "HOUR_TWELVE",
-    "DateEpochMs": 1782691200000,
-    "Open": 1250,
-    "Close": 1260,
-    "High": 1300,
-    "Low": 1210,
-    "Volume": 4096150,
-    "Traded": 3316
+    "Interval": "HOUR_SIX",
+    "DateEpochMs": 1785304800000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 446600,
+    "Traded": 319
   },
   {
     "Interval": "HOUR_TWELVE",
@@ -21423,41 +21393,11 @@
     "Interval": "HOUR_TWELVE",
     "DateEpochMs": 1785283200000,
     "Open": 1410,
-    "Close": 1500,
+    "Close": 1400,
     "High": 1500,
     "Low": 1400,
-    "Volume": 6687280,
-    "Traded": 4675
-  },
-  {
-    "Interval": "HOUR_TWO",
-    "DateEpochMs": 1782691200000,
-    "Open": 1250,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1210,
-    "Volume": 1947500,
-    "Traded": 1586
-  },
-  {
-    "Interval": "HOUR_TWO",
-    "DateEpochMs": 1782705600000,
-    "Open": 1210,
-    "Close": 1290,
-    "High": 1290,
-    "Low": 1210,
-    "Volume": 380600,
-    "Traded": 300
-  },
-  {
-    "Interval": "HOUR_TWO",
-    "DateEpochMs": 1782712800000,
-    "Open": 1210,
-    "Close": 1210,
-    "High": 1220,
-    "Low": 1210,
-    "Volume": 255410,
-    "Traded": 211
+    "Volume": 7391480,
+    "Traded": 5178
   },
   {
     "Interval": "HOUR_TWO",
@@ -24860,74 +24800,24 @@
     "Traded": 304
   },
   {
-    "Interval": "MINUTE_FIFTEEN",
-    "DateEpochMs": 1784695500000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 18200,
-    "Traded": 14
+    "Interval": "HOUR_TWO",
+    "DateEpochMs": 1785297600000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 257600,
+    "Traded": 184
   },
   {
-    "Interval": "MINUTE_FIFTEEN",
-    "DateEpochMs": 1784696400000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 260000,
-    "Traded": 200
-  },
-  {
-    "Interval": "MINUTE_FIFTEEN",
-    "DateEpochMs": 1784698200000,
-    "Open": 1260,
-    "Close": 1260,
-    "High": 1260,
-    "Low": 1260,
-    "Volume": 230580,
-    "Traded": 183
-  },
-  {
-    "Interval": "MINUTE_FIFTEEN",
-    "DateEpochMs": 1784699100000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 26000,
-    "Traded": 20
-  },
-  {
-    "Interval": "MINUTE_FIFTEEN",
-    "DateEpochMs": 1784700000000,
-    "Open": 1260,
-    "Close": 1260,
-    "High": 1260,
-    "Low": 1260,
-    "Volume": 113400,
-    "Traded": 90
-  },
-  {
-    "Interval": "MINUTE_FIFTEEN",
-    "DateEpochMs": 1784700900000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 3900,
-    "Traded": 3
-  },
-  {
-    "Interval": "MINUTE_FIFTEEN",
-    "DateEpochMs": 1784709000000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 539500,
-    "Traded": 415
+    "Interval": "HOUR_TWO",
+    "DateEpochMs": 1785304800000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 446600,
+    "Traded": 319
   },
   {
     "Interval": "MINUTE_FIFTEEN",
@@ -27000,74 +26890,84 @@
     "Traded": 304
   },
   {
-    "Interval": "MINUTE_FIVE",
-    "DateEpochMs": 1784695800000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 18200,
-    "Traded": 14
+    "Interval": "MINUTE_FIFTEEN",
+    "DateEpochMs": 1785298500000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 117600,
+    "Traded": 84
   },
   {
-    "Interval": "MINUTE_FIVE",
-    "DateEpochMs": 1784696400000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 234000,
-    "Traded": 180
+    "Interval": "MINUTE_FIFTEEN",
+    "DateEpochMs": 1785300300000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 22400,
+    "Traded": 16
   },
   {
-    "Interval": "MINUTE_FIVE",
-    "DateEpochMs": 1784697000000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 26000,
-    "Traded": 20
+    "Interval": "MINUTE_FIFTEEN",
+    "DateEpochMs": 1785303000000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 50400,
+    "Traded": 36
   },
   {
-    "Interval": "MINUTE_FIVE",
-    "DateEpochMs": 1784698200000,
-    "Open": 1260,
-    "Close": 1260,
-    "High": 1260,
-    "Low": 1260,
-    "Volume": 230580,
-    "Traded": 183
+    "Interval": "MINUTE_FIFTEEN",
+    "DateEpochMs": 1785303900000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 67200,
+    "Traded": 48
   },
   {
-    "Interval": "MINUTE_FIVE",
-    "DateEpochMs": 1784699700000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 26000,
-    "Traded": 20
+    "Interval": "MINUTE_FIFTEEN",
+    "DateEpochMs": 1785304800000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 36400,
+    "Traded": 26
   },
   {
-    "Interval": "MINUTE_FIVE",
-    "DateEpochMs": 1784700600000,
-    "Open": 1260,
-    "Close": 1260,
-    "High": 1260,
-    "Low": 1260,
+    "Interval": "MINUTE_FIFTEEN",
+    "DateEpochMs": 1785307500000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 259000,
+    "Traded": 185
+  },
+  {
+    "Interval": "MINUTE_FIFTEEN",
+    "DateEpochMs": 1785309300000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
     "Volume": 113400,
-    "Traded": 90
+    "Traded": 81
   },
   {
-    "Interval": "MINUTE_FIVE",
-    "DateEpochMs": 1784701500000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 3900,
-    "Traded": 3
+    "Interval": "MINUTE_FIFTEEN",
+    "DateEpochMs": 1785310200000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 37800,
+    "Traded": 27
   },
   {
     "Interval": "MINUTE_FIVE",
@@ -29510,54 +29410,84 @@
     "Traded": 304
   },
   {
-    "Interval": "MINUTE_THIRTY",
-    "DateEpochMs": 1784694600000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 18200,
-    "Traded": 14
+    "Interval": "MINUTE_FIVE",
+    "DateEpochMs": 1785298500000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 117600,
+    "Traded": 84
   },
   {
-    "Interval": "MINUTE_THIRTY",
-    "DateEpochMs": 1784696400000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 260000,
-    "Traded": 200
+    "Interval": "MINUTE_FIVE",
+    "DateEpochMs": 1785300300000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 22400,
+    "Traded": 16
   },
   {
-    "Interval": "MINUTE_THIRTY",
-    "DateEpochMs": 1784698200000,
-    "Open": 1260,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1260,
-    "Volume": 256580,
-    "Traded": 203
+    "Interval": "MINUTE_FIVE",
+    "DateEpochMs": 1785303000000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 50400,
+    "Traded": 36
   },
   {
-    "Interval": "MINUTE_THIRTY",
-    "DateEpochMs": 1784700000000,
-    "Open": 1260,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1260,
-    "Volume": 117300,
-    "Traded": 93
+    "Interval": "MINUTE_FIVE",
+    "DateEpochMs": 1785304500000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 67200,
+    "Traded": 48
   },
   {
-    "Interval": "MINUTE_THIRTY",
-    "DateEpochMs": 1784709000000,
-    "Open": 1300,
-    "Close": 1300,
-    "High": 1300,
-    "Low": 1300,
-    "Volume": 539500,
-    "Traded": 415
+    "Interval": "MINUTE_FIVE",
+    "DateEpochMs": 1785304800000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 36400,
+    "Traded": 26
+  },
+  {
+    "Interval": "MINUTE_FIVE",
+    "DateEpochMs": 1785308100000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 259000,
+    "Traded": 185
+  },
+  {
+    "Interval": "MINUTE_FIVE",
+    "DateEpochMs": 1785309300000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 113400,
+    "Traded": 81
+  },
+  {
+    "Interval": "MINUTE_FIVE",
+    "DateEpochMs": 1785310500000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 37800,
+    "Traded": 27
   },
   {
     "Interval": "MINUTE_THIRTY",
@@ -31248,5 +31178,75 @@
     "Low": 1500,
     "Volume": 456000,
     "Traded": 304
+  },
+  {
+    "Interval": "MINUTE_THIRTY",
+    "DateEpochMs": 1785297600000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 117600,
+    "Traded": 84
+  },
+  {
+    "Interval": "MINUTE_THIRTY",
+    "DateEpochMs": 1785299400000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 22400,
+    "Traded": 16
+  },
+  {
+    "Interval": "MINUTE_THIRTY",
+    "DateEpochMs": 1785303000000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 117600,
+    "Traded": 84
+  },
+  {
+    "Interval": "MINUTE_THIRTY",
+    "DateEpochMs": 1785304800000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 36400,
+    "Traded": 26
+  },
+  {
+    "Interval": "MINUTE_THIRTY",
+    "DateEpochMs": 1785306600000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 259000,
+    "Traded": 185
+  },
+  {
+    "Interval": "MINUTE_THIRTY",
+    "DateEpochMs": 1785308400000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 113400,
+    "Traded": 81
+  },
+  {
+    "Interval": "MINUTE_THIRTY",
+    "DateEpochMs": 1785310200000,
+    "Open": 1400,
+    "Close": 1400,
+    "High": 1400,
+    "Low": 1400,
+    "Volume": 37800,
+    "Traded": 27
   }
 ]
