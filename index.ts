@@ -105,7 +105,7 @@ function LambdaInsertTable(data: any, tablename:string) {
 }
 
 async function main() {
-    const urlString = "https://rest.fnar.net/exchange/cxpc/AL.AI1";
+    const urlString = "https://rest.fnar.net/exchange/cxpc/ALO.AI1";
     const url = new URL(urlString);
     // pathname will be: "/exchange/cxpc/AL.AI1"
     const segments = url.pathname.split('/'); 
