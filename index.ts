@@ -1,5 +1,6 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
+import { join, basename } from 'node:path';
+import axios from "axios";
 
 async function readJsonArray(filePath: any) {
     try {
@@ -30,7 +31,7 @@ function getTodayDateFileName(filename: any, extension: any) {
     return filename + "_" + ddMMyyyy + extension;
 }
 
-function LambdaCreateTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
+function LambdaCreateTable(data: any, tablename:string = "cxpc_al_ai1") {
     const columns: string[] = Object.keys(data[0])
     const rowValues = Object.values(data[0]);
     let tuple: [string, string, any];
@@ -47,7 +48,7 @@ function LambdaCreateTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
         arrayOfTuple.push(tuple);
     }
 
-    let createTable = `CREATE TABLE IF NOT EXISTS `+ tablename +`_raw\n(\n`
+    let createTable = `CREATE TABLE IF NOT EXISTS raw.`+ tablename +`_raw\n(\n`
     for (let i = 0; i < arrayOfTuple.length; i++) {
         let lengthOfTuple = arrayOfTuple[i].length
         createTable += '"'+ arrayOfTuple[i][0] + '"      ' + arrayOfTuple[i][1] + ',\n'
@@ -56,12 +57,12 @@ function LambdaCreateTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
     return createTable;
 }
 
-function LambdaInsertTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
+function LambdaInsertTable(data: any, tablename:string = "cxpc_al_ai1") {
     const lengthOfData = data.length
     // 1. Initialize string with TRUNCATE TABLE statement
-    let insert = `TRUNCATE TABLE ${tablename}_raw;\n\n`;
+    let insert = `TRUNCATE TABLE raw.${tablename}_raw;\n\n`;
 
-    for (let i = 0; i < lengthOfData - 2900; i++){
+    for (let i = 0; i < lengthOfData; i++){
         const columns: string[] = Object.keys(data[i])
         const rowValues = Object.values(data[i]);
         let tuple: [string, string, any];
@@ -85,7 +86,7 @@ function LambdaInsertTable(data: any, tablename:string = "cxpc_al_ai1_raw") {
             }
             insertParenthesis = insertParenthesis.slice(0, -1) + ")\nVALUES "
 
-            insert += `INSERT INTO ${tablename}_raw ` + insertParenthesis
+            insert += `INSERT INTO raw.${tablename}_raw ` + insertParenthesis
         }
         
         insert += "("
@@ -109,14 +110,22 @@ async function main() {
     // generic variables
     let apiGeneric: string = "https://rest.fnar.net/exchange/cxpc/AL.AI1";
     let fileNameGeneric: string = "cxpc_AL_AI1";
-    let tableNameGeneric: string = "raw.cxpc_AL_AI1_raw";
-    let columnGeneric: string[] = ["Interval", "DateEpochMs", "Open", "Close", "High", "Low", "Volume", "Traded"]
-    let lambdaToProcessTheArray;
 
-    const jsonFilePath = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed/' + getTodayDateFileName(fileNameGeneric, ".json");
+    const response = await axios.get(apiGeneric, {
+    headers: {
+      'accept': 'application/json'
+    },
+    timeout: 5000, // 5 seconds
+  });
+  let stringData = JSON.stringify(response.data, null, 2);
+
+    const jsonFilePath = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed/' + getTodayDateFileName(fileNameGeneric, ".json");
+
+    // null 2 is to format the json properly
+    await writeFile(jsonFilePath, stringData, 'utf-8');
 
     // Read file on disk
-    let data = await readJsonArray(jsonFilePath,);
+    let data = await readJsonArray(jsonFilePath);
     if (!data) return;
 
     let createTable:string = LambdaCreateTable(data, fileNameGeneric);
@@ -125,14 +134,24 @@ async function main() {
     let fullsql = createTable + "\n\n" + insertTable;
     console.log(fullsql);
 
+    // --- Output section ---
     const outputFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sql';
     const outputPath = join(outputFolder, getTodayDateFileName(fileNameGeneric, ".sql"));
+    
+    // --- Processed JSON target directory ---
+    const processedFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed';
+    const processedFilePath = join(processedFolder, basename(jsonFilePath));
 
     try {
         // 1. Ensure the SQL output folder exists and write the SQL file
         await mkdir(outputFolder, { recursive: true });
         await writeFile(outputPath, fullsql, 'utf-8');
         console.log(`Successfully saved SQL file to: ${outputPath}`);
+
+        // 2. Ensure the processed folder exists and move the JSON file
+        await mkdir(processedFolder, { recursive: true });
+        await rename(jsonFilePath, processedFilePath);
+        console.log(`Successfully moved JSON file to: ${processedFilePath}`);
       } catch (error:any) {
         console.error('Error during output or file moving step:', error.message);
       }
