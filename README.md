@@ -118,6 +118,15 @@ Generate lineage report:
 View results: Open dist/index.html in your browser
 
 # Ingestion
+cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
+
+Command to process:
+- cd ingestion/json
+- node cxpc_AL_AI1.js
+
+Docker command to feed sql file into docker postgres
+- docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=postgres --username=postgres < output/cxpc_AL_AI1_29072026.sql
+
 ## Download CSV from api /csv/prices 
 - cd csv
 - curl -s -X GET "https://api.fnar.net/csv/prices?include_header=true" -H "accept: text/csv" -o prices.csv
@@ -433,8 +442,8 @@ https://docs.getdbt.com/reference/dbt_project.yml?version=2.0&name=v2
 Link:
 https://training.enterprisedb.com/learn/courses/147/foundations-of-postgresqlr-v13/lessons/202:71/module6creatingandmanagingdatabases
 
-Command to enter postgres
-docker exec -it postgres-container psql --dbname=postgres --username=postgres --password  
+Command to enter postgres:
+- docker exec -it postgres-container psql --dbname=postgres --username=postgres --password  
 
 ## Object Hierarchy
 postgres=# \l
