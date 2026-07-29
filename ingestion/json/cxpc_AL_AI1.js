@@ -1,5 +1,5 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
+import { join, basename } from 'node:path';
 
 async function readJsonArray(filePath) {
   try {
@@ -18,7 +18,9 @@ async function readJsonArray(filePath) {
 }
 
 async function main() {
-  let data = await readJsonArray('/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed/cxpc_AL_AI1_29072026.json');
+  const jsonFilePath = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed/cxpc_AL_AI1_29072026.json';
+  
+  let data = await readJsonArray(jsonFilePath);
   if (!data) return;
 
   let lengthOfArrayOfJson = data.length;
@@ -38,19 +40,27 @@ async function main() {
   sb = sb.slice(0, -2) + ';';
 
   // --- Output section ---
-  const outputFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sql'; // Change to your desired folder path
+  const outputFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sql';
   const fileName = 'cxpc_AL_AI1_29072026.sql';
   const outputPath = join(outputFolder, fileName);
 
-  try {
-    // Ensure the output folder exists before writing
-    await mkdir(outputFolder, { recursive: true });
+  // --- Processed JSON target directory ---
+  const processedFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed';
+  const processedFilePath = join(processedFolder, basename(jsonFilePath));
 
-    // Write the string to the file as UTF-8
+  try {
+    // 1. Ensure the SQL output folder exists and write the SQL file
+    await mkdir(outputFolder, { recursive: true });
     await writeFile(outputPath, sb, 'utf-8');
     console.log(`Successfully saved SQL file to: ${outputPath}`);
+
+    // 2. Ensure the processed folder exists and move the JSON file
+    await mkdir(processedFolder, { recursive: true });
+    await rename(jsonFilePath, processedFilePath);
+    console.log(`Successfully moved JSON file to: ${processedFilePath}`);
+
   } catch (error) {
-    console.error('Error writing SQL file:', error.message);
+    console.error('Error during output or file moving step:', error.message);
   }
 }
 
