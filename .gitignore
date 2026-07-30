@@ -148,3 +148,6 @@ dbt-demo
 .idea
 # Mac
 .DS_Store
+
+# Typescript build
+build
