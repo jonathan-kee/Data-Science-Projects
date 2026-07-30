@@ -4,3 +4,4 @@ dbt-colibri
 pandas
 SQLAlchemy
 psycopg2
+requests
