@@ -1,14 +1,17 @@
 import os
 import datetime
+import shutil
 import pandas as pd
 from pathlib import Path
 from sqlalchemy import create_engine
 
-def load_csv_to_postgres(path: str, engine) -> None:
+def load_csv_to_postgres(path: Path, engine, target_dir: Path ) -> None:
     """
     Reads a CSV file, prepends a timestamp column, and writes the data 
     into a PostgreSQL table named after the CSV file prefix.
     """
+    path_obj = Path(path)
+    
     # Parse filename information
     filename = os.path.basename(path)  # 'prices_24072026.csv'
     name_without_ext = os.path.splitext(filename)[0]  # 'prices_24072026'
@@ -37,17 +40,29 @@ def load_csv_to_postgres(path: str, engine) -> None:
             name=prefix + "_raw",          # Table name derived from filename prefix
             con=connection, 
             schema=target_schema, 
-            if_exists="append",
+            if_exists="append", # Append is still good because I got load time column from Python
             index=False
         )
 
     print(f"Successfully written to {target_schema}.{prefix}!")
 
+    # Move file after successful write
+    if target_dir:
+        target_dir = Path(target_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)  # Create destination folder if it doesn't exist
+        
+        destination = target_dir / filename
+        shutil.move(str(path_obj), str(destination))
+        print(f"Moved {filename} to {destination}")
+
 
 # Example usage:
 if __name__ == "__main__":
-    folder = Path("/Users/jonathankee/Data-Science-Projects/ingestion/csv")
-    fileName = "inventory"
+    fileName = "inventory" # Name of csv files
+
+    folder = Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed")
+    archive_folder =  Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed")  # Destination directory
+
     # Find all CSV files starting with fileName inside the directory
     price_paths = [str(p) for p in folder.glob(fileName+"*.csv")]
 
@@ -57,5 +72,5 @@ if __name__ == "__main__":
 
     for path in price_paths:
         print(f"Processing path: {path}")
-        load_csv_to_postgres(path, db_engine)
+        load_csv_to_postgres(path, db_engine, target_dir=archive_folder)
     
