@@ -24,7 +24,33 @@ https://github.com/massgravel/Microsoft-Activation-Scripts
 Link to website download for Mac Os:
 https://massgrave.dev/office_for_mac
 
-# Excel Reports
+# Reports
+## SQL Reports
+[SME Report](./screenshots/SMEreports.png)
+
+![SME Report](./screenshots/SMEreports.png)
+
+Shows which Smeltor's recipe shows the highest ROI
+
+[cxpx_al_ai_report_high](./screenshots/cxpx_al_a1_report_high.png)
+
+![cxpx_al_ai_report_high](./screenshots/cxpx_al_a1_report_high.png)
+
+Shows ticker AL (Aluminium) todays's high with previous 1st, 3rd, 6th, 9th, 12th, entire period
+
+[cxpx_alo_ai_report_high](./screenshots/cxpx_alo_a1_report_high.png)
+
+![cxpx_alo_ai_report_high](./screenshots/cxpx_alo_a1_report_high.png)
+
+Shows ticker ALO (Aluminium Ore) todays's high with previous 1st, 3rd, 6th, 9th, 12th, entire period
+
+[inventory Price](./screenshots/inventoryPrice.png)
+
+![inventory Price](./screenshots/inventoryPrice.png)
+
+Shows the selling price of your base inventory
+
+## Excel Reports
 How to bucket data guide:
 https://edferrero.com/index.php/en/blog
 
