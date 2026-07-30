@@ -1,0 +1,30 @@
+{
+  "name": "Data Science Project",
+  "version": "1.0.0",
+  "description": "This project is around Data Engineering, Data analysis",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node --test \"build/test/**/*.test.js\"",
+    "unitTest": "node --test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1091.0",
+    "@aws-sdk/s3-request-presigner": "^3.1091.0",
+    "axios": "^1.18.1",
+    "pg": "^8.16.3",
+    "puppeteer": "^24.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "@types/pg": "^8.15.5",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  },
+  "type": "module"
+}
