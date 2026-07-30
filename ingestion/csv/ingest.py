@@ -4,6 +4,7 @@ import shutil
 import pandas as pd
 from pathlib import Path
 from sqlalchemy import create_engine
+import requests
 
 def load_csv_to_postgres(path: Path, engine, target_dir: Path ) -> None:
     """
@@ -56,10 +57,7 @@ def load_csv_to_postgres(path: Path, engine, target_dir: Path ) -> None:
         print(f"Moved {filename} to {destination}")
 
 
-# Example usage:
-if __name__ == "__main__":
-    fileName = "inventory" # Name of csv files
-
+def readFile(fileName:str):
     folder = Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed")
     archive_folder =  Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed")  # Destination directory
 
@@ -73,4 +71,44 @@ if __name__ == "__main__":
     for path in price_paths:
         print(f"Processing path: {path}")
         load_csv_to_postgres(path, db_engine, target_dir=archive_folder)
+
+def downloadFile(url_string:str):
+    # Extract base name ("prices") and format today's date ("30072026")
+    base_name = Path(url_string).name
+    date_str = datetime.datetime.now().strftime("%d%m%Y")
+    filename = f"{base_name}_{date_str}.csv"  # -> "prices_30072026.csv"
+
+    # Target directory
+    folder = Path(
+        "/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed"
+    )
+    folder.mkdir(parents=True, exist_ok=True)
+
+    file_path = folder / filename
+
+    try:
+        response = requests.get(
+            url_string,
+            headers={"accept": "text/csv, application/csv"},
+            timeout=15,  # 5 seconds
+        )
+        response.raise_for_status()
+
+        # Write CSV text to file
+        file_path.write_text(response.text, encoding="utf-8")
+
+        print(f"Successfully saved CSV to {file_path}")
+
+    except requests.exceptions.RequestException as e:
+        print(f"HTTP Request failed for {url_string}")
+        raise
+
+# Example usage:
+if __name__ == "__main__":
+    url_string = "https://rest.fnar.net/csv/prices"
+    # Extract 'prices' from the URL end and attach extension
+    filename = f"{Path(url_string).name}.csv"  # Gives "prices.csv"
+    filenameWithoutExtension = f"{Path(url_string).name}" # # Gives "prices"
+    downloadFile(url_string)
+    readFile(filenameWithoutExtension)
     
