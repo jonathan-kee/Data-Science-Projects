@@ -485,6 +485,7 @@ Command to enter postgres:
 - docker exec -it postgres-container psql --dbname=postgres --username=postgres --password  
 
 ## Object Hierarchy
+```
 postgres=# \l
                                                     List of databases
    Name    |  Owner   | Encoding | Locale Provider |  Collate   |   Ctype    | Locale | ICU Rules |   Access privileges   
@@ -494,17 +495,20 @@ postgres=# \l
            |          |          |                 |            |            |        |           | postgres=CTc/postgres
  template1 | postgres | UTF8     | libc            | en_US.utf8 | en_US.utf8 |        |           | =c/postgres          +
            |          |          |                 |            |            |        |           | postgres=CTc/postgres
-
+```
 list of available databases
 
+```
 postgres=# \du
                              List of roles
  Role name |                         Attributes                         
 -----------+------------------------------------------------------------
  postgres  | Superuser, Create role, Create DB, Replication, Bypass RLS
+```
 
 shows the list of roles available in database
 
+```
 postgres=# \db
        List of tablespaces
     Name    |  Owner   | Location 
@@ -512,9 +516,11 @@ postgres=# \db
  pg_default | postgres | 
  pg_global  | postgres | 
 (2 rows)
+```
 
 Not entirely sure the purpose of tablespace
 
+```
 postgres=# \dn
        List of schemas
   Name   |       Owner       
@@ -522,16 +528,28 @@ postgres=# \dn
  public  | pg_database_owner
  staging | postgres
 (2 rows)
+```
 
 shows that public is the default schema for postgres database, this is where all objects will go
 
 
 ## Creating Databases
-whanever we create a database, by default every single user has permission to connect to database, by default 
+Whanever we create a database, by default every single user has permission to connect to database, by default 
 the role public which is assigned by default to everybody has a connect privillage on the brand new database.
 For security purpose revoke connect on database on role public, this will revoke all normal users.
 
 Owner and Super user can still connect even if revoke from public role
+
+[My database & schema object](./screenshots/myDatabase.png)
+
+![My database & schema object](./screenshots/myDatabase.png)
+
+[Object Hierarchy](./screenshots/objectHierarchy.png)
+
+![Object Hierarchy](./screenshots/objectHierarchy.png)
+
+- Prosperous_universe is Database object
+- raw is Schmea object
 
 ## Users and Roles
 postgres is a predefined superuser in the default database cluster
