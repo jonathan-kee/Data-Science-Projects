@@ -551,6 +551,22 @@ Owner and Super user can still connect even if revoke from public role
 - Prosperous_universe is Database object
 - raw is Schmea object
 
+[Slide 1](./screenshots/createDatabase1.png)
+
+![Slide 1](./screenshots/createDatabase1.png)
+
+[Slide 2](./screenshots/createDatabase2.png)
+
+![Slide 2](./screenshots/createDatabase2.png)
+
+[Slide 3](./screenshots/createDatabase3.png)
+
+![Slide 3](./screenshots/createDatabase3.png)
+
+[Slide 4](./screenshots/createDatabase4.png)
+
+![Slide 4](./screenshots/createDatabase4.png)
+
 ## Users and Roles
 postgres is a predefined superuser in the default database cluster
 
