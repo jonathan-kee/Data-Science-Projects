@@ -575,6 +575,30 @@ postgres is a predefined superuser in the default database cluster
 
 ## Creating Schemas
 
+[Slide 1](./screenshots/creatingSchema1.png)
+
+![Slide 1](./screenshots/creatingSchema1.png)
+
+[Slide 2](./screenshots/creatingSchema2.png)
+
+![Slide 2](./screenshots/creatingSchema2.png)
+
+[Slide 3](./screenshots/creatingSchema3.png)
+
+![Slide 3](./screenshots/creatingSchema3.png)
+
+[Slide 4](./screenshots/creatingSchema4.png)
+
+![Slide 4](./screenshots/creatingSchema4.png)
+
+[Slide 5](./screenshots/creatingSchema5.png)
+
+![Slide 5](./screenshots/creatingSchema5.png)
+
+[Slide 6](./screenshots/creatingSchema6.png)
+
+![Slide 6](./screenshots/creatingSchema6.png)
+
 ## Schema Search Path
 
 # Extra Readme
