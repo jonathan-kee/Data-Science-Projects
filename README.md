@@ -574,10 +574,15 @@ postgres is a predefined superuser in the default database cluster
 ## Access Control
 
 ## Creating Schemas
+[raw schema objects](./screenshots/mySchema.png)
+
+![raw schema objects](./screenshots/mySchema.png)
 
 [Slide 1](./screenshots/creatingSchema1.png)
 
 ![Slide 1](./screenshots/creatingSchema1.png)
+
+My raw schema in Prosperous Universe Database contains many tables and views. 
 
 [Slide 2](./screenshots/creatingSchema2.png)
 
