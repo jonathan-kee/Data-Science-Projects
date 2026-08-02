@@ -31,7 +31,7 @@ function getTodayDateFileName(filename: any, extension: any) {
     return filename + "_" + ddMMyyyy + extension;
 }
 
-function LambdaCreateTable(data: any, tablename:string) {
+function LambdaCreateTable(data: any, tablename: string) {
     const columns: string[] = Object.keys(data[0])
     const rowValues = Object.values(data[0]);
     let tuple: [string, string, any];
@@ -48,21 +48,21 @@ function LambdaCreateTable(data: any, tablename:string) {
         arrayOfTuple.push(tuple);
     }
 
-    let createTable = `CREATE TABLE IF NOT EXISTS raw.`+ tablename +`_raw\n(\n`
+    let createTable = `CREATE TABLE IF NOT EXISTS raw.` + tablename + `_raw\n(\n`
     for (let i = 0; i < arrayOfTuple.length; i++) {
         let lengthOfTuple = arrayOfTuple[i].length
-        createTable += '"'+ arrayOfTuple[i][0] + '"      ' + arrayOfTuple[i][1] + ',\n'
+        createTable += '"' + arrayOfTuple[i][0] + '"      ' + arrayOfTuple[i][1] + ',\n'
     }
     createTable = createTable.slice(0, -2) + '\n);';
     return createTable;
 }
 
-function LambdaInsertTable(data: any, tablename:string) {
+function LambdaInsertTable(data: any, tablename: string) {
     const lengthOfData = data.length
     // 1. Initialize string with TRUNCATE TABLE statement
     let insert = `TRUNCATE TABLE raw.${tablename}_raw;\n\n`;
 
-    for (let i = 0; i < lengthOfData; i++){
+    for (let i = 0; i < lengthOfData; i++) {
         const columns: string[] = Object.keys(data[i])
         const rowValues = Object.values(data[i]);
         let tuple: [string, string, any];
@@ -79,24 +79,24 @@ function LambdaInsertTable(data: any, tablename:string) {
             arrayOfTuple.push(tuple);
         }
 
-        if(i==0) {
+        if (i == 0) {
             let insertParenthesis = "("
             for (let i = 0; i < arrayOfTuple.length; i++) {
-                insertParenthesis += '"'+arrayOfTuple[i][0] + '"' + ","
+                insertParenthesis += '"' + arrayOfTuple[i][0] + '"' + ","
             }
             insertParenthesis = insertParenthesis.slice(0, -1) + ")\nVALUES "
 
             insert += `INSERT INTO raw.${tablename}_raw ` + insertParenthesis
         }
-        
+
         insert += "("
         for (let i = 0; i < arrayOfTuple.length; i++) {
-            if(typeof arrayOfTuple[i][2] == 'string') {
+            if (typeof arrayOfTuple[i][2] == 'string') {
                 insert += `'${arrayOfTuple[i][2]}'`;
-            } else if (typeof arrayOfTuple[i][2] == 'number'){
+            } else if (typeof arrayOfTuple[i][2] == 'number') {
                 insert += `${arrayOfTuple[i][2]}`;
             }
-            insert+= ","
+            insert += ","
         }
         insert = insert.slice(0, -1) + "),\n"
     }
@@ -108,18 +108,18 @@ async function main() {
     const urlString = "https://rest.fnar.net/exchange/cxpc/ALO.AI1";
     const url = new URL(urlString);
     // pathname will be: "/exchange/cxpc/AL.AI1"
-    const segments = url.pathname.split('/'); 
+    const segments = url.pathname.split('/');
     const lastSegment = segments[segments.length - 1]; // "AL.AI1"
     const [part1, part2] = lastSegment.split('.');
-    let fileNameGeneric: string = "cxpc_"+part1+"_"+part2;
+    let fileNameGeneric: string = "cxpc_" + part1 + "_" + part2;
 
     const response = await axios.get(urlString, {
-    headers: {
-      'accept': 'application/json'
-    },
-    timeout: 5000, // 5 seconds
-  });
-  let stringData = JSON.stringify(response.data, null, 2);
+        headers: {
+            'accept': 'application/json'
+        },
+        timeout: 5000, // 5 seconds
+    });
+    let stringData = JSON.stringify(response.data, null, 2);
 
     const jsonFilePath = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed/' + getTodayDateFileName(fileNameGeneric, ".json");
 
@@ -130,8 +130,8 @@ async function main() {
     let data = await readJsonArray(jsonFilePath);
     if (!data) return;
 
-    let createTable:string = LambdaCreateTable(data, fileNameGeneric);
-    let insertTable:string = LambdaInsertTable(data, fileNameGeneric);
+    let createTable: string = LambdaCreateTable(data, fileNameGeneric);
+    let insertTable: string = LambdaInsertTable(data, fileNameGeneric);
 
     let fullsql = createTable + "\n\n" + insertTable;
     console.log(fullsql);
@@ -139,7 +139,7 @@ async function main() {
     // --- Output section ---
     const outputFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sql';
     const outputPath = join(outputFolder, getTodayDateFileName(fileNameGeneric, ".sql"));
-    
+
     // --- Processed JSON target directory ---
     const processedFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed';
     const processedFilePath = join(processedFolder, basename(jsonFilePath));
@@ -154,9 +154,9 @@ async function main() {
         await mkdir(processedFolder, { recursive: true });
         await rename(jsonFilePath, processedFilePath);
         console.log(`Successfully moved JSON file to: ${processedFilePath}`);
-      } catch (error:any) {
+    } catch (error: any) {
         console.error('Error during output or file moving step:', error.message);
-      }
+    }
 }
 
 main();

@@ -1,58 +1,7 @@
+import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
+import { join, basename } from 'node:path';
 import { Sequelize, DataTypes, Model } from 'sequelize';
-
-// 1. Data Payload
-const data = {
-  BuildingCosts: [
-    {
-      CommodityName: 'basicBulkhead',
-      CommodityTicker: 'BBH',
-      Weight: 0.5,
-      Volume: 0.800000011920929,
-      Amount: 2,
-    },
-    {
-      CommodityName: 'basicDeckElements',
-      CommodityTicker: 'BDE',
-      Weight: 0.10000000149011612,
-      Volume: 1.5,
-      Amount: 2,
-    },
-    {
-      CommodityName: 'basicStructuralElements',
-      CommodityTicker: 'BSE',
-      Weight: 0.30000001192092896,
-      Volume: 0.5,
-      Amount: 2,
-    },
-    {
-      CommodityName: 'basicWindow',
-      CommodityTicker: 'BTA',
-      Weight: 0.30000001192092896,
-      Volume: 0.4000000059604645,
-      Amount: 2,
-    },
-    {
-      CommodityName: 'truss',
-      CommodityTicker: 'TRU',
-      Weight: 0.10000000149011612,
-      Volume: 1.5,
-      Amount: 2,
-    },
-  ],
-  Recipes: [],
-  BuildingId: '79f8f9bf4a56c464041c18995b00c16e',
-  Name: 'habitationSettler',
-  Ticker: 'HB2',
-  Expertise: null,
-  Pioneers: 0,
-  Settlers: 0,
-  Technicians: 0,
-  Engineers: 0,
-  Scientists: 0,
-  AreaCost: 12,
-  UserNameSubmitted: 'TAIYI',
-  Timestamp: '2026-07-29T12:58:38.274573Z',
-};
+import axios from "axios";
 
 // 2. Initialize Sequelize with the 'raw' schema
 const sequelize = new Sequelize('prosperous_universe', 'postgres', 'abc123', {
@@ -94,9 +43,9 @@ Building.init(
       field: 'user_name_submitted',
     },
   },
-  { 
-    sequelize, 
-    modelName: 'Building', 
+  {
+    sequelize,
+    modelName: 'Building',
     tableName: 'buildings',
     schema: 'raw' // Target table: raw.buildings
   }
@@ -137,9 +86,9 @@ BuildingCost.init(
       allowNull: false,
     },
   },
-  { 
-    sequelize, 
-    modelName: 'BuildingCost', 
+  {
+    sequelize,
+    modelName: 'BuildingCost',
     tableName: 'building_costs',
     schema: 'raw' // Target table: raw.building_costs
   }
@@ -155,7 +104,7 @@ BuildingCost.belongsTo(Building, {
 });
 
 // 6. Data Seeding Function
-async function seedData(dataPayload: typeof data) {
+async function seedData(dataPayload: any) {
   // Ensure the "raw" schema exists in PostgreSQL before syncing
   await sequelize.createSchema('raw', {});
 
@@ -169,7 +118,7 @@ async function seedData(dataPayload: typeof data) {
       name: dataPayload.Name,
       areaCost: dataPayload.AreaCost,
       submittedBy: dataPayload.UserNameSubmitted,
-      buildingCosts: dataPayload.BuildingCosts.map((cost) => ({
+      buildingCosts: dataPayload.BuildingCosts.map((cost: any) => ({
         commodityName: cost.CommodityName,
         commodityTicker: cost.CommodityTicker,
         weight: cost.Weight,
@@ -200,8 +149,57 @@ async function getBuilding(buildingId: string) {
   console.log(JSON.stringify(result, null, 2));
 }
 
+function getTodayDateFileName(filename: any, extension: any) {
+  const today = new Date();
+
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const year = today.getFullYear();
+
+  const ddMMyyyy = `${day}${month}${year}`;
+  console.log(ddMMyyyy); // Output: "29072026
+
+  return filename + "_" + ddMMyyyy + extension;
+}
+
+async function readJson(filePath: any) {
+  try {
+    const data = await readFile(filePath, 'utf-8');
+    const json = JSON.parse(data);
+
+    console.log(`Loaded ${json.length} items successfully!`);
+    return json;
+  } catch (error: any) {
+    console.error('Failed to read or parse JSON file:', error.message);
+  }
+}
+
 // 8. Main Execution Wrapper
 async function main() {
+  const urlString = "https://rest.fnar.net/building/HB2";
+  const url = new URL(urlString);
+  const segments = url.pathname.split('/');
+  const lastSegment = segments[segments.length - 1]; // "HB2"
+  let fileNameGeneric: string = "building_" + lastSegment;
+
+  const response = await axios.get(urlString, {
+    headers: {
+      'accept': 'application/json'
+    },
+    timeout: 10000, // 10 seconds
+  });
+
+  let stringData = JSON.stringify(response.data, null, 2);
+
+  const jsonFilePath = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed/' + getTodayDateFileName(fileNameGeneric, ".json");
+
+  // null 2 is to format the json properly
+  await writeFile(jsonFilePath, stringData, 'utf-8');
+
+  // Read file on disk
+  let data = await readJson(jsonFilePath);
+  if (!data) return;
+
   try {
     // Authenticate PostgreSQL connection
     await sequelize.authenticate();
@@ -217,6 +215,19 @@ async function main() {
   } finally {
     // Gracefully terminate connection
     await sequelize.close();
+  }
+
+  // --- Processed JSON target directory ---
+  const processedFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed';
+  const processedFilePath = join(processedFolder, basename(jsonFilePath));
+
+  try {
+    // 2. Ensure the processed folder exists and move the JSON file
+    await mkdir(processedFolder, { recursive: true });
+    await rename(jsonFilePath, processedFilePath);
+    console.log(`Successfully moved JSON file to: ${processedFilePath}`);
+  } catch (error: any) {
+    console.error('Error during output or file moving step:', error.message);
   }
 }
 
