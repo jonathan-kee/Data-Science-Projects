@@ -1,0 +1,38 @@
+name: Pipeline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Pipeline:
+    name: Setup Pipeline
+    runs-on: [self-hosted, macOS, ARM64]
+    defaults:
+      run:
+        working-directory: /Users/jonathankee/Data-Science-Projects
+    steps:
+      - name: Print working directory
+        run: |
+          pwd
+
+      - name: Exchange ticker AL.AI1
+        run: | 
+          tsc && node ./build/ingestion/json/cxpx.js "https://rest.fnar.net/exchange/cxpc/AL.AI1"
+          docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ./cxpc_AL_AI1_30072026.sql
+
+      - name: Exchange ticker ALO.AI1
+        run: |
+          tsc && node ./build/ingestion/json/cxpx.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
+          docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ./cxpc_ALO_AI1_30072026.sql
+      
+      - name: Building costs HB2
+        run: tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/HB2"
+
+      - name: Building costs FS
+        run: tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/FS"
+      
+      - name: Prices
+        run: python ingestion/csv/ingest.py "https://rest.fnar.net/csv/prices" 
+
+      - name: Inventory
+        run: python ingestion/csv/ingest.py "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
