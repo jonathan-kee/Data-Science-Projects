@@ -157,12 +157,14 @@ Rebuild typescript files:
 Exchange ticker json ingestion:
 - tsc && node ./build/ingestion/json/cxpx.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
 
-Building costs Json ingestion:
+Building costs json ingestion:
 - tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/HB2"
 
-Csv file ingestion:
-- cd ingestion/csv
-- python ingest.py
+Prices csv ingestion:
+- python ingestion/csv/ingest.py "https://rest.fnar.net/csv/prices" 
+
+inventory csv ingestion:
+- python ingestion/csv/ingest.py "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
 
 Docker command to feed sql file into docker postgres
 - cd injestion/sql
