@@ -1,5 +1,13 @@
 with
-    stg_market_depth as (select * from {{ ref("stg_market_depth") }}),
+    stg_prices as (
+        select * from {{ ref("stg_prices") }}
+        where 
+        -- maximum date --
+        raw.stg_prices.date_part = (
+                select max("date_part")
+                from {{ ref("stg_prices") }}
+            )
+        ),
 
     stg_recipe_inputs as (select * from {{ ref("stg_recipe_inputs") }}),
     stg_recipe_inputs_time as (select * from {{ ref("stg_recipe_inputs_time") }}),
@@ -10,15 +18,15 @@ with
             stg_recipe_inputs.materialinputquantity,
             stg_recipe_inputs.materialinput,
             -- Ask Price is seller, You buy from them --
-            stg_market_depth."AI1-AskPrice",
+            stg_prices."AI1-AskPrice",
             stg_recipe_inputs.materialinputquantity
-            * stg_market_depth."AI1-AskPrice" as "material_input_total_cost",
+            * stg_prices."AI1-AskPrice" as "material_input_total_cost",
             stg_recipe_inputs.materialoutputquantity,
             stg_recipe_inputs.materialoutput
-        from stg_market_depth
+        from stg_prices
         left join
             stg_recipe_inputs
-            on stg_recipe_inputs.materialinput = stg_market_depth."Ticker"
+            on stg_recipe_inputs.materialinput = stg_prices."Ticker"
     ),
     material_output_total_cost as (
         select
@@ -31,17 +39,17 @@ with
             material_input_total_cost_cte.materialoutputquantity,
             material_input_total_cost_cte.materialoutput,
             -- Bid Price is buyer, You sell to them -- 
-            stg_market_depth."AI1-BidPrice" as "material_output_sell_price",
+            stg_prices."AI1-BidPrice" as "material_output_sell_price",
             material_input_total_cost_cte.materialoutputquantity
-            * stg_market_depth."AI1-BidPrice" as "material_output_total_sell_price",
+            * stg_prices."AI1-BidPrice" as "material_output_total_sell_price",
             (
                 stg_recipe_inputs_time.time_ms / 60000
             ) as "time_taken_per_order_in_minutes",
             CAST((24 * 60) / CAST((stg_recipe_inputs_time.time_ms / 60000) AS DECIMAL(10, 2)) AS DECIMAL(10, 2)) as "total_order_per_day"
-        from stg_market_depth
+        from stg_prices
         left join
             material_input_total_cost_cte
-            on material_input_total_cost_cte.materialoutput = stg_market_depth."Ticker"
+            on material_input_total_cost_cte.materialoutput = stg_prices."Ticker"
         left join
             stg_recipe_inputs_time
             on stg_recipe_inputs_time.prefix = material_input_total_cost_cte.prefix
