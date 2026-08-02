@@ -50,6 +50,12 @@ Shows ticker ALO (Aluminium Ore) todays's high with previous 1st, 3rd, 6th, 9th,
 
 Shows the selling price of your base inventory
 
+[goal report](./screenshots/goalReport.png)
+
+![goal report](./screenshots/goalReport.png)
+
+Shows the total buying price of 2 HB2 and 1 FS
+
 ## Excel Reports
 How to bucket data guide:
 https://edferrero.com/index.php/en/blog
