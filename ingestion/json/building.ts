@@ -109,7 +109,7 @@ async function seedData(dataPayload: any) {
   await sequelize.createSchema('raw', {});
 
   // force: true drops existing tables in raw schema and recreates raw.buildings & raw.building_costs
-  await sequelize.sync({ force: true });
+  await sequelize.sync({ force: false });
 
   const newBuilding = await Building.create(
     {
@@ -176,7 +176,7 @@ async function readJson(filePath: any) {
 
 // 8. Main Execution Wrapper
 async function main() {
-  const urlString = "https://rest.fnar.net/building/HB2";
+  const urlString = process.argv[2]; // "https://rest.fnar.net/building/HB2";
   const url = new URL(urlString);
   const segments = url.pathname.split('/');
   const lastSegment = segments[segments.length - 1]; // "HB2"
