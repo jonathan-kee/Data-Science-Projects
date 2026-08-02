@@ -155,8 +155,8 @@ Rebuild typescript files:
 - tsc --build  
 
 Exchange ticker json ingestion:
-- tsc && node ./build/ingestion/json/cxpx.js "https://rest.fnar.net/exchange/cxpc/AL.AI1"
-- tsc && node ./build/ingestion/json/cxpx.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
+- tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/AL.AI1"
+- tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
 
 Building costs json ingestion:
 - tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/HB2"
@@ -164,7 +164,7 @@ Building costs json ingestion:
 
 Prices csv ingestion:
 - python ingestion/csv/ingest.py "https://rest.fnar.net/csv/prices" 
-
+    
 inventory csv ingestion:
 - python ingestion/csv/ingest.py "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
 
