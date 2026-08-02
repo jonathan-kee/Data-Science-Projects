@@ -22,14 +22,16 @@ jobs:
         run: echo "Today's date is $TODAY"
 
       - name: Exchange ticker AL.AI1
-        run: | 
-          tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/AL.AI1"
-          docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ./cxpc_AL_AI1_${TODAY}.sql
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/AL.AI1"
+
+      - name: Run SQL Exchange ticker AL.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_AL_AI1_${TODAY}.sql
 
       - name: Exchange ticker ALO.AI1
-        run: |
-          tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
-          docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ./cxpc_ALO_AI1_${TODAY}.sql
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
+
+      - name: Run SQL Exchange ticker ALO.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_ALO_AI1_${TODAY}.sql
       
       - name: Building costs HB2
         run: tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/HB2"
