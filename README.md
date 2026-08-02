@@ -160,6 +160,7 @@ Exchange ticker json ingestion:
 
 Building costs json ingestion:
 - tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/HB2"
+- tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/FS"
 
 Prices csv ingestion:
 - python ingestion/csv/ingest.py "https://rest.fnar.net/csv/prices" 
