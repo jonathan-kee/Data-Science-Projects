@@ -155,6 +155,7 @@ Rebuild typescript files:
 - tsc --build  
 
 Exchange ticker json ingestion:
+- tsc && node ./build/ingestion/json/cxpx.js "https://rest.fnar.net/exchange/cxpc/AL.AI1"
 - tsc && node ./build/ingestion/json/cxpx.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
 
 Building costs json ingestion:
