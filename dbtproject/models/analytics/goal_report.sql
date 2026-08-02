@@ -41,7 +41,7 @@ with
     total as (
         select
             two_habitat."two habitant total buying price"
-            + finesmith_total."total buying price"
+            + finesmith_total."total buying price" as "total buying price of goal"
         from two_habitat
         inner join finesmith_total on 1 = 1
     )
