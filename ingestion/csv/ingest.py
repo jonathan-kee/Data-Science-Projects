@@ -6,6 +6,7 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from urllib.parse import urlparse
 import requests
+import sys
 
 def load_csv_to_postgres(path: Path, engine, target_dir: Path ) -> None:
     """
@@ -106,8 +107,13 @@ def downloadFile(url_string:str, fileNameWithoutExtension:str):
 
 # Example usage:
 if __name__ == "__main__":
-    # url_string = "https://rest.fnar.net/csv/prices"
-    url_string = "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
+    if len(sys.argv) < 2:
+        raise ValueError("Error: A URL argument is required. Usage: python script.py <URL>")
+    
+    # "https://rest.fnar.net/csv/prices" 
+    # "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"                        
+    url_string = sys.argv[1] 
+    
     # Parse the URL to strip away query parameters
     clean_path = urlparse(url_string).path
 
