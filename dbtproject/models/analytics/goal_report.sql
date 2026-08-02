@@ -9,7 +9,12 @@ with
             raw.building_costs
             on raw.stg_prices."Ticker" = raw.building_costs."commodity_ticker"
         where
-            raw.stg_prices.date_part = '2026-07-30'
+            -- maximum date --
+            raw.stg_prices.date_part = (
+                select max("date_part")
+                from {{ ref("stg_prices") }}
+            )
+            -- habitat id --
             and raw.building_costs."buildingId" in ('79f8f9bf4a56c464041c18995b00c16e')
     ),
     habitat_total as (
@@ -31,7 +36,12 @@ with
             raw.building_costs
             on raw.stg_prices."Ticker" = raw.building_costs."commodity_ticker"
         where
-            raw.stg_prices.date_part = '2026-07-30'
+             -- maximum date --
+            raw.stg_prices.date_part = (
+                select max("date_part")
+                from {{ ref("stg_prices") }}
+            )
+            -- habitat id --
             and raw.building_costs."buildingId" in ('2d08c72c3801061979897525a8915fb2')
     ),
     finesmith_total as (
