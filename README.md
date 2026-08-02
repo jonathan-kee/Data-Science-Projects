@@ -150,16 +150,15 @@ View results: Open dist/index.html in your browser
 # Ingestion Pipeline commands
 cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
 
-Array of Json ingestion:
+Rebuild typescript files:
 - tsc --build --clean 
 - tsc --build  
-- tsc && node ./build/index.js
-- tsc && node ./build/ingestion/json/ingest.js
 
-Building Json ingestion:
-- tsc --build --clean 
-- tsc --build 
-- tsc && node ./build/ingestion/json/building.js
+Exchange ticker json ingestion:
+- tsc && node ./build/ingestion/json/cxpx.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
+
+Building costs Json ingestion:
+- tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/HB2"
 
 Csv file ingestion:
 - cd ingestion/csv
