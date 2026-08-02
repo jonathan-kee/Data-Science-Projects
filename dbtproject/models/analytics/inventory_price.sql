@@ -5,7 +5,7 @@ with max_date_stg_inventory as (
 max_date_stg_prices as (
     select max(date_part) as max_date_part
     from {{ ref("stg_prices") }}
-)
+),
 filter_stg_inventory_max_date as (
     select *
     from {{ ref("stg_inventory") }} as stg_inventory
@@ -18,7 +18,7 @@ filter_stg_prices_max_date as (
     from {{ ref("stg_prices") }} as stg_prices
     inner join max_date_stg_prices on 1=1
     where stg_prices."date_part" = max_date_stg_prices."max_date_part"
-)
+),
 total_selling_price_max_date as (
     select distinct
         filter_stg_inventory_max_date."Ticker" as "Inventory Ticker",
@@ -28,3 +28,4 @@ total_selling_price_max_date as (
     inner join filter_stg_prices_max_date on filter_stg_prices_max_date."Ticker" = filter_stg_inventory_max_date."Ticker"
     order by "total_selling_price" desc
 )
+select * from total_selling_price_max_date
