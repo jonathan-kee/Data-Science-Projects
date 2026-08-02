@@ -186,7 +186,7 @@ async function main() {
     headers: {
       'accept': 'application/json'
     },
-    timeout: 10000, // 10 seconds
+    timeout: 15000, // 15 seconds
   });
 
   let stringData = JSON.stringify(response.data, null, 2);
