@@ -154,12 +154,12 @@ Array of Json ingestion:
 - tsc --build --clean 
 - tsc --build  
 - tsc && node ./build/index.js
-- tsc && node ./build/json/ingest.js
+- tsc && node ./build/ingestion/json/ingest.js
 
 Building Json ingestion:
 - tsc --build --clean 
 - tsc --build 
-- tsc && node ./build/json/building.js
+- tsc && node ./build/ingestion/json/building.js
 
 Csv file ingestion:
 - cd ingestion/csv
