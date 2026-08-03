@@ -39,4 +39,4 @@ group_by_total_output as (
 )
 select *
 from group_by_total_output
-order by 1;
+order by 1

@@ -45,4 +45,4 @@ group_by_total_input as (
 )
 select *
 from group_by_total_input
-order by 1;
+order by 1
