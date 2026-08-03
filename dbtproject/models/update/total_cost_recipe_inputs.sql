@@ -93,7 +93,7 @@ with
             filtertable."materialinputquantity",
             -- Ask Price is seller, You buy from them --
             filtertable."AI1-AskPrice",
-            sum("AI1-AskPrice") / max("materialinputquantity") as "total_a1_askprice",
+            sum("AI1-AskPrice") / max("materialinputquantity") as "AI1_askprice_per_unit",
             max("minutes") as "minutes per order",
             CONCAT(
         CAST(MAX(minutes) AS INT) / 60, ' hours ', 
