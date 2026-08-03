@@ -1,4 +1,4 @@
-CREATE TABLE recipe_input_totals AS
+CREATE TABLE raw.recipe_input_totals AS
 with 
     joining_table as (
         select raw.stg_recipe_inputs_time.*, "AI1-AskPrice", stg_recipe_inputs_time."time_ms" / 60000.0 AS "minutes"

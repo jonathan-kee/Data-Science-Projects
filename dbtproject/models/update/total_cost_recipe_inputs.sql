@@ -108,7 +108,7 @@ with
             filtertable."AI1-AskPrice"
         order by 1
     )
-UPDATE recipe_input_totals target
+UPDATE raw.recipe_input_totals target
 SET 
     "total_a1_askprice" = src."total_a1_askprice",
     "minutes per order"  = src."minutes per order",
