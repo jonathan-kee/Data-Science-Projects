@@ -108,5 +108,10 @@ with
             filtertable."AI1-AskPrice"
         order by 1
     )
-select *
-from group_by_total
+UPDATE recipe_input_totals target
+SET 
+    "total_a1_askprice" = src."total_a1_askprice",
+    "minutes per order"  = src."minutes per order",
+    "hour and minutes"  = src."hour and minutes"
+FROM group_by_total src
+WHERE target."original_query" = src."original_query";
