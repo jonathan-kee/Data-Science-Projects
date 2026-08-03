@@ -1,0 +1,26 @@
+with
+    joining_table as (
+        select raw.stg_recipe_inputs_time.*, "AI1-AskPrice"
+        from raw.stg_recipe_inputs_time
+        inner join
+            raw.stg_prices
+            on raw.stg_recipe_inputs_time."materialinput" = raw.stg_prices."Ticker"
+        where
+            -- maximum date --
+            raw.stg_prices.date_part = (select max("date_part") from raw.stg_prices)
+            and raw.stg_recipe_inputs_time."prefix" = 'FS'
+    ),
+    total_cost_recipe as (
+        select
+            raw.stg_recipe_inputs_time."original_query",
+            sum(raw.total_cost_recipe_inputs."total_a1_askprice"),
+            sum(raw.total_cost_recipe_inputs."minutes per order")
+        from raw.stg_recipe_inputs_time
+        inner join
+            raw.total_cost_recipe_inputs
+            on raw.stg_recipe_inputs_time."materialinput"
+            = raw.total_cost_recipe_inputs."materialoutput"
+        group by raw.stg_recipe_inputs_time."original_query"
+    )
+select *
+from total_cost_recipe
