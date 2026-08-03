@@ -1,4 +1,4 @@
-CREATE TABLE raw.recipe_input_totals AS
+CREATE TABLE raw.recipe_input_aggregates AS
 with
     joining_table as (
         select raw.stg_recipe_inputs_time.*,
@@ -31,9 +31,9 @@ with
         CAST(max("minutes") / max("materialoutputquantity") AS INT) / 60, ' hours ',
         CAST(max("minutes") / max("materialoutputquantity") AS INT) % 60, ' mins'
         ) AS "hour and minutes per unit" ,
-            sum("AI1-AskPrice") as "total input_materials_AI1_askprice"
+            sum("AI1-AskPrice") as "total input_materials_AI1_AskPrice"
             ,
-            sum("AI1-AskPrice") / max("materialinputquantity") as "input_materials_AI1_askprice_per_unit"
+            sum("AI1-AskPrice") / max("materialinputquantity") as "input_materials_AI1_AskPrice_per_unit"
         from joining_table
         group by
             joining_table."original_query",
