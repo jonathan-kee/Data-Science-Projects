@@ -90,7 +90,11 @@ with
             filtertable."prefix",
             filtertable."materialoutput",
             sum("AI1-AskPrice") / max("materialoutputquantity") as "total_a1_askprice",
-            max("minutes") as "minutes per order"
+            max("minutes") as "minutes per order",
+            CONCAT(
+        CAST(MAX(minutes) AS INT) / 60, ' hours ', 
+        CAST(MAX(minutes) AS INT) % 60, ' mins'
+        ) AS "hour and minutes" 
         from filtertable 
         group by
             filtertable."original_query",
