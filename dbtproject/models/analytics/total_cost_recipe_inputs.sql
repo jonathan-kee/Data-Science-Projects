@@ -10,7 +10,7 @@ with
             raw.stg_prices.date_part = (select max("date_part") from raw.stg_prices)
     ),
     filtertable as (
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where
             prefix = 'SME'
@@ -20,49 +20,49 @@ with
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where prefix = 'SME' and materialoutput = 'AU'
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where prefix = 'SME' and materialoutput = 'CF'
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where prefix = 'SME' and materialoutput = 'CU'
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where prefix = 'SME' and materialoutput = 'FE' and materialoutputquantity = 4
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where prefix = 'SME' and materialoutput = 'LI'
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where prefix = 'SME' and materialoutput = 'RE' and materialoutputquantity = 5
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where prefix = 'SME' and materialoutput = 'S'
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where
             prefix = 'SME'
@@ -71,13 +71,13 @@ with
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where prefix = 'SME' and materialoutput = 'STL'
 
         union all
 
-        select *
+        select joining_table.*, joining_table."time_ms" / 60000.0 AS "minutes"
         from joining_table
         where
             prefix = 'SME'
@@ -89,8 +89,9 @@ with
             filtertable."original_query",
             filtertable."prefix",
             filtertable."materialoutput",
-            sum("AI1-AskPrice") / max("materialoutputquantity") as "total_a1_askprice"
-        from filtertable
+            sum("AI1-AskPrice") / max("materialoutputquantity") as "total_a1_askprice",
+            max("minutes") as "minutes per order"
+        from filtertable 
         group by
             filtertable."original_query",
             filtertable."prefix",
