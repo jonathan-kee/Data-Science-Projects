@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE raw.recipe_input_totals AS
+CREATE TABLE raw.recipe_input_totals AS
 with 
     joining_table as (
         select raw.stg_recipe_inputs_time.*, 
