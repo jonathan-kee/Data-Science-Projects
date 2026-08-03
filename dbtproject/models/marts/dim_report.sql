@@ -2,6 +2,7 @@ with
     stg_prices as (
         select * from {{ ref("stg_prices") }}
         where 
+        -- raw.stg_prices.date_part = '2026-07-30'
         -- maximum date --
         raw.stg_prices.date_part = (
                 select max("date_part")
