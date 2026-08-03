@@ -1,5 +1,5 @@
 with
-    joiningtable as (
+    joining_table as (
         select raw.stg_recipe_inputs_time.*, "AI1-AskPrice"
         from raw.stg_recipe_inputs_time
         inner join
@@ -8,18 +8,94 @@ with
         where
             -- maximum date --
             raw.stg_prices.date_part = (select max("date_part") from raw.stg_prices)
-
     ),
     filtertable as (
-        select * from joiningtable 
-        where prefix = 'SME' 
-        and materialoutput = 'AL' 
-        -- For matierialoutput like AL
-        -- and materialoutputquantity = 4
-    ),
-    total_a1_askprice_per_unit as (
-        select SUM("AI1-AskPrice") / MAX("materialoutputquantity") as "total_a1_askprice" from filtertable
-    )
-select "total_a1_askprice"
-from total_a1_askprice_per_unit;
+        select *
+        from joining_table
+        where
+            prefix = 'SME'
+            and materialoutput = 'AL'
+            -- For matierialoutput like AL
+            and materialoutputquantity = 4
 
+        union all
+
+        select *
+        from joining_table
+        where prefix = 'SME' and materialoutput = 'AU'
+
+        union all
+
+        select *
+        from joining_table
+        where prefix = 'SME' and materialoutput = 'CF'
+
+        union all
+
+        select *
+        from joining_table
+        where prefix = 'SME' and materialoutput = 'CU'
+
+        union all
+
+        select *
+        from joining_table
+        where prefix = 'SME' and materialoutput = 'FE' and materialoutputquantity = 4
+
+        union all
+
+        select *
+        from joining_table
+        where prefix = 'SME' and materialoutput = 'LI'
+
+        union all
+
+        select *
+        from joining_table
+        where prefix = 'SME' and materialoutput = 'RE' and materialoutputquantity = 5
+
+        union all
+
+        select *
+        from joining_table
+        where prefix = 'SME' and materialoutput = 'S'
+
+        union all
+
+        select *
+        from joining_table
+        where
+            prefix = 'SME'
+            and materialoutput = 'SI'
+            and original_query = 'SME:3xSIO-1xAL=>1xSI'
+
+        union all
+
+        select *
+        from joining_table
+        where prefix = 'SME' and materialoutput = 'STL'
+
+        union all
+
+        select *
+        from joining_table
+        where
+            prefix = 'SME'
+            and materialoutput = 'TI'
+            and original_query = 'SME:4xTIO-1xC-1xO-1xNA=>2xTI'
+    ),
+    group_by_total as (
+        select
+            filtertable."original_query",
+            filtertable."prefix",
+            filtertable."materialoutput",
+            sum("AI1-AskPrice") / max("materialoutputquantity") as "total_a1_askprice"
+        from filtertable
+        group by
+            filtertable."original_query",
+            filtertable."prefix",
+            filtertable."materialoutput"
+        order by 3
+    )
+select *
+from group_by_total
