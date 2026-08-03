@@ -2,6 +2,7 @@ with
     joining_table as (
         select raw.stg_recipe_inputs_time.*, "AI1-AskPrice"
         from raw.stg_recipe_inputs_time
+        -- joining on "materialinput"
         inner join
             raw.stg_prices
             on raw.stg_recipe_inputs_time."materialinput" = raw.stg_prices."Ticker"
@@ -88,8 +89,11 @@ with
         select
             filtertable."original_query",
             filtertable."prefix",
-            filtertable."materialoutput",
-            sum("AI1-AskPrice") / max("materialoutputquantity") as "total_a1_askprice",
+            filtertable."materialinput",
+            filtertable."materialinputquantity",
+            -- Ask Price is seller, You buy from them --
+            filtertable."AI1-AskPrice",
+            sum("AI1-AskPrice") / max("materialinputquantity") as "total_a1_askprice",
             max("minutes") as "minutes per order",
             CONCAT(
         CAST(MAX(minutes) AS INT) / 60, ' hours ', 
@@ -99,8 +103,10 @@ with
         group by
             filtertable."original_query",
             filtertable."prefix",
-            filtertable."materialoutput"
-        order by 3
+            filtertable."materialinput",
+            filtertable."materialinputquantity",
+            filtertable."AI1-AskPrice"
+        order by 1
     )
 select *
 from group_by_total
