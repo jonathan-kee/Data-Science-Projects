@@ -12,15 +12,15 @@ with
     ),
     total_cost_recipe as (
         select
-            raw.stg_recipe_inputs_time."original_query",
+            joining_table."original_query",
             sum(raw.total_cost_recipe_inputs."total_a1_askprice"),
             sum(raw.total_cost_recipe_inputs."minutes per order")
-        from raw.stg_recipe_inputs_time
+        from joining_table
         inner join
             raw.total_cost_recipe_inputs
-            on raw.stg_recipe_inputs_time."materialinput"
+            on joining_table."materialinput"
             = raw.total_cost_recipe_inputs."materialoutput"
-        group by raw.stg_recipe_inputs_time."original_query"
+        group by joining_table."original_query"
     )
 select *
 from total_cost_recipe
