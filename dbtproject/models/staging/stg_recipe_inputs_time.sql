@@ -1,32 +1,34 @@
+-- Import CTEs
 WITH raw_data AS (
     select raw.recipe_inputs_time_raw."Key" AS raw_string,
            raw.recipe_inputs_time_raw."TimeMs" as time_ms
     from {{source('prosperous_universe sources','recipe_inputs_time_raw')}}
 ),
--- Deduplicate the source strings first
-unique_raw_data AS (
-    SELECT DISTINCT raw_string, time_ms
-    FROM raw_data
-),
-replace AS (
-    SELECT
-        replace(raw_string, '#', ':') AS raw_string_one,
-        time_ms
-    FROM unique_raw_data
-),
-replaceTwo AS (
+-- Logical CTEs
+clean AS (
     SELECT
         replace(raw_string_one, ' ', '-') AS raw_string_two,
         time_ms
-    FROM replace
+    FROM (
+        SELECT
+        replace(raw_string, '#', ':') AS raw_string_one,
+        time_ms
+    -- contains duplicate data
+    -- Deduplicate the source strings first
+    -- unique_raw_data
+    FROM (
+        SELECT DISTINCT raw_string, time_ms
+        FROM raw_data
+        )
+    )
 ),
 parsed_prefix AS (
     SELECT
-        replaceTwo.raw_string_two AS original_query,
-        split_part(replaceTwo.raw_string_two, ':', 1) AS prefix,
-        split_part(replaceTwo.raw_string_two, ':', 2) AS recipe_string,
+        clean.raw_string_two AS original_query,
+        split_part(clean.raw_string_two, ':', 1) AS prefix,
+        split_part(clean.raw_string_two, ':', 2) AS recipe_string,
         time_ms
-    FROM replaceTwo
+    FROM clean
 ),
 split_sides AS (
     SELECT
@@ -47,5 +49,6 @@ clean_data AS (SELECT original_query,
                FROM split_sides,
                     LATERAL unnest(string_to_array(input_str, '-')) AS input_item
 )
+-- Final CTE
 select * from clean_data
 -- Have on join on prefix, materialInputQuantity, materialInput, materialOutputQuantity, materialOutput --
