@@ -12,6 +12,34 @@ https://massgrave.dev/office_for_mac
 # SQL Learnings
 Aggreates table cannot find information individually, you have to join up with another table
 
+# Data Modelling
+Data comes in highly denormalized (a lot of duplicate data because not relational). Everything is stored in a single row
+
+[Denormalized table](./screenshots/denormalizedTable.png)
+
+![Denormalized table](./screenshots/denormalizedTable.png)
+
+Normalization (1nf, 2nf, 3nf, 4nf). After going through this process, you get Dimension table, Dimension table would contain primary keys (Unique and Not null contraint)
+
+The original table will now have foreign keys to the Dimension table and is now called Fact table.
+
+[Fact & Dimension Tables](./screenshots/Fact&DimensionTables.png)
+
+![Fact & Dimension Tables](./screenshots/Fact&DimensionTables.png)
+
+The shape of this relationship looks like a star schema
+
+[Star Schema](./screenshots/StarSchema.png)
+
+![Star Schema](./screenshots/StarSchema.png)
+
+You might have a dimension tables that have more dimension tables relying on it, this is Snowflake Schema
+
+[Snow Flake](./screenshots/snowflakeSchema.png)
+
+![Snow Flake](./screenshots/snowflakeSchema.png)
+
+
 # Resources to learn DBT:
 Building your First Model:
 https://learn.getdbt.com/learn/course/dbt-fundamentals/models-60min/building-your-first-model?page=3
