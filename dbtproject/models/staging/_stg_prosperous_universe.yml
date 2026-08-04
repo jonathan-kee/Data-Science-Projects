@@ -1,4 +1,13 @@
 models:
+  - name: stg_cxpc_al_ai1
+    description: Contains chart data for ticker al_ai1
+
+  - name: stg_cxpc_alo_ai1
+    description: Contains chart data for ticker alo_ai1
+
+  - name: stg_inventory
+    description: Contains all tickers for personal inventory
+
   - name: stg_prices
     description: Contains prices for all the exchanges for a particular Ticker
     columns: 
@@ -7,5 +16,9 @@ models:
         data_tests:
           - unique
           - not_null
+
   - name: stg_recipe_inputs_time
     description: Contains recipe material input, material output, time taken per order
+
+  - name: stg_recipe_inputs
+    description: Contains recipe material input, material output (no time taken per order) 
