@@ -31,12 +31,6 @@ Shows which Metalist Studio's recipe shows the highest ROI
 
 Shows which Smeltor's recipe shows the highest ROI
 
-[Old SME Report](./screenshots/SMEreports.png)
-
-![Old SME Report](./screenshots/SMEreports.png)
-
-Shows which Smeltor's recipe shows the highest ROI
-
 [cxpx_al_ai_report_high](./screenshots/cxpx_al_a1_report_high.png)
 
 ![cxpx_al_ai_report_high](./screenshots/cxpx_al_a1_report_high.png)
