@@ -15,7 +15,7 @@ joining_table as (
         -- maximum date --
         raw.stg_prices.date_part = (select max("date_part") from raw.stg_prices)
         -- filter by SME
-        and prefix = 'SME'
+        and prefix = 'SME' and materialinput <> 'ALO'
 ),
 group_by_total_input as (
     select
