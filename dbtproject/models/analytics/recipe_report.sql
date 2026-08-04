@@ -1,5 +1,6 @@
 select raw.recipe_table_input_aggregate.original_query,
-       RIGHT(raw.recipe_table_input_aggregate.original_query, 2) as "Output Material",
+        raw.recipe_table_input_aggregate.prefix,
+       SPLIT_PART(raw.recipe_table_input_aggregate.original_query, 'x', -1) as "Output Material",
        "total input_materials_AI1_AskPrice" / "input_materials_AI1_AskPrice_per_unit" as "volume",
        "input_materials_AI1_AskPrice_per_unit",
        "total input_materials_AI1_AskPrice",
