@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: dim_ticker
+    description: "Dimension table containing unique stock tickers."
+    columns:
+      - name: '"Ticker"'
+        description: "Natural primary key for stock tickers."
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_prices
+    description: "Fact table for stock prices identified by composite primary key (ticker, date_part, time_part)."
+    columns:
+      - name: '"Ticker"'
+        description: "Foreign key linking to dim_ticker."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_ticker')
+              field: '"Ticker"'
+
+      - name: date_part
+        description: "Part 2 of Composite PK: Date of snapshot."
+        data_tests:
+          - not_null
+
+      - name: time_part
+        description: "Part 3 of Composite PK: Time of snapshot."
+        data_tests:
+          - not_null
