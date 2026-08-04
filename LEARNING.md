@@ -9,6 +9,12 @@ https://github.com/massgravel/Microsoft-Activation-Scripts
 Link to website download for Mac Os:
 https://massgrave.dev/office_for_mac
 
+# Gemini Learning
+AI is good at 
+- Looking at staging csv output by datagrip, then generating the code for dimension and fact table, it can look at common patterns in the data too
+- Generating Python code that works, even when I don't know Python well
+- Generating Python code from formula
+
 # SQL Learnings
 Aggreates table cannot find information individually, you have to join up with another table
 
