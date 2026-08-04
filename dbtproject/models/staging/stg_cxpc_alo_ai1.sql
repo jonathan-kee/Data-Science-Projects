@@ -1,6 +1,6 @@
 with
     source as (
-        select * from {{ source("prosperous_universe sources", "cxpc_alo_ai1_raw") }}
+        select * from {{ source("prosperous_universe_sources", "cxpc_alo_ai1_raw") }}
     ),
     renamed as (
         select

@@ -2,7 +2,7 @@
 WITH raw_data AS (
     select raw.recipe_inputs_time_raw."Key" AS raw_string,
            raw.recipe_inputs_time_raw."TimeMs" as time_ms
-    from {{source('prosperous_universe sources','recipe_inputs_time_raw')}}
+    from {{source('prosperous_universe_sources','recipe_inputs_time_raw')}}
 ),
 -- Logical CTEs
 clean AS (

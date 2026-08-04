@@ -1,7 +1,7 @@
 -- Import CTEs
 WITH raw_data AS (
     select "Key" AS raw_string
-    from {{source('prosperous_universe sources','recipe_inputs_raw')}}
+    from {{source('prosperous_universe_sources','recipe_inputs_raw')}}
 ),
 -- Logical CTEs
 parsed_prefix AS (
