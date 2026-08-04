@@ -23,5 +23,5 @@ toFilter as (
     from all_tables 
     -- Did filter below to make sure there's only one row to not cause issue
     -- Not sure why TI has two 1887
-    where "AI1-BidPrice" NOT IN (459.3333333333333, 761.3333333333334, 1887,1870, 4304.5)
+    where "AI1-AskPrice" NOT IN (459.3333333333333, 761.3333333333334, 1887,1870, 4304.5)
 ) select * from toFilter
