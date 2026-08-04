@@ -1,7 +1,9 @@
 models:
   - name: stg_prices
+    description: Contains prices for all the exchanges for a particular Ticker
     columns: 
       - name: '"Ticker"'
+        description: The primary key for this table
         data_tests:
           - unique
           - not_null
