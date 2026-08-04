@@ -24,11 +24,20 @@ https://github.com/massgravel/Microsoft-Activation-Scripts
 Link to website download for Mac Os:
 https://massgrave.dev/office_for_mac
 
+# SQL Learnings
+Aggreates table cannot find information individually, you have to join up with another table
+
 # Reports
 ## SQL Reports
-[SME Report](./screenshots/SMEreports.png)
+[Recipe Report](./screenshots/recipe_report.png)
 
-![SME Report](./screenshots/SMEreports.png)
+![Recipe Report](./screenshots/recipe_report.png)
+
+Shows which Smeltor's recipe shows the highest ROI
+
+[Old SME Report](./screenshots/SMEreports.png)
+
+![Old SME Report](./screenshots/SMEreports.png)
 
 Shows which Smeltor's recipe shows the highest ROI
 
