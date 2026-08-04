@@ -2,8 +2,7 @@ sources:
   - name: prosperous_universe sources
     database: prosperous_universe
     schema: raw
-    tables:
-      - name: market_depth_raw
+    tables: 
       - name: recipe_inputs_raw
       - name: recipe_inputs_time_raw
       - name: prices_raw
