@@ -19,6 +19,12 @@
 
 # Reports
 ## SQL Reports
+[FS Recipe Report](./screenshots/fsReport.png)
+
+![FS Recipe Report](./screenshots/fsReport.png)
+
+Shows which Metalist Studio's recipe shows the highest ROI
+
 [Recipe Report](./screenshots/recipe_report.png)
 
 ![Recipe Report](./screenshots/recipe_report.png)
