@@ -1,18 +1,20 @@
+-- Import CTEs
 WITH raw_data AS (
     select "Key" AS raw_string
     from {{source('prosperous_universe sources','recipe_inputs_raw')}}
 ),
--- Deduplicate the source strings first
-unique_raw_data AS (
-    SELECT DISTINCT raw_string
-    FROM raw_data
-),
+-- Logical CTEs
 parsed_prefix AS (
     SELECT
         raw_string AS original_query,
         split_part(raw_string, ':', 1) AS prefix,
         split_part(raw_string, ':', 2) AS recipe_string
-    FROM unique_raw_data
+    -- contains duplicate data
+    -- Deduplicate the source strings first
+    FROM (
+        SELECT DISTINCT raw_string
+        FROM raw_data
+    )
 ),
 split_sides AS (
     SELECT
@@ -31,6 +33,5 @@ clean_data AS (SELECT original_query,
                FROM split_sides,
                     LATERAL unnest(string_to_array(input_str, '-')) AS input_item
 )
-select
-    *
-from clean_data
+-- Final CTE
+select * from clean_data
