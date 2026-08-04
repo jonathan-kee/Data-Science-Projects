@@ -3,6 +3,7 @@ with
 SELECT
     raw.stg_prices.date_part,
     raw.stg_prices."Ticker",
+    raw.stg_prices."AI1-BidPrice",
     raw.stg_prices."AI1-AskPrice" as "Original AI1-AskPrice",
     raw.recipe_report."input_materials_AI1_AskPrice_per_unit" as "Changed AI1-AskPrice",
     CASE
