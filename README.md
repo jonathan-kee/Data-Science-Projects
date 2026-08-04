@@ -17,6 +17,10 @@ https://blu3r4y.github.io/python-for-java-developers/excerpt.html
 
 ![Dbt Lineage working](./screenshots/dbtlineage.png)
 
+[Medallion Archictecture](./screenshots/medallionArchitecture.png)
+
+![Medallion Archictecture](./screenshots/medallionArchitecture.png)
+
 # Get Excel For free
 Link to github repo:
 https://github.com/massgravel/Microsoft-Activation-Scripts
