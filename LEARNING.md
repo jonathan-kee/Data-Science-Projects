@@ -15,6 +15,14 @@ AI is good at
 - Generating Python code that works, even when I don't know Python well
 - Generating Python code from formula
 
+# Calculation for Prosperous Universe
+[Profit Per Day](./screenshots/calculationProfitPerDay.png)
+
+![Profit Per Day](./screenshots/calculationProfitPerDay.png)
+
+4109 for AL is buy minus sell profit
+4581 for CL is buy minus sell profit
+
 # SQL Learnings
 Aggreates table cannot find information individually, you have to join up with another table
 
