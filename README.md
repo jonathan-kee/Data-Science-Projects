@@ -405,6 +405,11 @@ Best practises on Staging models CTE naming & functionality
 Further reading:
 https://docs.getdbt.com/best-practices/how-we-style/1-how-we-style-our-dbt-models?version=2.0
 
+Migrating legacy code:
+https://learn.getdbt.com/learn/course/refactoring-sql-for-modularity-vs-code/learn-the-refactoring-process-120min/the-refactoring-process?page=2
+
+You don't need to create DDL statement like CREATE TABLE, DBT will handle that for you
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
