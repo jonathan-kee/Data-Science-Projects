@@ -1,6 +1,7 @@
 # Data-Science-Projects
 
 # Project Highlights
+
 [First Profitable Run](./screenshots/FirstProfitableRun.png)
 
 ![First Profitable Run](./screenshots/FirstProfitableRun.png)
@@ -12,6 +13,10 @@
 [Dbt Lineage working](./screenshots/dbtlineage.png)
 
 ![Dbt Lineage working](./screenshots/dbtlineage.png)
+
+[Created Fact and Dimension](./screenshots/myprojecyFact&Dimension.png)
+
+![Created Fact and Dimension](./screenshots/myprojecyFact&Dimension.png)
 
 [Medallion Archictecture](./screenshots/medallionArchitecture.png)
 
@@ -138,6 +143,13 @@ Make dbt create table or view inside postgres:
 
 Make dbt run specific model:
 - dbt run --select my_first_dbt_model.sql
+
+Make dbt download packages
+- dbt deps
+
+Make dbt test dimension and fact tables
+dbt test --select dim_ticker fct_prices
+dbt test --select dim_facility fct_inventory_snapshot
 
 # DBT column lineage
 Change dictory to dbtproject to run dbt commands:
