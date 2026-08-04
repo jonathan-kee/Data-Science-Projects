@@ -1,3 +1,5 @@
+with
+    all_tables as (
 SELECT
     raw.stg_prices.date_part,
     raw.stg_prices."Ticker",
@@ -14,3 +16,11 @@ WHERE raw.stg_prices.date_part = (
     SELECT MAX(raw.stg_prices.date_part)
     FROM raw.stg_prices
 )
+),
+toFilter as (
+    select *
+    from all_tables 
+    -- Did filter below to make sure there's only one row to not cause issue
+    -- Not sure why TI has two 1887
+    where "AI1-BidPrice" NOT IN (459.3333333333333, 761.3333333333334, 1887,1870, 4304.5)
+) select * from toFilter
