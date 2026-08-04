@@ -7,3 +7,5 @@ models:
         data_tests:
           - unique
           - not_null
+  - name: stg_recipe_inputs_time
+    description: Contains recipe material input, material output, time taken per order
