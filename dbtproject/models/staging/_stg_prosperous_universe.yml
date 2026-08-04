@@ -1,0 +1,7 @@
+models:
+  - name: stg_prices
+    columns: 
+      - name: '"Ticker"'
+        data_tests:
+          - unique
+          - not_null
