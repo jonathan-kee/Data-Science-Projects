@@ -1,5 +1,5 @@
 sources:
-  - name: prosperous_universe sources
+  - name: prosperous_universe_sources
     database: prosperous_universe
     schema: raw
     tables: 
