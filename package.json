@@ -17,8 +17,10 @@
     "@aws-sdk/client-s3": "^3.1091.0",
     "@aws-sdk/s3-request-presigner": "^3.1091.0",
     "axios": "^1.18.1",
-    "pg": "^8.16.3",
-    "puppeteer": "^24.20.0"
+    "pg": "^8.22.0",
+    "pg-hstore": "^2.3.4",
+    "puppeteer": "^24.20.0",
+    "sequelize": "^6.37.8"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",

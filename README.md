@@ -88,6 +88,9 @@ Question: How do know which date do I want to filter the data? So that the chart
 I have to find the new floor.
 I guess you can create a ranking for the lowest open prices, and their dates
 
+# Vscode extensions to download
+sqlfluff to linter sql properly for best practises
+
 # DBT Website crendentials
 E4J8NLKAYRZ67GK5XWMDDKBR
 

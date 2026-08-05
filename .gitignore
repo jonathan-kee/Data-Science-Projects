@@ -151,3 +151,6 @@ dbt-demo
 
 # Typescript build
 build
+
+# Github actions
+actions-runner
