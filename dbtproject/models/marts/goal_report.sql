@@ -26,7 +26,7 @@ with
             habitat_total."total buying price" * 2 as "two habitant total buying price"
         from habitat_total
     ),
-    inesmith_total_buying_price as (
+    finesmith_total_buying_price as (
         select distinct
             raw.stg_prices."Ticker",
             raw.building_costs."amount"
@@ -46,7 +46,7 @@ with
     ),
     finesmith_total as (
         select sum("total buying price individually") as "total buying price"
-        from inesmith_total_buying_price
+        from finesmith_total_buying_price
     ),
     total as (
         select
