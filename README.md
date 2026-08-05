@@ -6,6 +6,10 @@
 
 ![First Profitable Run](./screenshots/FirstProfitableRun.png)
 
+[Time Series Analysis](./screenshots/timeSeriesAnalysis.png)
+
+![Time Series Analysis](./screenshots/timeSeriesAnalysis.png)
+
 [Report Lineage](./screenshots/SMEReportLineage.png)
 
 ![Report Lineage](./screenshots/SMEReportLineage.png)
