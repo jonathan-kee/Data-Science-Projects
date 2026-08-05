@@ -2,7 +2,9 @@ with
 joining_table as (
     select 
         stg_recipe_inputs_time.*,
+         -- Ask Price is seller, You buy from them --
         "AI1-AskPrice",
+        -- Bid Price is buyer, You sell to them --
         "AI1-BidPrice",
         stg_recipe_inputs_time."time_ms" / 60000.0 AS "minutes"
     from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
