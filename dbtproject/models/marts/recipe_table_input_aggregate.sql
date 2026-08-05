@@ -1,19 +1,19 @@
 with 
 joining_table as (
-    select raw.stg_recipe_inputs_time.*,
+    select stg_recipe_inputs_time.*,
     -- Ask Price is seller, You buy from them --
     "AI1-AskPrice",
     -- Bid Price is buyer, You sell to them --
     "AI1-BidPrice",
     stg_recipe_inputs_time."time_ms" / 60000.0 AS "minutes"
-    from {{ ref("stg_recipe_inputs_time") }}
+    from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
     -- Joining on "materialinput" to get prices for each ingredient
     inner join
-        raw.stg_prices
-        on raw.stg_recipe_inputs_time."materialinput" = raw.stg_prices."Ticker"
+        {{ ref("stg_prices") }} as stg_prices
+        on stg_recipe_inputs_time."materialinput" = stg_prices."Ticker"
     where
         -- maximum date --
-        raw.stg_prices.date_part = (select max("date_part") from raw.stg_prices)
+        stg_prices.date_part = (select max("date_part") from {{ ref("stg_prices") }})
         -- filter by SME
         and prefix = 'SME' and materialinput <> 'ALO'
 ),
