@@ -1,14 +1,13 @@
 with
     stg_prices as (
-        select * from {{ ref("stg_prices") }}
-        where 
-        -- raw.stg_prices.date_part = '2026-07-30'
-        -- maximum date --
-        raw.stg_prices.date_part = (
-                select max("date_part")
-                from {{ ref("stg_prices") }}
-            )
-        ),
+        select *
+        from {{ ref("stg_prices") }}
+        where
+            -- raw.stg_prices.date_part = '2026-07-30'
+            -- maximum date --
+            raw.stg_prices.date_part
+            = (select max("date_part") from {{ ref("stg_prices") }})
+    ),
 
     stg_recipe_inputs as (select * from {{ ref("stg_recipe_inputs") }}),
     stg_recipe_inputs_time as (select * from {{ ref("stg_recipe_inputs_time") }}),
@@ -26,8 +25,7 @@ with
             stg_recipe_inputs.materialoutput
         from stg_prices
         left join
-            stg_recipe_inputs
-            on stg_recipe_inputs.materialinput = stg_prices."Ticker"
+            stg_recipe_inputs on stg_recipe_inputs.materialinput = stg_prices."Ticker"
     ),
     material_output_total_cost as (
         select
@@ -46,7 +44,11 @@ with
             (
                 stg_recipe_inputs_time.time_ms / 60000
             ) as "time_taken_per_order_in_minutes",
-            CAST((24 * 60) / CAST((stg_recipe_inputs_time.time_ms / 60000) AS DECIMAL(10, 2)) AS DECIMAL(10, 2)) as "total_order_per_day"
+            cast(
+                (24 * 60) / cast(
+                    (stg_recipe_inputs_time.time_ms / 60000) as decimal(10, 2)
+                ) as decimal(10, 2)
+            ) as "total_order_per_day"
         from stg_prices
         left join
             material_input_total_cost_cte

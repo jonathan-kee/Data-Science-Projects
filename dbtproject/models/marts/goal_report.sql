@@ -10,10 +10,8 @@ with
             on raw.stg_prices."Ticker" = raw.building_costs."commodity_ticker"
         where
             -- maximum date --
-            raw.stg_prices.date_part = (
-                select max("date_part")
-                from {{ ref("stg_prices") }}
-            )
+            raw.stg_prices.date_part
+            = (select max("date_part") from {{ ref("stg_prices") }})
             -- habitat id --
             and raw.building_costs."buildingId" in ('79f8f9bf4a56c464041c18995b00c16e')
     ),
@@ -36,11 +34,9 @@ with
             raw.building_costs
             on raw.stg_prices."Ticker" = raw.building_costs."commodity_ticker"
         where
-             -- maximum date --
-            raw.stg_prices.date_part = (
-                select max("date_part")
-                from {{ ref("stg_prices") }}
-            )
+            -- maximum date --
+            raw.stg_prices.date_part
+            = (select max("date_part") from {{ ref("stg_prices") }})
             -- habitat id --
             and raw.building_costs."buildingId" in ('2d08c72c3801061979897525a8915fb2')
     ),

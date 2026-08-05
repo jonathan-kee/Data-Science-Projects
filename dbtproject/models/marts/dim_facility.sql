@@ -1,23 +1,25 @@
-WITH source_data AS (
+with
+    source_data as (
 
-    SELECT DISTINCT
-        "NaturalId"    AS natural_id,
-        "Name"         AS facility_name,
-        "StorageType"  AS storage_type
-    FROM {{ ref('stg_inventory') }}
-    WHERE "NaturalId" IS NOT NULL
+        select distinct
+            "NaturalId" as natural_id,
+            "Name" as facility_name,
+            "StorageType" as storage_type
+        from {{ ref("stg_inventory") }}
+        where "NaturalId" is not null
 
-)
+    )
 
-SELECT
+select
     -- Deterministic surrogate primary key using MD5
-    MD5(
-        COALESCE(CAST(natural_id AS VARCHAR), '') || '-' ||
-        COALESCE(CAST(storage_type AS VARCHAR), '')
-    ) AS facility_key,
+    md5(
+        coalesce(cast(natural_id as varchar), '')
+        || '-'
+        || coalesce(cast(storage_type as varchar), '')
+    ) as facility_key,
 
     natural_id,
     facility_name,
     storage_type,
-    CURRENT_TIMESTAMP AS created_at
-FROM source_data
+    current_timestamp as created_at
+from source_data

@@ -1,29 +1,26 @@
-WITH stg_data AS (
+with
+    stg_data as (
 
-    SELECT
-        CAST("date_part" AS DATE)           AS snapshot_date,
-        CAST("time_part" AS TIME)           AS snapshot_time,
-        TO_TIMESTAMP("load time", 'DD/MM/YYYY HH24:MI:SS')    AS loaded_at,
-        "Username"                          AS loaded_by_user,
-        "NaturalId"                         AS natural_id,
-        "StorageType"                       AS storage_type,
-        "Ticker"                            AS ticker,
-        "Amount"                            AS item_amount
-    FROM {{ ref('stg_inventory') }}
+        select
+            cast("date_part" as date) as snapshot_date,
+            cast("time_part" as time) as snapshot_time,
+            to_timestamp("load time", 'DD/MM/YYYY HH24:MI:SS') as loaded_at,
+            "Username" as loaded_by_user,
+            "NaturalId" as natural_id,
+            "StorageType" as storage_type,
+            "Ticker" as ticker,
+            "Amount" as item_amount
+        from {{ ref("stg_inventory") }}
 
-),
+    ),
 
-dim_facility AS (
+    dim_facility as (
 
-    SELECT 
-        facility_key,
-        natural_id,
-        storage_type
-    FROM {{ ref('dim_facility') }}
+        select facility_key, natural_id, storage_type from {{ ref("dim_facility") }}
 
-)
+    )
 
-SELECT
+select
     -- Primary Foreign Key referencing dim_facility
     dim.facility_key,
 
@@ -39,7 +36,8 @@ SELECT
     -- Fact / Numeric Measure
     stg.item_amount
 
-FROM stg_data stg
-LEFT JOIN dim_facility dim
-    ON stg.natural_id = dim.natural_id
-   AND stg.storage_type = dim.storage_type
+from stg_data stg
+left join
+    dim_facility dim
+    on stg.natural_id = dim.natural_id
+    and stg.storage_type = dim.storage_type

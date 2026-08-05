@@ -1,15 +1,15 @@
-WITH source_data AS (
-    SELECT DISTINCT
-        "Ticker" AS "Ticker"
-    FROM {{ ref('stg_prices') }}
-    WHERE "Ticker" IS NOT NULL
-)
+with
+    source_data as (
+        select distinct "Ticker" as "Ticker"
+        from {{ ref("stg_prices") }}
+        where "Ticker" is not null
+    )
 
-SELECT
+select
     -- Natural Primary Key for the Dimension
     "Ticker",
-    
-    -- Metadata / Placeholder attributes (e.g., sector, company_name)
-    CURRENT_TIMESTAMP AS created_at
 
-FROM source_data
+    -- Metadata / Placeholder attributes (e.g., sector, company_name)
+    current_timestamp as created_at
+
+from source_data

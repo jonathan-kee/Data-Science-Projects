@@ -1,9 +1,5 @@
-WITH source_data AS (
-    SELECT * 
-    FROM {{ ref('stg_prices') }}
-)
+with source_data as (select * from {{ ref("stg_prices") }})
 
-SELECT
-    source_data.*
-FROM source_data
-WHERE "Ticker" IS NOT NULL
+select source_data.*
+from source_data
+where "Ticker" is not null
