@@ -203,6 +203,22 @@ combining multiple fields into new one, flatening and extracting fields from lik
 That cleaned data is then gonna be used by developers to build any number of downstream models
 without having to perform the same types of cleanps on that data in multiple places.
 
+Gemini Answer:
+| Architectural Feature | Staging Layer (`stg_`) | Intermediate Layer (`int_`) | Marts Layer (`fct_`, `dim_`) |
+| :--- | :--- | :--- | :--- |
+| **Primary Responsibility** | Clean, rename, cast types, and standardize raw source data. | Isolate complex transformations, re-grain data, and build reusable logic. | Provide business-ready, modeled entities for analytics and BI dashboards. |
+| **Row Count / Grain Shift** | **1-to-1** with source table (No row collapsing or changing grain). | **Variable** (Re-grained, aggregated, or joined across domains). | **Entity-based** (1 row per order, 1 row per customer, 1 row per event). |
+| **Aggregations (`GROUP BY`)** | ❌ **Forbidden** | ✅ **Primary use case** (collapsing details before joins) | ✅ **Allowed** (calculating final measures and metrics) |
+| **Joins Across Tables** | ❌ **Forbidden** (only source-to-staging mapping) | ✅ **Allowed** (combining related staging or intermediate tables) | ✅ **Allowed** (joining clean intermediate components) |
+| **Window Functions** | ❌ **Forbidden** (keep staging lightweight) | ✅ **Primary use case** (sessionizing, deduplication, row numbers) | ⚠️ **Use sparingly** (push complex windowing back to intermediate) |
+| **Business Logic & Rules** | ❌ **Forbidden** (zero business definitions) | ⚠️ **Partial** (pre-calculating foundational measures) | ✅ **Full** (applying active definitions, metrics, status flags) |
+| **Folder Path** | `models/staging/<source_system>/` | `models/intermediate/<domain>/` | `models/marts/<business_unit>/` |
+| **File Naming Convention** | `stg_<source>__<entity>.sql` | `int_<entity>_<verb_or_action>.sql` | `fct_<entity>.sql` or `dim_<entity>.sql` |
+| **Model Dependency (`ref`)** | Points ONLY to `{{ source() }}` macros. | Points to `{{ ref('stg_...') }}` or other `int_` models. | Points to `{{ ref('int_...') }}` or directly to `{{ ref('stg_...') }}`. |
+| **Recommended Materialization** | `view` | `ephemeral` or `view` | `table` or `incremental` |
+| **Exposed to End Users / BI?** | ❌ **No** (internal developer abstraction) | ❌ **No** (hidden from production reporting schemas) | ✅ **Yes** (queried by Metabase, Tableau, Looker, SQL tools) |
+| **Necessity in Projects** | 🔴 **Mandatory** | 🟡 **Optional** (added as DAG complexity grows) | 🔴 **Mandatory** |
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
