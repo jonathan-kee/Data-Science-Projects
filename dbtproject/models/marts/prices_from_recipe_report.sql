@@ -1,22 +1,20 @@
 with
     all_tables as (
 SELECT
-    raw.stg_prices.date_part,
-    raw.stg_prices."Ticker",
-    raw.stg_prices."AI1-BidPrice",
-    raw.stg_prices."AI1-AskPrice" as "Original AI1-AskPrice",
-    raw.recipe_report."input_materials_AI1_AskPrice_per_unit" as "Changed AI1-AskPrice",
+    stg_prices.date_part,
+    stg_prices."Ticker",
+    stg_prices."AI1-BidPrice",
     CASE
-        WHEN raw.recipe_report."input_materials_AI1_AskPrice_per_unit" IS NOT NULL
-        THEN raw.recipe_report."input_materials_AI1_AskPrice_per_unit"
-        ELSE raw.stg_prices."AI1-AskPrice"
+        WHEN recipe_report."input_materials_AI1_AskPrice_per_unit" IS NOT NULL
+        THEN recipe_report."input_materials_AI1_AskPrice_per_unit"
+        ELSE stg_prices."AI1-AskPrice"
     END AS "AI1-AskPrice"
-FROM {{ ref("stg_prices") }}
-LEFT JOIN raw.recipe_report
-    ON raw.recipe_report."Output Material" = raw.stg_prices."Ticker"
-WHERE raw.stg_prices.date_part = (
-    SELECT MAX(raw.stg_prices.date_part)
-    FROM raw.stg_prices
+FROM {{ ref("stg_prices") }} as stg_prices
+LEFT JOIN {{ ref("recipe_report") }} as recipe_report
+    ON recipe_report."Output_Material" = stg_prices."Ticker"
+WHERE stg_prices.date_part = (
+    SELECT MAX(stg_prices.date_part)
+    FROM {{ ref("stg_prices") }}
 )
 ),
 toFilter as (
