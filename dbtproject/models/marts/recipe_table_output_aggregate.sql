@@ -2,14 +2,14 @@ with
 joining_table as (
     select 
         stg_recipe_inputs_time.*,
-        raw.stg_prices."AI1-AskPrice",
-        raw.stg_prices."AI1-BidPrice",
+        stg_prices."AI1-AskPrice",
+        stg_prices."AI1-BidPrice",
         stg_recipe_inputs_time."time_ms" / 60000.0 AS "minutes"
-    from {{ ref("stg_recipe_inputs_time") }}
-    inner join raw.stg_prices
-        on raw.stg_recipe_inputs_time."materialoutput" = raw.stg_prices."Ticker"
+    from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
+    inner join {{ ref("stg_prices") }} as stg_prices
+        on stg_recipe_inputs_time."materialoutput" = stg_prices."Ticker"
     where
-        raw.stg_prices.date_part = (select max("date_part") from raw.stg_prices)
+        stg_prices.date_part = (select max("date_part") from {{ ref("stg_prices") }})
         and prefix = 'SME'
 ),
 group_by_total_output as (
