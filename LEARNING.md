@@ -183,6 +183,26 @@ https://learn.getdbt.com/learn/course/refactoring-sql-for-modularity-vs-code/lea
 
 You don't need to create DDL statement like CREATE TABLE, DBT will handle that for you
 
+(Important) Intro to Centralizing logic
+https://learn.getdbt.com/learn/course/refactoring-sql-for-modularity-vs-code/learn-the-refactoring-process-120min/centralizing-logic?page=1
+
+Staging - Transformation Layer
+Intermediate - [Optional] Transormation / Joining Layer
+Marts - Consumption Layer
+FACT - Quantitative metrics and events (Inside Marts models)
+DIM - Descriptive context (Inside Marts models)
+
+Customers Staging CTE
+https://learn.getdbt.com/learn/course/refactoring-sql-for-modularity-vs-code/learn-the-refactoring-process-120min/centralizing-logic?page=2
+
+Marts models are identified by their join logic, we are not transforming a single source anymore,
+but now we're doing transformations on multiple models to create some analytical insights.
+
+Staging models are creating building blocks for analysis. Like casting data type, doing renaming,
+combining multiple fields into new one, flatening and extracting fields from like a json column. 
+That cleaned data is then gonna be used by developers to build any number of downstream models
+without having to perform the same types of cleanps on that data in multiple places.
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
