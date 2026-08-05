@@ -5,9 +5,9 @@ joining_table as (
         "AI1-AskPrice",
         "AI1-BidPrice",
         stg_recipe_inputs_time."time_ms" / 60000.0 AS "minutes"
-    from {{ ref("stg_recipe_inputs_time") }}
+    from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
     inner join {{ ref("stg_prices") }} as stg_prices
-        on raw.stg_recipe_inputs_time."materialoutput" = stg_prices."Ticker"
+        on stg_recipe_inputs_time."materialoutput" = stg_prices."Ticker"
     where
         stg_prices.date_part = (select max("date_part") from {{ ref("stg_prices") }})
         and prefix = 'FS'
