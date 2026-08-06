@@ -2,6 +2,12 @@
 - https://www.syntaxshift.dev/courses/from-java-to-python
 - https://blu3r4y.github.io/python-for-java-developers/excerpt.html
 
+# Gemini Learning
+AI is good at 
+- Looking at staging csv output by datagrip, then generating the code for dimension and fact table, it can look at common patterns in the data too
+- Generating Python code that works, even when I don't know Python well
+- Generating Python code from formula
+
 # Get Excel For free
 Link to github repo:
 https://github.com/massgravel/Microsoft-Activation-Scripts
@@ -9,11 +15,20 @@ https://github.com/massgravel/Microsoft-Activation-Scripts
 Link to website download for Mac Os:
 https://massgrave.dev/office_for_mac
 
-# Gemini Learning
-AI is good at 
-- Looking at staging csv output by datagrip, then generating the code for dimension and fact table, it can look at common patterns in the data too
-- Generating Python code that works, even when I don't know Python well
-- Generating Python code from formula
+# Learn Excel
+| Excel Pivot Table Feature | SQL Equivalent | Description / Purpose |
+| :--- | :--- | :--- |
+| **Rows Area** | `GROUP BY column_name` | Defines the distinct row categories/buckets to group the raw data by. |
+| **Values Area** | Aggregate Functions (`SUM()`, `COUNT()`, `AVG()`, `MAX()`, `MIN()`) | The numeric metrics calculated for each grouped bucket. |
+| **Columns Area** | `PIVOT` clause OR Conditional Aggregation (`SUM(CASE WHEN ...)`) | Transposes distinct field values horizontally into separate column headers. |
+| **Filters / Slicers** | `WHERE` clause | Filters raw underlying rows **before** any grouping or aggregation takes place. |
+| **Value Filters** *(Label/Value Filters)* | `HAVING` clause | Filters the aggregated results **after** the grouping and calculations are complete. |
+| **Calculated Field** | Computed Expression in `SELECT` (e.g., `SUM(Sales) * 0.10`) | Performs math on the aggregated values within the output query. |
+| **Grand Totals / Subtotals** | `GROUP BY ROLLUP(...)` / `CUBE(...)` OR `UNION ALL` | Computes higher-level aggregate summaries across groups and the entire dataset. |
+
+[Excel Pivot Table](./screenshots/ExcelPivotTable.png)
+
+![Excel Pivot Table](./screenshots/ExcelPivotTable.png)
 
 # Calculation for Prosperous Universe
 [Profit Per Day](./screenshots/calculationProfitPerDay.png)
