@@ -219,6 +219,13 @@ Gemini Answer:
 | **Exposed to End Users / BI?** | ❌ **No** (internal developer abstraction) | ❌ **No** (hidden from production reporting schemas) | ✅ **Yes** (queried by Metabase, Tableau, Looker, SQL tools) |
 | **Necessity in Projects** | 🔴 **Mandatory** | 🟡 **Optional** (added as DAG complexity grows) | 🔴 **Mandatory** |
 
+
+What are analyses?
+https://learn.getdbt.com/learn/course/analyses-and-seeds-vs-code/analyses-and-seeds-30min/understanding-analyses?page=2
+
+What are seeds?
+https://learn.getdbt.com/learn/course/analyses-and-seeds-vs-code/analyses-and-seeds-30min/understanding-analyses?page=3
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
