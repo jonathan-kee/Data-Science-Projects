@@ -76,6 +76,12 @@ jobs:
       - name: Run SQL Exchange ticker TI.AI1
         run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_TI_AI1_${TODAY}.sql
       
+      - name: Exchange ticker SI.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/SI.AI1"
+
+      - name: Run SQL Exchange ticker SI.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_SI_AI1_${TODAY}.sql
+
       # ------------------------------------- Smeltor -------------------------------------
 
       - name: Exchange ticker ALO.AI1
