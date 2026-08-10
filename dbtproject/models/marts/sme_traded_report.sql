@@ -3,9 +3,6 @@ with all_sources as (
     FROM {{ ref("stg_cxpc_al_ai1") }}
     union all
     select *
-    FROM {{ ref("stg_cxpc_alo_ai1") }}
-    union all
-    select *
     FROM {{ ref("stg_cxpc_au_ai1") }}
     union all
     select *
