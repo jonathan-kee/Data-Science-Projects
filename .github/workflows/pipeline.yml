@@ -32,6 +32,12 @@ jobs:
 
       - name: Run SQL Exchange ticker ALO.AI1
         run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_ALO_AI1_${TODAY}.sql
+
+      - name: Exchange ticker AU.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/AU.AI1"
+
+      - name: Run SQL Exchange ticker AU.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_AU_AI1_${TODAY}.sql
       
       - name: Building costs HB2
         run: tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/HB2"
