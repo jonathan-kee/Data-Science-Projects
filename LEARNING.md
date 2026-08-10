@@ -38,6 +38,14 @@ https://massgrave.dev/office_for_mac
 4109 for AL is buy minus sell profit
 4581 for CL is buy minus sell profit
 
+[Index Per Day Part 1](./screenshots/PartOneIndex.png)
+
+![Index Per Day Part 1](./screenshots/PartOneIndex.png)
+
+[Index Per Day Part 2](./screenshots/PartTwoIndex.png)
+
+![Index Per Day Part 2](./screenshots/PartTwoIndex.png)
+
 # SQL Learnings
 Aggreates table cannot find information individually, you have to join up with another table
 
