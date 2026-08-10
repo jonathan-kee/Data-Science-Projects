@@ -8,4 +8,5 @@ sources:
       - name: prices_raw
       - name: cxpc_al_ai1_raw
       - name: cxpc_alo_ai1_raw
+      - name: cxpc_au_ai1_raw
       - name: inventory_raw
