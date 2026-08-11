@@ -89,6 +89,87 @@ jobs:
         run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_RE_AI1_${TODAY}.sql
       # ------------------------------------- Smeltor -------------------------------------
 
+      # ------------------------------------- Metalist Studio -------------------------------------
+      - name: Exchange ticker SEQ.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/SEQ.AI1"
+
+      - name: Run SQL Exchange ticker SEQ.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_SEQ_AI1_${TODAY}.sql
+
+      - name: Exchange ticker BGO.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/BGO.AI1"
+
+      - name: Run SQL Exchange ticker BGO.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_BGO_AI1_${TODAY}.sql
+
+      - name: Exchange ticker MFK.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/MFK.AI1"
+
+      - name: Run SQL Exchange ticker MFK.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_MFK_AI1_${TODAY}.sql
+
+      - name: Exchange ticker BRO.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/BRO.AI1"
+
+      - name: Run SQL Exchange ticker BRO.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_BRO_AI1_${TODAY}.sql
+
+      - name: Exchange ticker BFR.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/BFR.AI1"
+
+      - name: Run SQL Exchange ticker BFR.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_BFR_AI1_${TODAY}.sql
+
+      - name: Exchange ticker RGO.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/RGO.AI1"
+
+      - name: Run SQL Exchange ticker RGO.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_RGO_AI1_${TODAY}.sql
+
+      - name: Exchange ticker UTS.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/UTS.AI1"
+
+      - name: Run SQL Exchange ticker UTS.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_UTS_AI1_${TODAY}.sql
+
+      - name: Exchange ticker BCO.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/BCO.AI1"
+
+      - name: Run SQL Exchange ticker BCO.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_BCO_AI1_${TODAY}.sql
+
+      - name: Exchange ticker AFR.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/AFR.AI1"
+
+      - name: Run SQL Exchange ticker AFR.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_AFR_AI1_${TODAY}.sql
+
+      - name: Exchange ticker SFK.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/SFK.AI1"
+
+      - name: Run SQL Exchange ticker SFK.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_SFK_AI1_${TODAY}.sql
+
+      - name: Exchange ticker HCC.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/HCC.AI1"
+
+      - name: Run SQL Exchange ticker HCC.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_HCC_AI1_${TODAY}.sql
+
+      - name: Exchange ticker BGC.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/BGC.AI1"
+
+      - name: Run SQL Exchange ticker BGC.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_BGC_AI1_${TODAY}.sql
+      
+      - name: Exchange ticker FLO.AI1
+        run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/FLO.AI1"
+
+      - name: Run SQL Exchange ticker FLO.AI1
+        run: docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < ingestion/sql/cxpc_FLO_AI1_${TODAY}.sql
+      # ------------------------------------- Metalist Studio -------------------------------------
+
+
       - name: Exchange ticker ALO.AI1
         run: tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/ALO.AI1"
 
