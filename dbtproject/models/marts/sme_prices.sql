@@ -34,9 +34,16 @@ with all_smeltor_sources as (
     select *
     from {{ ref("stg_cxpc_re_ai1") }} 
 ),
-filter_interval as (
-    select *
-    from all_smeltor_sources
-    where "Interval" = 'DAY_ONE'
-) 
-select * from filter_interval
+ max_dates as (
+    select
+        ticker,
+        max("date_part") as max_date
+    from {{ ref("sme_prices") }}
+    group by ticker
+)
+select s.*
+from all_smeltor_sources s
+join max_dates m
+  on s.ticker = m.ticker
+where s."Interval" = 'DAY_ONE'
+  and s."date_part" = m.max_date 
