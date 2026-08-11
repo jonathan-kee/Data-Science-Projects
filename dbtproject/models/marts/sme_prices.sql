@@ -38,12 +38,15 @@ with all_smeltor_sources as (
     select
         ticker,
         max("date_part") as max_date
-    from {{ ref("sme_prices") }}
+    from all_smeltor_sources
     group by ticker
-)
-select s.*
-from all_smeltor_sources s
-join max_dates m
-  on s.ticker = m.ticker
-where s."Interval" = 'DAY_ONE'
-  and s."date_part" = m.max_date 
+),
+ max_dates_table as (
+    select s.*
+    from all_smeltor_sources s
+    join max_dates m
+    on s.ticker = m.ticker
+    where s."Interval" = 'DAY_ONE'
+    and s."date_part" = m.max_date 
+ ) 
+ select * from max_dates_table
