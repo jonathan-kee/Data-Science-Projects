@@ -4,17 +4,12 @@ select
     split_part(
         input.original_query, 'x', -1
     ) as "Output Material",
-    "total input_materials_AI1_AskPrice"
-    / "input_materials_AI1_AskPrice_per_unit" as "volume",
-    "input_materials_AI1_AskPrice_per_unit",
-    "total input_materials_AI1_AskPrice" / "input_materials_AI1_AskPrice_per_unit" as "Quantity",
-    "total input_materials_AI1_AskPrice",
-    "total output_materials_AI1_BidPrice",
+    input."input_materials_AI1_AskPrice_per_unit",
+    input."total input_materials_AI1_AskPrice",
+    output."total output_materials_AI1_BidPrice",
     -- Should not be total minus total, should be individual --
-    "total output_materials_AI1_BidPrice" - "total input_materials_AI1_AskPrice" as "profit",
-    (1440 / input."minutes per order") * (
-        "total output_materials_AI1_BidPrice" - "total input_materials_AI1_AskPrice"
-    ) as "profit per day"
+    output."total output_materials_AI1_BidPrice" - input."total input_materials_AI1_AskPrice" as "profit_per_total",
+    (1440 / input."minutes per order") * (output."total output_materials_AI1_BidPrice" - input."total input_materials_AI1_AskPrice") as "profit_per_day"
 from
     {{ ref("fs_recipe_table_input_prices_from_report_aggregate") }}
     as input
@@ -23,7 +18,7 @@ join
     on input.original_query
     = output.original_query
 where input.prefix = 'FS'
-order by "profit per day" desc
+order by "profit_per_total" desc
 
 -- fs_recipe_report
 -- FS:1xFE=>16xSFK
