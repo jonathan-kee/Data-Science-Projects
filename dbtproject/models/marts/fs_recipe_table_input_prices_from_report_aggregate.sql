@@ -1,4 +1,5 @@
 with
+    -- Looks correct
     joining_table as (
         select
             stg_recipe_inputs_time.*,
@@ -24,25 +25,25 @@ with
         select
             joining_table."original_query",
             joining_table."prefix",
-            max("minutes") as "minutes per order",
+            max("minutes") as "minutes_per_order",
             concat(
                 cast(max(minutes) as int) / 60,
                 ' hours ',
                 cast(max(minutes) as int) % 60,
                 ' mins'
-            ) as "hour and minutes",
-            max("minutes") / max("materialoutputquantity") as "minutes per unit",
+            ) as "hour_and_minutes",
+            max("minutes") / max("materialoutputquantity") as "minutes_per_unit",
             concat(
                 cast(max("minutes") / max("materialoutputquantity") as int) / 60,
                 ' hours ',
                 cast(max("minutes") / max("materialoutputquantity") as int) % 60,
                 ' mins'
-            ) as "hour and minutes per unit",
+            ) as "hour_and_minutes_per_unit",
 
             -- MULTIPLY EACH INGREDIENT PRICE BY ITS INPUT QUANTITY --
             sum(
                 "AI1-AskPrice" * "materialinputquantity"
-            ) as "total input_materials_AI1_AskPrice",
+            ) as "total_input_materials_AI1_AskPrice",
 
             -- TOTAL INPUT COST DIVIDED BY OUTPUT QUANTITY FOR PER-UNIT COST --
             sum("AI1-AskPrice" * "materialinputquantity")
@@ -54,3 +55,7 @@ with
 select *
 from group_by_total_input
 order by 1
+
+-- FS:1xFE=>16xSFK
+-- 5771.666666666666
+-- price of 1 FE 1318.5
