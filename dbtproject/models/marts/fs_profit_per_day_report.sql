@@ -48,4 +48,7 @@ with
         where original_query = 'FS:1xCU-300xPE=>10xBCO'
     )
 select *
+from profit_per_day
+union all
+select *
 from profit_per_day_2
