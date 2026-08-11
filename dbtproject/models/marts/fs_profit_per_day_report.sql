@@ -46,9 +46,35 @@ with
         join material_input_time on 1 = 1
         join material_output_time on 1 = 1
         where original_query = 'FS:1xCU-300xPE=>10xBCO'
-    )
+    ),material_input_time_3 as (
+        select max("minutes per order") as "minutes per order"
+        from raw.recipe_table_input_aggregate
+        where original_query in ('SME:6xALO-1xO-1xC-1xFLX=>4xAL', 'SME:5xCUO-10xO-1xSIO=>3xCU')
+    ),
+    material_output_time_3 as (
+        select "minutes per order"
+        from raw.fs_recipe_table_output_aggregate
+        where original_query = 'FS:1xAL-2xCU=>3xBRO'
+    ),
+    profit_per_day_3 as (
+        select
+            (
+                1440 / (
+                    material_input_time_3."minutes per order"
+                    + material_output_time_3."minutes per order"
+                )
+            )
+            * "profit_per_total" as "profit_per_day"
+        from raw.fs_recipe_report
+        join material_input_time_3 on 1 = 1
+        join material_output_time_3 on 1 = 1
+        where original_query = 'FS:1xAL-2xCU=>3xBRO'
+    ),
 select *
 from profit_per_day
 union all
 select *
 from profit_per_day_2
+union all
+select *
+from profit_per_day_3
