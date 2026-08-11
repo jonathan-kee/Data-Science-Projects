@@ -17,7 +17,7 @@ with
                     + material_output_time."minutes per order"
                 )
             )
-            * "profit" as "profit_per_day"
+            * "profit_per_total" as "profit_per_day"
         from raw.fs_recipe_report
         join material_input_time on 1 = 1
         join material_output_time on 1 = 1
