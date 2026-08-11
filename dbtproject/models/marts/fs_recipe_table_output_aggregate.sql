@@ -16,6 +16,9 @@ with
             = (select max("date_part") from {{ ref("stg_prices") }})
             and prefix = 'FS'
     ),
+    
+    -- FS:1xZR-1xAL=>1xAFR = 22000 "AI1-BidPrice"
+    -- FS:4xAU-1xFE=>5xBGO = 3010 * 5 = 15050
     group_by_total_output as (
         select
             joining_table."original_query",
@@ -29,10 +32,11 @@ with
                 cast(max(minutes) as int) % 60,
                 ' mins'
             ) as "hour and minutes",
-
+            
+            -- This one looks wrong
             -- Multiply Unit Price (1940) by Quantity (e.g. 2) to get Total (3880) --
             (sum("AI1-BidPrice") / count(*))
-            * max("materialoutputquantity") as "total output_materials_AI1_BidPrice",
+            * max("materialoutputquantity") as "total_output_materials_AI1_BidPrice",
 
             -- Unit price remains 1940 --
             sum("AI1-BidPrice") / count(*) as "output_materials_AI1_BidPrice_per_unit"
