@@ -6,8 +6,8 @@ sources:
       - name: recipe_inputs_raw
       - name: recipe_inputs_time_raw
       - name: prices_raw
+      # -------------------------- Smeltor --------------------------
       - name: cxpc_al_ai1_raw
-      - name: cxpc_alo_ai1_raw
       - name: cxpc_au_ai1_raw
       - name: cxpc_cf_ai1_raw
       - name: cxpc_cu_ai1_raw
@@ -18,4 +18,24 @@ sources:
       - name: cxpc_si_ai1_raw
       - name: cxpc_stl_ai1_raw
       - name: cxpc_ti_ai1_raw
+      # -------------------------- Smeltor --------------------------
+
+      # -------------------------- Metalist Studio --------------------------
+      - name: cxpc_afr_ai1_raw
+      - name: cxpc_bco_ai1_raw
+      - name: cxpc_bfr_ai1_raw
+      - name: cxpc_bgc_ai1_raw
+      - name: cxpc_bgo_ai1_raw
+      - name: cxpc_bro_ai1_raw
+      - name: cxpc_flo_ai1_raw
+      - name: cxpc_hcc_ai1_raw
+      - name: cxpc_mfk_ai1_raw
+      - name: cxpc_rgo_ai1_raw
+      - name: cxpc_seq_ai1_raw
+      - name: cxpc_sfk_ai1_raw
+      - name: cxpc_uts_ai1_raw
+      # -------------------------- Metalist Studio --------------------------
+
+      - name: cxpc_alo_ai1_raw
+  
       - name: inventory_raw
