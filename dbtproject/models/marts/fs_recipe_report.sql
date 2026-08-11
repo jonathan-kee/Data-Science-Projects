@@ -9,7 +9,8 @@ select
     output."total_output_materials_AI1_BidPrice",
     -- Should not be total minus total, should be individual --
     output."total_output_materials_AI1_BidPrice" - input."total_input_materials_AI1_AskPrice" as "profit_per_total",
-    (1440 / input."minutes_per_order") * (output."total_output_materials_AI1_BidPrice" - input."total_input_materials_AI1_AskPrice") as "profit_per_day"
+    (1440 / input."minutes_per_order") * (output."total_output_materials_AI1_BidPrice" - input."total_input_materials_AI1_AskPrice") as "profit_per_day",
+    fs_traded_report."traded_rank" as "traded_rank"
 from
     {{ ref("fs_recipe_table_input_prices_from_report_aggregate") }}
     as input
@@ -17,6 +18,10 @@ join
     {{ ref("fs_recipe_table_output_aggregate") }} as output
     on input.original_query
     = output.original_query
+left join {{ ref("fs_traded_report")}} as fs_traded_report 
+on split_part(
+        input.original_query, 'x', -1
+    )  = UPPER(fs_traded_report."ticker")
 where input.prefix = 'FS'
 order by "profit_per_total" desc
 
