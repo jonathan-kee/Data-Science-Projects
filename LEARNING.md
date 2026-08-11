@@ -46,6 +46,9 @@ https://massgrave.dev/office_for_mac
 
 ![Index Per Day Part 2](./screenshots/PartTwoIndex.png)
 
+# Commodity Exchange Learning
+More volume means more liquidity that means less risk
+
 # SQL Learnings
 Aggreates table cannot find information individually, you have to join up with another table
 
