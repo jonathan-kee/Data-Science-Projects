@@ -3,7 +3,9 @@ with
         select
             stg_prices.date_part,
             stg_prices."Ticker",
+            -- Bid Price is buyer, You sell to them --
             stg_prices."AI1-BidPrice",
+            -- Ask Price is seller, You buy from them --
             case
                 when recipe_report."input_materials_AI1_AskPrice_per_unit" is not null
                 then recipe_report."input_materials_AI1_AskPrice_per_unit"
@@ -18,13 +20,9 @@ with
             = (select max(stg_prices.date_part) from {{ ref("stg_prices") }})
     ),
     tofilter as (
-        select *
+        select date_part, "Ticker", MAX("AI1-BidPrice") AS "AI1-BidPrice", MIN("AI1-AskPrice") AS "AI1-AskPrice"
         from all_tables
-        -- Did filter below to make sure there's only one row to not cause issue
-        -- Not sure why TI has two 1887
-        where
-            "AI1-AskPrice"
-            not in (459.3333333333333, 761.3333333333334, 1887, 1870, 4304.5)
+        group by date_part, "Ticker"
     )
 select *
 from tofilter
