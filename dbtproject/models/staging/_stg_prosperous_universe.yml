@@ -1,4 +1,7 @@
 models:
+  - name: recipe_table_output_aggregate
+    description: Calculate the selling price of SME (Smeltor)
+
   - name: stg_cxpc_al_ai1
     description: Contains chart data for ticker al_ai1
 
