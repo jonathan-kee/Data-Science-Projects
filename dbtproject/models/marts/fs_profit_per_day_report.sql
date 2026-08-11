@@ -69,7 +69,7 @@ with
         join material_input_time_3 on 1 = 1
         join material_output_time_3 on 1 = 1
         where original_query = 'FS:1xAL-2xCU=>3xBRO'
-    ),
+    )
 select *
 from profit_per_day
 union all
