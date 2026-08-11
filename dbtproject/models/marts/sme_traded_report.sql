@@ -33,10 +33,13 @@ with all_sources as (
     FROM {{ ref("stg_cxpc_ti_ai1") }}
 ),
 rank_all_sources as (
-    select "ticker", SUM("Traded")
+    select
+        "ticker",
+        SUM("Traded") as "total_traded",
+        DENSE_RANK() OVER (ORDER BY SUM("Traded") DESC) as "traded_rank"
     from all_sources
     group by "ticker"
-    order by SUM("Traded") DESC
-
 )
-select * from rank_all_sources
+select * 
+from rank_all_sources
+order by "traded_rank" ASC
