@@ -5,11 +5,11 @@ select
         input.original_query, 'x', -1
     ) as "Output Material",
     input."input_materials_AI1_AskPrice_per_unit",
-    input."total input_materials_AI1_AskPrice",
-    output."total output_materials_AI1_BidPrice",
+    input."total_input_materials_AI1_AskPrice",
+    output."total_output_materials_AI1_BidPrice",
     -- Should not be total minus total, should be individual --
-    output."total output_materials_AI1_BidPrice" - input."total input_materials_AI1_AskPrice" as "profit_per_total",
-    (1440 / input."minutes per order") * (output."total output_materials_AI1_BidPrice" - input."total input_materials_AI1_AskPrice") as "profit_per_day"
+    output."total_output_materials_AI1_BidPrice" - input."total_input_materials_AI1_AskPrice" as "profit_per_total",
+    (1440 / input."minutes_per_order") * (output."total_output_materials_AI1_BidPrice" - input."total_input_materials_AI1_AskPrice") as "profit_per_day"
 from
     {{ ref("fs_recipe_table_input_prices_from_report_aggregate") }}
     as input
