@@ -48,6 +48,10 @@ AI is good at
 
 ![Identify Outliers Part 2](./screenshots/identifyOutliersPart2.png)
 
+[Handle Outliers](./screenshots/handleOutliers.png)
+
+![Handle Outliers](./screenshots/handleOutliers.png)
+
 # Statistics 
 Missing data strategy
 - Last Observation Carried Forward or forward-fill
