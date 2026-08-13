@@ -154,3 +154,6 @@ build
 
 # Github actions
 actions-runner
+
+# Juypter Notebook
+juypternotebook/.ipynb_checkpoints
