@@ -1,8 +1,17 @@
+# Core dbt
 dbt-core==1.8.0
 dbt-postgres==1.8.0
 dbt-colibri
-pandas
-SQLAlchemy
-psycopg2
+
+# Data Science & Math (Pinned NumPy to prevent SciPy 1.11.4 breaks)
+numpy>=1.24.0,<2.0.0
+pandas>=2.0.0,<3.0.0
+scipy==1.11.4
+
+# Database Drivers & Connections
+SQLAlchemy>=1.4.0,<2.1.0
+psycopg2-binary>=2.9.0
+
+# Utilities & Environment
 requests
 ipykernel>=6.31.0
