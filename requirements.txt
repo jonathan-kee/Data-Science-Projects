@@ -5,3 +5,4 @@ pandas
 SQLAlchemy
 psycopg2
 requests
+ipykernel>=6.31.0
