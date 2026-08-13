@@ -10,6 +10,10 @@
 
 ![Time Series Analysis](./screenshots/timeSeriesAnalysis.png)
 
+[Identify Outlier through Standard Deviation](./screenshots/IdentifyOutlierStandardDeviation.png)
+
+![Identify Outlier through Standard Deviation](./screenshots/IdentifyOutlierStandardDeviation.png)
+
 [Report Lineage](./screenshots/SMEReportLineage.png)
 
 ![Report Lineage](./screenshots/SMEReportLineage.png)
