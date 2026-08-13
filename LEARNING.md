@@ -28,6 +28,18 @@ AI is good at
 
 ![Data Issues](./screenshots/dataIssues.png)
 
+[Handle Missing Data](./screenshots/handleMissingData.png)
+
+![Handle Missing Data](./screenshots/handleMissingData.png)
+
+[Prices Missing Data](./screenshots/pricesMissingData.png)
+
+![Prices Missing Data](./screenshots/pricesMissingData.png)
+
+[Prices Missing Data Part 2](./screenshots/pricesMissingDataPart2.png)
+
+![Prices Missing Data Part 2](./screenshots/pricesMissingDataPart2.png)
+
 # Get Excel For free
 Link to github repo:
 - https://github.com/massgravel/Microsoft-Activation-Scripts
