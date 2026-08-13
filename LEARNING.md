@@ -7,13 +7,17 @@ AI is good at
 - Looking at staging csv output by datagrip, then generating the code for dimension and fact table, it can look at common patterns in the data too
 - Generating Python code that works, even when I don't know Python well
 - Generating Python code from formula
+- Generating Python code from Java
+
+# Install anaconda & juypter notebook
+- https://www.anaconda.com/download/success
 
 # Get Excel For free
 Link to github repo:
-https://github.com/massgravel/Microsoft-Activation-Scripts
+- https://github.com/massgravel/Microsoft-Activation-Scripts
 
 Link to website download for Mac Os:
-https://massgrave.dev/office_for_mac
+- https://massgrave.dev/office_for_mac
 
 # Learn Excel
 | Excel Pivot Table Feature | SQL Equivalent | Description / Purpose |
