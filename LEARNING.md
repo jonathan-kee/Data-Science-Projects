@@ -12,6 +12,22 @@ AI is good at
 # Install anaconda & juypter notebook
 - https://www.anaconda.com/download/success
 
+[Data Sources](./screenshots/dataSources.png)
+
+![Data Sources](./screenshots/dataSources.png)
+
+[Structure vs Unstructure](./screenshots/StructureVSUnstructure.png)
+
+![Structure vs Unstructure](./screenshots/StructureVSUnstructure.png)
+
+[Data Cleaning](./screenshots/dataCleaning.png)
+
+![Data Cleaning](./screenshots/dataCleaning.png)
+
+[Data Issues](./screenshots/dataIssues.png)
+
+![Data Issues](./screenshots/dataIssues.png)
+
 # Get Excel For free
 Link to github repo:
 - https://github.com/massgravel/Microsoft-Activation-Scripts
