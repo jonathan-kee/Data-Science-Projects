@@ -40,6 +40,18 @@ AI is good at
 
 ![Prices Missing Data Part 2](./screenshots/pricesMissingDataPart2.png)
 
+[Identify Outliers](./screenshots/identifyOutliers.png)
+
+![Identify Outliers](./screenshots/identifyOutliers.png)
+
+[Identify Outliers Part 2](./screenshots/identifyOutliersPart2.png)
+
+![Identify Outliers Part 2](./screenshots/identifyOutliersPart2.png)
+
+# Statistics 
+Missing data strategy
+- Last Observation Carried Forward or forward-fill
+
 # Get Excel For free
 Link to github repo:
 - https://github.com/massgravel/Microsoft-Activation-Scripts
