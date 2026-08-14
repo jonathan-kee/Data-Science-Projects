@@ -157,3 +157,8 @@ actions-runner
 
 # Juypter Notebook
 juypternotebook/.ipynb_checkpoints
+
+# Ingestion
+Ingestion/sources_processed/*
+Ingestion/sources_unproccessed/*
+Ingestion/sql/*
