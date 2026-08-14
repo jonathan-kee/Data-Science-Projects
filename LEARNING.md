@@ -58,6 +58,14 @@ AI is good at
 
 ![Data Science Skillset](./screenshots/DataScienceRequirements.png)
 
+[What is Machine Learning](./screenshots/DataScienceRequirements.png)
+
+![What is Machine Learning](./screenshots/DataScienceRequirements.png)
+
+[Common Algorithms](./screenshots/CommonAlgorithms.png)
+
+![Common Algorithms](./screenshots/CommonAlgorithms.png)
+
 # Statistics 
 Missing data strategy
 - Last Observation Carried Forward or forward-fill
