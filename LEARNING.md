@@ -12,6 +12,7 @@ AI is good at
 # Install anaconda & juypter notebook
 - https://www.anaconda.com/download/success
 
+# Data Science in Python: Data Prep & EDA
 [Data Sources](./screenshots/dataSources.png)
 
 ![Data Sources](./screenshots/dataSources.png)
@@ -51,6 +52,11 @@ AI is good at
 [Handle Outliers](./screenshots/handleOutliers.png)
 
 ![Handle Outliers](./screenshots/handleOutliers.png)
+
+# Data Science in Python: Regression
+[Data Science Skillset](./screenshots/DataScienceRequirements.png)
+
+![Data Science Skillset](./screenshots/DataScienceRequirements.png)
 
 # Statistics 
 Missing data strategy
