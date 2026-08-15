@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import List
@@ -18,14 +19,21 @@ dbt_project = DbtProject(
 )
 
 # Automatically builds manifest.json in development if missing or outdated
+# manifest is needed to make sure the dagster is in sync with the dbt code
 dbt_project.prepare_if_dev()
 
 
 @dbt_assets(manifest=dbt_project.manifest_path)
 def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     """Generates Dagster assets directly from the dbt manifest without running tests."""
-    # Switched from ["build"] to ["run"] to bypass data quality checks
-    yield from dbt.cli(["run"], context=context).stream()
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    
+    dbt_args = [
+        "run",
+        "--vars",
+        json.dumps({"date_part": today_str})
+    ]
+    yield from dbt.cli(dbt_args, context=context).stream()
 
 
 # ------------------------------------------------------------------
