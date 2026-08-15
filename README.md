@@ -175,6 +175,22 @@ Generate lineage report:
 
 View results: Open dist/index.html in your browser
 
+# Dagster setup
+Install UV (macOS and Linux)
+- curl -LsSf https://astral.sh/uv/install.sh | sh
+
+Install dagster cli
+- uvx create-dagster 
+
+Create project in current directory:
+- uvx create-dagster project .
+
+Activate project's virtual environment:
+- source .venv/bin/activatedg
+
+Deactivate environment
+- deactivate
+
 # Ingestion Pipeline commands
 cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
 
