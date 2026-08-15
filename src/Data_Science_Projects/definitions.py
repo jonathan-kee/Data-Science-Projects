@@ -1,15 +1,8 @@
 from pathlib import Path
-from dagster import Definitions, PipesSubprocessClient
-from dagster_dbt import DbtCliResource
-from .defs.assets.assets import all_pipeline_assets, DBT_PROJECT_DIR, PROFILES_DIR
 
-defs = Definitions(
-    assets=all_pipeline_assets,
-    resources={
-        "dbt": DbtCliResource(
-            project_dir=DBT_PROJECT_DIR,
-            profiles_dir=PROFILES_DIR,
-        ),
-        "pipes_subprocess_client": PipesSubprocessClient(),
-    },
-)
+from dagster import definitions, load_from_defs_folder
+
+
+@definitions
+def defs():
+    return load_from_defs_folder(path_within_project=Path(__file__).parent)
