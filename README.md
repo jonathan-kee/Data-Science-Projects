@@ -14,17 +14,13 @@
 
 ![Identify Outlier through Standard Deviation](./screenshots/IdentifyOutlierStandardDeviation.png)
 
-[Dagster & DBT](./screenshots/dagster&dbt.png)
+[Dagster & DBT Lineage](./screenshots/dagster&dbtLineage.png)
 
-![Dagster & DBT](./screenshots/dagster&dbt.png)
+![Dagster & DBT Lineage](./screenshots/dagster&dbtLineage.png)
 
-[Report Lineage](./screenshots/SMEReportLineage.png)
+[Dagster & DBT Global Lineage](./screenshots/dagster&dbtGlobalLineage.png)
 
-![Report Lineage](./screenshots/SMEReportLineage.png)
-
-[Dbt Lineage working](./screenshots/dbtlineage.png)
-
-![Dbt Lineage working](./screenshots/dbtlineage.png)
+![Dagster & DBT Global Lineage](./screenshots/dagster&dbtGlobalLineage.png)
 
 [Created Fact and Dimension](./screenshots/myprojecyFact&Dimension.png)
 
