@@ -1,7 +1,7 @@
 from pathlib import Path
 from dagster import Definitions, PipesSubprocessClient
 from dagster_dbt import DbtCliResource
-from .defs.assets.assets import all_pipeline_assets, DBT_PROJECT_DIR, PROFILES_DIR
+from Data_Science_Projects.defs.assets.assets import all_pipeline_assets, DBT_PROJECT_DIR, PROFILES_DIR
 
 defs = Definitions(
     assets=all_pipeline_assets,
