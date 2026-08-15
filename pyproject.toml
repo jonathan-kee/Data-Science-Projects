@@ -1,9 +1,30 @@
 [project]
 name = "Data_Science_Projects"
-requires-python = ">=3.10,<3.15"
 version = "0.1.0"
+requires-python = ">=3.10,<3.13"
+
 dependencies = [
+    # Dagster Core & Integrations
     "dagster==1.13.18",
+    "dagster-dbt",
+
+    # Core dbt (allow modern releases compatible with protobuf 5+)
+    "dbt-core>=1.8.0",
+    "dbt-postgres>=1.8.0",
+    "dbt-colibri",
+
+    # Data Science & Math (Python 3.14 compatible ranges)
+    "numpy>=1.26.0",
+    "pandas>=2.0.0,<3.0.0",
+    "scipy>=1.11.4",
+
+    # Database Drivers & Connections
+    "SQLAlchemy>=1.4.0,<2.1.0",
+    "psycopg2-binary>=2.9.0",
+
+    # Utilities & Environment
+    "requests",
+    "ipykernel>=6.31.0",
 ]
 
 [dependency-groups]
@@ -27,5 +48,3 @@ root_module = "Data_Science_Projects"
 registry_modules = [
     "Data_Science_Projects.components.*",
 ]
-
-
