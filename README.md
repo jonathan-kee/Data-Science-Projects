@@ -186,7 +186,7 @@ Create project in current directory:
 - uvx create-dagster project .
 
 Activate project's virtual environment:
-- source .venv/bin/activatedg
+- source .venv/bin/activate
 
 Deactivate environment:
 - deactivate
