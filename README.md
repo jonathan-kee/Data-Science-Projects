@@ -188,8 +188,34 @@ Create project in current directory:
 Activate project's virtual environment:
 - source .venv/bin/activatedg
 
-Deactivate environment
+Deactivate environment:
 - deactivate
+
+Check if dagster code is correct:
+- dg check defs
+
+Materializing assets using the Dagster UI:
+- dg dev
+
+Reload dependencies:
+- uv sync
+
+See dependency graph:
+- uv tree
+
+# Use Python verions that works for project
+Tell uv to target Python 3.12 for this project:
+- uv python pin 3.12
+
+Remove the current Python 3.14 environment and build a new one using Python 3.12::
+- rm -rf .venv
+- uv venv --python 3.12
+- uv sync
+
+Confirm your environment is now on Python 3.12:
+- uv run python --version
+
+Output should show: Python 3.12.x
 
 # Ingestion Pipeline commands
 cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
