@@ -217,6 +217,16 @@ Confirm your environment is now on Python 3.12:
 
 Output should show: Python 3.12.x
 
+# DBT variables
+## Individual runs with variables
+- dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate --vars '{"date_part": "2026-08-11"}'
+- dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate --vars '{"date_part": "2026-08-15"}'
+- dbt run --select recipe_report --full-refresh --vars '{"date_part": "2026-08-15"}'
+
+## Testing with different variables
+- dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate recipe_report --vars '{"date_part": "2026-08-15"}'
+- dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate recipe_report --vars '{"date_part": "2026-08-11"}'
+
 # Ingestion Pipeline commands
 cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
 

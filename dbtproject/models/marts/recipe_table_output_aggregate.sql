@@ -12,8 +12,11 @@ with
             {{ ref("stg_prices") }} as stg_prices
             on stg_recipe_inputs_time."materialoutput" = stg_prices."Ticker"
         where
-            stg_prices.date_part
-            = (select max("date_part") from {{ ref("stg_prices") }})
+            {% if var("date_part", none) is not none %}
+                stg_prices.date_part = '{{ var("date_part") }}'
+            {% else %}
+                stg_prices.date_part = (select max("date_part") from {{ ref("stg_prices") }})
+            {% endif %}
             and prefix = 'SME'
     ),
     group_by_total_output as (
