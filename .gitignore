@@ -362,3 +362,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dagster temp files
+.tmp_dagster_home_*
