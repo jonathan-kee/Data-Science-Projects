@@ -9,7 +9,8 @@ from dagster import (
     AssetKey, 
     AssetExecutionContext, 
     PipesSubprocessClient, 
-    DailyPartitionsDefinition
+    DailyPartitionsDefinition,
+    Output
 )
 from dagster_dbt import (
     dbt_assets, 
@@ -111,7 +112,8 @@ def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: 
         cwd=str(WORKING_DIR),
     ).get_results()
     
-    return {output_name: result for output_name in context.selected_output_names}
+    for output_name in context.selected_output_names:
+        yield Output(result, output_name=output_name)
 
 
 # Step 4: Building Ingestion Multi-Asset matching dbt source format, independent of exchange ingestion
@@ -135,7 +137,8 @@ def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_clie
         cwd=str(WORKING_DIR),
     ).get_results()
     
-    return {output_name: result for output_name in context.selected_output_names}
+    for output_name in context.selected_output_names:
+        yield Output(result, output_name=output_name)
 
 
 @asset(group_name="csv_ingestion", partitions_def=daily_partitions_def)
