@@ -17,85 +17,95 @@ async function readJsonArray(filePath: any) {
     }
 }
 
-function getTodayDateFileName(filename: string, extension: string) {
-    const today = new Date();
-
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const year = today.getFullYear();
-
-    const ddMMyyyy = `${day}${month}${year}`;
-    return filename + "_" + ddMMyyyy + extension;
-}
-
 function LambdaCreateTable(data: any, tablename: string) {
-    const columns: string[] = Object.keys(data[0])
+    const columns: string[] = Object.keys(data[0]);
     const rowValues = Object.values(data[0]);
-    let tuple: [string, string, any];
     let arrayOfTuple: [string, string, any][] = [];
 
     for (let i = 0; i < columns.length; i++) {
         if (typeof rowValues[i] == 'string') {
-            tuple = [columns[i], "varchar(20)", rowValues[i]]
+            arrayOfTuple.push([columns[i], "varchar(20)", rowValues[i]]);
         } else if (typeof rowValues[i] == 'number') {
-            tuple = [columns[i], "numeric(15, 2)", rowValues[i]]
+            arrayOfTuple.push([columns[i], "numeric(15, 2)", rowValues[i]]);
         } else {
-            tuple = [columns[i], "varchar(20)", rowValues[i]]
+            arrayOfTuple.push([columns[i], "varchar(20)", rowValues[i]]);
         }
-        arrayOfTuple.push(tuple);
     }
 
-    let createTable = `CREATE TABLE IF NOT EXISTS raw.` + tablename + `\n(\n`
+    let createTable = `CREATE TABLE IF NOT EXISTS raw.` + tablename + `\n(\n`;
     for (let i = 0; i < arrayOfTuple.length; i++) {
-        createTable += '"' + arrayOfTuple[i][0] + '"      ' + arrayOfTuple[i][1] + ',\n'
+        createTable += `    "${arrayOfTuple[i][0]}"      ${arrayOfTuple[i][1]},\n`;
     }
-    createTable = createTable.slice(0, -2) + '\n);';
+    
+    // Add metadata column for file date tracking
+    createTable += `    "file_date"      date,\n`;
+    
+    // Add composite primary key constraint for idempotency
+    createTable += `    CONSTRAINT pk_${tablename} PRIMARY KEY ("Interval", "DateEpochMs")\n`;
+    createTable += `);`;
+    
     return createTable;
 }
 
-function LambdaInsertTable(data: any, tablename: string) {
-    const lengthOfData = data.length
-    let insert = `TRUNCATE TABLE raw.${tablename};\n\n`;
+function LambdaInsertTable(data: any, tablename: string, formattedDate: string) {
+    const lengthOfData = data.length;
+    let insert = ``; // Removed TRUNCATE TABLE for safe incremental/idempotent runs
 
     for (let i = 0; i < lengthOfData; i++) {
-        const columns: string[] = Object.keys(data[i])
+        const columns: string[] = Object.keys(data[i]);
         const rowValues = Object.values(data[i]);
-        let tuple: [string, string, any];
         let arrayOfTuple: [string, string, any][] = [];
 
         for (let j = 0; j < columns.length; j++) {
             if (typeof rowValues[j] == 'string') {
-                tuple = [columns[j], "varchar(20)", rowValues[j]]
+                arrayOfTuple.push([columns[j], "varchar(20)", rowValues[j]]);
             } else if (typeof rowValues[j] == 'number') {
-                tuple = [columns[j], "numeric(15, 2)", rowValues[j]]
+                arrayOfTuple.push([columns[j], "numeric(15, 2)", rowValues[j]]);
             } else {
-                tuple = [columns[j], "varchar(20)", rowValues[j]]
+                arrayOfTuple.push([columns[j], "varchar(20)", rowValues[j]]);
             }
-            arrayOfTuple.push(tuple);
         }
+        
+        // Push file_date metadata entry into the values array
+        arrayOfTuple.push(["file_date", "date", formattedDate]);
 
         if (i == 0) {
-            let insertParenthesis = "("
+            let insertParenthesis = "(";
             for (let k = 0; k < arrayOfTuple.length; k++) {
-                insertParenthesis += '"' + arrayOfTuple[k][0] + '"' + ","
+                insertParenthesis += `"${arrayOfTuple[k][0]}",`;
             }
-            insertParenthesis = insertParenthesis.slice(0, -1) + ")\nVALUES "
+            insertParenthesis = insertParenthesis.slice(0, -1) + ")\nVALUES\n";
 
-            insert += `INSERT INTO raw.${tablename} ` + insertParenthesis
+            insert += `INSERT INTO raw.${tablename} ` + insertParenthesis;
         }
 
-        insert += "("
+        insert += `    (`;
         for (let k = 0; k < arrayOfTuple.length; k++) {
-            if (typeof arrayOfTuple[k][2] == 'string') {
+            if (arrayOfTuple[k][0] === "file_date") {
+                insert += `'${arrayOfTuple[k][2]}'`;
+            } else if (typeof arrayOfTuple[k][2] == 'string') {
                 insert += `'${arrayOfTuple[k][2]}'`;
             } else if (typeof arrayOfTuple[k][2] == 'number') {
                 insert += `${arrayOfTuple[k][2]}`;
             }
-            insert += ","
+            insert += ",";
         }
-        insert = insert.slice(0, -1) + "),\n"
+        insert = insert.slice(0, -1) + "),\n";
     }
-    insert = insert.slice(0, -2) + ';';
+    insert = insert.slice(0, -2) + `\n`;
+
+    // Append ON CONFLICT DO UPDATE clause for upsert functionality
+    insert += `ON CONFLICT ("Interval", "DateEpochMs") \n`;
+    insert += `DO UPDATE SET \n`;
+
+    const sampleKeys = Object.keys(data[0]);
+    let updateSet = "";
+    for (const col of sampleKeys) {
+        updateSet += `    "${col}" = EXCLUDED."${col}",\n`;
+    }
+    updateSet += `    "file_date" = EXCLUDED."file_date";`;
+
+    insert += updateSet;
     return insert;
 }
 
@@ -106,7 +116,6 @@ async function main() {
 
     try {
         const files = await readdir(inputFolder);
-        // Filter files matching the date-suffixed naming convention (e.g., AFR.AI1_16082026.json)
         const targetFiles = files.filter(file => /^.*AI1_\d{8}\.json$/.test(file));
 
         if (targetFiles.length === 0) {
@@ -116,26 +125,29 @@ async function main() {
 
         for (const file of targetFiles) {
             const jsonFilePath = join(inputFolder, file);
-            
-            // Derive generic base name (e.g., AFR.AI1_16082026)
             const fileNameGeneric: string = basename(file, '.json');
 
-            // 1. Transform table name: cxpc_afr_ai1_raw, cxpc_al_ai1_raw, etc.
-            const baseWithoutDate = fileNameGeneric.split('_')[0]; // e.g. AFR.AI1
+            // 1. Transform table name: cxpc_afr_ai1_raw
+            const baseWithoutDate = fileNameGeneric.split('_')[0]; 
             const tableName = `cxpc_${baseWithoutDate.replace('.', '_')}_raw`.toLowerCase();
 
-            // 2. Transform output SQL filename format: cxpc_BFR_AI1_${TODAY}, cxpc_RGO_AI1_${TODAY}, etc.
-            // Extracts prefix (e.g., AFR) and date portion (e.g., 16082026) from the input file
+            // 2. Extract prefix and file date format (DDMMYYYY -> YYYY-MM-DD)
             const [filePrefix, fileDate] = fileNameGeneric.split('_');
-            const filePrefixClean = filePrefix.split('.')[0]; // Gets 'AFR' from 'AFR.AI1'
+            const filePrefixClean = filePrefix.split('.')[0]; 
             const customOutputName = `cxpc_${filePrefixClean}_AI1_${fileDate}`;
+
+            // Convert DDMMYYYY (e.g. 16082026) to SQL Date format YYYY-MM-DD (2026-08-16)
+            const day = fileDate.substring(0, 2);
+            const month = fileDate.substring(2, 4);
+            const year = fileDate.substring(4, 8);
+            const formattedDate = `${year}-${month}-${day}`;
 
             // Read file on disk
             let data = await readJsonArray(jsonFilePath);
             if (!data) continue;
 
             let createTable: string = LambdaCreateTable(data, tableName);
-            let insertTable: string = LambdaInsertTable(data, tableName);
+            let insertTable: string = LambdaInsertTable(data, tableName, formattedDate);
 
             let fullsql = createTable + "\n\n" + insertTable;
             console.log(fullsql);
@@ -145,12 +157,10 @@ async function main() {
             const processedFilePath = join(processedFolder, file);
 
             try {
-                // 1. Ensure the SQL output folder exists and write the SQL file
                 await mkdir(outputFolder, { recursive: true });
                 await writeFile(outputPath, fullsql, 'utf-8');
                 console.log(`Successfully saved SQL file to: ${outputPath}`);
 
-                // 2. Ensure the processed folder exists and move the JSON file
                 await mkdir(processedFolder, { recursive: true });
                 await rename(jsonFilePath, processedFilePath);
                 console.log(`Successfully moved JSON file to: ${processedFilePath}`);
