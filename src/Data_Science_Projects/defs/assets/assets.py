@@ -67,14 +67,16 @@ def create_ticker_asset(ticker: str):
     @asset(name=asset_name, group_name="exchange_ingestion", partitions_def=daily_partitions_def)
     def _asset(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
 
-        today = datetime.now().strftime("%d%m%Y")
+        # Use partition key instead of live system time to support backfilling properly
+        partition_key = context.partition_key
+        file_date = datetime.strptime(partition_key, "%Y-%m-%d").strftime("%d%m%Y")
 
         bash_script = f"""
         set -e
         tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/{ticker}"
         docker exec -i -e PGPASSWORD=abc123 postgres-container psql \\
             --dbname=prosperous_universe --username=postgres \\
-            < ingestion/sql/cxpc_{sanitized_name}_{today}.sql
+            < ingestion/sql/cxpc_{sanitized_name}_{file_date}.sql
         """
 
         return pipes_subprocess_client.run(
@@ -127,5 +129,6 @@ all_pipeline_assets: List = [
     building_costs_fs,
     prices_csv,
     inventory_csv,
+    workforce_csv,
     dbtproject_dbt_assets,
 ]
