@@ -125,7 +125,7 @@ def workforce_csv(context: AssetExecutionContext, pipes_subprocess_client: Pipes
 @dbt_assets(
     manifest=dbt_project.manifest_path, 
     partitions_def=daily_partitions_def,
-    deps=[building_folder_ingest, prices_csv, inventory_csv, workforce_csv]
+    deps=[cxpc_folder_ingest, building_folder_ingest, prices_csv, inventory_csv, workforce_csv] # <-- Added cxpc_folder_ingest here
 )
 def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     """Step 5: Generates partitioned dbt assets after all raw data is ingested."""
