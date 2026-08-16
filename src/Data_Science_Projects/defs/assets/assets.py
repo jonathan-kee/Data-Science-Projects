@@ -114,7 +114,7 @@ def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: 
     return {output_name: result for output_name in context.selected_output_names}
 
 
-# Step 4: Building Ingestion Multi-Asset matching dbt source format, running strictly AFTER cxpc_folder_ingest
+# Step 4: Building Ingestion Multi-Asset matching dbt source format, independent of exchange ingestion
 BUILDING_TABLE_NAMES = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
 
 @multi_asset(
@@ -124,10 +124,10 @@ BUILDING_TABLE_NAMES = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
     },
     group_name="building_ingestion",
     partitions_def=daily_partitions_def,
-    deps=[cxpc_folder_ingest]
+    deps=[typescript_build]
 )
 def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    """Processes folder-based building JSON files sequentially after exchange folder ingestion."""
+    """Processes folder-based building JSON files independently after typescript build."""
     bash_script = "node ./build/ingestion/json/buildingFolder.js"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
