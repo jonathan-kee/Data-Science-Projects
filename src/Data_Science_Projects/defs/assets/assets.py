@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 from dagster import asset, AssetExecutionContext, PipesSubprocessClient, DailyPartitionsDefinition
-from dagster_dbt import dbt_assets, DbtCliResource, DbtProject
+from dagster_dbt import DbtCliResource, DbtProject
 
 # Base directory setup
 WORKING_DIR = Path("/Users/jonathankee/Data-Science-Projects")
@@ -120,15 +120,15 @@ def workforce_csv(context: AssetExecutionContext, pipes_subprocess_client: Pipes
 
 
 # ------------------------------------------------------------------
-# dbt Assets (Configured to run last after all ingestion completes)
+# Alternative: Standard @asset handling dbt execution as a single unit
 # ------------------------------------------------------------------
-@dbt_assets(
-    manifest=dbt_project.manifest_path, 
+@asset(
+    group_name="dbt",
     partitions_def=daily_partitions_def,
-    deps=[cxpc_folder_ingest, building_folder_ingest, prices_csv, inventory_csv, workforce_csv] # <-- Added cxpc_folder_ingest here
+    deps=[cxpc_folder_ingest, building_folder_ingest, prices_csv, inventory_csv, workforce_csv]
 )
 def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    """Step 5: Generates partitioned dbt assets after all raw data is ingested."""
+    """Step 5: Runs dbt build as a unified asset block after all raw data ingestion finishes."""
     target_date = context.partition_key
     context.log.info(f"Running dbt with date_part: {target_date}")
     
