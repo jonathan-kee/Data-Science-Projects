@@ -255,7 +255,7 @@ java -jar KotlinCLI-1.0-SNAPSHOT-all.jar \
   "https://rest.fnar.net/exchange/cxpc/FLO.AI1" \
   "https://rest.fnar.net/exchange/cxpc/ALO.AI1" \
   "https://rest.fnar.net/building/HB2" \
-  "https://rest.fnar.net/building/FS" \
+  "https://rest.fnar.net/building/FS"
   
 # Ingestion Pipeline commands
 cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
