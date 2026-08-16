@@ -104,7 +104,7 @@ CXPC_TABLE_NAMES = [f"cxpc_{t.lower().replace('.', '_')}_raw" for t in ALL_TICKE
     deps=[typescript_build]
 )
 def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    """Processes folder-based exchange JSON files for all 25 tickers."""
+    """Processes folder-based exchange JSON files and executes SQL into PostgreSQL."""
     bash_script = "node ./build/ingestion/json/cxpcFolder.js"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
@@ -112,7 +112,30 @@ def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: 
         cwd=str(WORKING_DIR),
     ).get_results()
     
+    # Format partition key (YYYY-MM-DD) into DDMMYYYY for SQL filenames
+    dt = datetime.strptime(context.partition_key, "%Y-%m-%d")
+    today_str = dt.strftime("%d%m%Y")
+    
+    output_to_ticker = {
+        f"cxpc_{t.lower().replace('.', '_')}_raw": t.replace('.', '_')
+        for t in ALL_TICKERS
+    }
+    
     for output_name in context.selected_output_names:
+        ticker_token = output_to_ticker[output_name]
+        sql_filename = f"ingestion/sql/cxpc_{ticker_token}_{today_str}.sql"
+        
+        sql_command = f"""
+        docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < {sql_filename}
+        """
+        
+        context.log.info(f"Executing SQL file for {output_name}: {sql_filename}")
+        pipes_subprocess_client.run(
+            command=["bash", "-c", sql_command.strip()],
+            context=context,
+            cwd=str(WORKING_DIR),
+        )
+        
         yield Output(result, output_name=output_name)
 
 
