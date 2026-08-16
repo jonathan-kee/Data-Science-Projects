@@ -1,17 +1,16 @@
-import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
+import { readFile, mkdir, rename, readdir } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { Sequelize, DataTypes, Model } from 'sequelize';
-import axios from "axios";
 
 // 2. Initialize Sequelize with the 'raw' schema
 const sequelize = new Sequelize('prosperous_universe', 'postgres', 'abc123', {
   host: 'localhost',
   dialect: 'postgres',
   logging: false,
-  schema: 'raw', // Sets global search path to the "raw" schema
+  schema: 'raw',
 });
 
-// 3. Define the Building Model (using 'declare' to fix shadowing warnings)
+// 3. Define the Building Model
 class Building extends Model {
   declare id: string;
   declare ticker: string;
@@ -28,7 +27,7 @@ Building.init(
     },
     ticker: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: true, // Made flexible to prevent validation errors if missing
     },
     name: {
       type: DataTypes.STRING,
@@ -49,7 +48,7 @@ Building.init(
     sequelize,
     modelName: 'Building',
     tableName: 'buildings',
-    schema: 'raw' // Target table: raw.buildings
+    schema: 'raw'
   }
 );
 
@@ -92,7 +91,7 @@ BuildingCost.init(
     sequelize,
     modelName: 'BuildingCost',
     tableName: 'building_costs',
-    schema: 'raw' // Target table: raw.building_costs
+    schema: 'raw'
   }
 );
 
@@ -106,9 +105,10 @@ BuildingCost.belongsTo(Building, {
   foreignKey: 'buildingId',
 });
 
-// 6. Data Seeding Function with Transaction and Upsert Handling
+// 6. Data Seeding Function with Transaction Handling
 async function seedData(dataPayload: any) {
   const buildingId = dataPayload.BuildingId;
+  
   if (!buildingId) {
     throw new Error('Missing "BuildingId" in JSON payload.');
   }
@@ -130,14 +130,17 @@ async function seedData(dataPayload: any) {
     buildingId: buildingId,
   }));
 
+  // Use a transaction to safely handle existing data updates
   const t = await sequelize.transaction();
 
   try {
     // Upsert the main building record
     await Building.upsert(buildingData, { transaction: t });
 
-    // Refresh child costs safely
+    // Clear old dependent costs for this building to prevent duplicates/conflicts
     await BuildingCost.destroy({ where: { buildingId }, transaction: t });
+
+    // Insert new costs if any exist
     if (buildingCostsData.length > 0) {
       await BuildingCost.bulkCreate(buildingCostsData, { transaction: t });
     }
@@ -165,19 +168,6 @@ async function getBuilding(buildingId: string) {
   console.log(JSON.stringify(result, null, 2));
 }
 
-function getTodayDateFileName(filename: any, extension: any) {
-  const today = new Date();
-
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-  const year = today.getFullYear();
-
-  const ddMMyyyy = `${day}${month}${year}`;
-  console.log(ddMMyyyy);
-
-  return filename + "_" + ddMMyyyy + extension;
-}
-
 async function readJson(filePath: any) {
   try {
     const data = await readFile(filePath, 'utf-8');
@@ -186,73 +176,59 @@ async function readJson(filePath: any) {
     console.log(`Loaded JSON successfully from ${basename(filePath)}!`);
     return json;
   } catch (error: any) {
-    console.error('Failed to read or parse JSON file:', error.message);
+    console.error(`Failed to read or parse JSON file ${basename(filePath)}:`, error.message);
   }
 }
 
 // 8. Main Execution Wrapper
 async function main() {
-  const urlString = process.argv[2]; // "https://rest.fnar.net/building/HB2";
-  if (!urlString) {
-    console.error('Please provide a URL argument.');
-    return;
-  }
-
-  const url = new URL(urlString);
-  const segments = url.pathname.split('/');
-  const lastSegment = segments[segments.length - 1]; // "HB2"
-  let fileNameGeneric: string = "building_" + lastSegment;
+  const inputFolder = process.argv[2] || '/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed';
+  const processedFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed';
 
   try {
-    console.log(`Downloading from ${urlString}...`);
-    const response = await axios.get(urlString, {
-      headers: {
-        'accept': 'application/json'
-      },
-      timeout: 15000, // 15 seconds
-    });
-
-    let stringData = JSON.stringify(response.data, null, 2);
-    const unprocessedFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed';
-    const jsonFilePath = join(unprocessedFolder, getTodayDateFileName(fileNameGeneric, ".json"));
-
-    // Ensure unprocessed folder exists and write downloaded file
-    await mkdir(unprocessedFolder, { recursive: true });
-    await writeFile(jsonFilePath, stringData, 'utf-8');
-
-    // Read file on disk
-    let data = await readJson(jsonFilePath);
-    if (!data) return;
-
-    // Authenticate PostgreSQL connection
     await sequelize.authenticate();
     console.log('PostgreSQL connection established successfully.');
 
-    // Ensure schema exists and sync models
     await sequelize.createSchema('raw', {}).catch(() => {});
     await sequelize.sync({ force: false });
 
-    // Seed data and verify
-    await seedData(data);
-    await getBuilding(data.BuildingId);
+    const files = await readdir(inputFolder);
+    const targetFiles = files.filter(file => file.endsWith('.json') && !file.endsWith('AI1.json'));
 
-    // --- Processed JSON target directory ---
-    const processedFolder = '/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed';
-    const processedFilePath = join(processedFolder, basename(jsonFilePath));
-
-    await mkdir(processedFolder, { recursive: true });
-    await rename(jsonFilePath, processedFilePath);
-    console.log(`Successfully moved JSON file to: ${processedFilePath}`);
-
-  } catch (error: any) {
-    console.error('Operation Failed:', error.message || error);
-    if (error.errors && Array.isArray(error.errors)) {
-      error.errors.forEach((err: any) => {
-        console.error(`   -> Validation Detail [${err.path}]: ${err.message}`);
-      });
+    if (targetFiles.length === 0) {
+      console.log('No eligible files (not ending with AI1.json) found in the directory.');
+      return;
     }
+
+    for (const file of targetFiles) {
+      const jsonFilePath = join(inputFolder, file);
+
+      let data = await readJson(jsonFilePath);
+      if (!data) continue;
+
+      try {
+        await seedData(data);
+
+        if (data.BuildingId) {
+          await getBuilding(data.BuildingId);
+        }
+
+        const processedFilePath = join(processedFolder, file);
+        await mkdir(processedFolder, { recursive: true });
+        await rename(jsonFilePath, processedFilePath);
+        console.log(`Successfully moved JSON file to: ${processedFilePath}`);
+      } catch (error: any) {
+        console.error(`Error processing file ${file}:`, error.message);
+        if (error.errors && Array.isArray(error.errors)) {
+          error.errors.forEach((err: any) => {
+            console.error(`   -> Validation Detail [${err.path}]: ${err.message}`);
+          });
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Database Operation Failed:', error);
   } finally {
-    // Gracefully terminate connection
     await sequelize.close();
   }
 }
