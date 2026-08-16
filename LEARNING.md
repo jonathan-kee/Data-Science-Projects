@@ -321,6 +321,13 @@ https://learn.getdbt.com/learn/course/analyses-and-seeds-vs-code/analyses-and-se
 - Delete
 - Upsert/merge
 
+About incremental strategy:
+https://docs.getdbt.com/docs/build/incremental-strategy?version=2
+
+## Idempotency
+Idempotence in dbt:
+https://docs.getdbt.com/best-practices/idempotence?version=2
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
