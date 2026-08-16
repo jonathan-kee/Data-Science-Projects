@@ -114,6 +114,11 @@ def inventory_csv(context: AssetExecutionContext, pipes_subprocess_client: Pipes
     bash_script = f'python ingestion/csv/ingest.py "{url}"'
     return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
 
+@asset(group_name="csv_ingestion", partitions_def=daily_partitions_def)
+def workforce_csv(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+    url = "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
+    bash_script = f'python ingestion/csv/ingest.py "{url}"'
+    return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
 
 # Combine all asset objects including dbt into a single exported list
 all_pipeline_assets: List = [
