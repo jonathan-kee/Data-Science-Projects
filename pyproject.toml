@@ -21,7 +21,8 @@ dependencies = [
     # Database Drivers & Connections
     "SQLAlchemy>=1.4.0,<2.1.0",
     "psycopg2-binary>=2.9.0",
-    "dlt[postgres]>=1.0.0",
+    "dlt[postgres,parquet]>=1.0.0",
+    "pyarrow>=14.0.0",
 
     # Utilities & Environment
     "requests",
