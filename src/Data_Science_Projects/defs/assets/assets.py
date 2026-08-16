@@ -2,8 +2,20 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import List
-from dagster import asset, AssetExecutionContext, PipesSubprocessClient, DailyPartitionsDefinition
-from dagster_dbt import DbtCliResource, DbtProject
+from dagster import (
+    asset, 
+    multi_asset, 
+    AssetOut, 
+    AssetKey, 
+    AssetExecutionContext, 
+    PipesSubprocessClient, 
+    DailyPartitionsDefinition
+)
+from dagster_dbt import (
+    dbt_assets, 
+    DbtCliResource, 
+    DbtProject
+)
 
 # Base directory setup
 WORKING_DIR = Path("/Users/jonathankee/Data-Science-Projects")
@@ -27,7 +39,7 @@ daily_partitions_def = DailyPartitionsDefinition(
 )
 
 # ------------------------------------------------------------------
-# Ingestion Setup 
+# Ingestion Setup & Ticker Definitions
 # ------------------------------------------------------------------
 SMELTOR_TICKERS = [
     "AL.AI1", "AU.AI1", "CF.AI1", "CU.AI1", "FE.AI1", 
@@ -78,26 +90,52 @@ def typescript_build(context: AssetExecutionContext, pipes_subprocess_client: Pi
     ).get_results()
 
 
-@asset(group_name="exchange_ingestion", partitions_def=daily_partitions_def, deps=[typescript_build])
+# Step 3: Exchange Ingestion Multi-Asset matching dbt's source key format [source_name, table_name]
+CXPC_TABLE_NAMES = [f"cxpc_{t.lower().replace('.', '_')}_raw" for t in ALL_TICKERS]
+
+@multi_asset(
+    outs={
+        name: AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
+        for name in CXPC_TABLE_NAMES
+    },
+    group_name="exchange_ingestion",
+    partitions_def=daily_partitions_def,
+    deps=[typescript_build]
+)
 def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    """Step 3: Processes folder-based exchange JSON files."""
+    """Processes folder-based exchange JSON files for all 25 tickers."""
     bash_script = "node ./build/ingestion/json/cxpcFolder.js"
-    return pipes_subprocess_client.run(
+    result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
         cwd=str(WORKING_DIR),
     ).get_results()
+    
+    return {output_name: result for output_name in context.selected_output_names}
 
 
-@asset(group_name="building_ingestion", partitions_def=daily_partitions_def, deps=[typescript_build])
+# Step 4: Building Ingestion Multi-Asset matching dbt source format, running strictly AFTER cxpc_folder_ingest
+BUILDING_TABLE_NAMES = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
+
+@multi_asset(
+    outs={
+        name: AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
+        for name in BUILDING_TABLE_NAMES
+    },
+    group_name="building_ingestion",
+    partitions_def=daily_partitions_def,
+    deps=[cxpc_folder_ingest]
+)
 def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    """Step 4: Processes folder-based building JSON files right after cxpc folder."""
+    """Processes folder-based building JSON files sequentially after exchange folder ingestion."""
     bash_script = "node ./build/ingestion/json/buildingFolder.js"
-    return pipes_subprocess_client.run(
+    result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
         cwd=str(WORKING_DIR),
     ).get_results()
+    
+    return {output_name: result for output_name in context.selected_output_names}
 
 
 @asset(group_name="csv_ingestion", partitions_def=daily_partitions_def)
@@ -112,6 +150,7 @@ def inventory_csv(context: AssetExecutionContext, pipes_subprocess_client: Pipes
     bash_script = f'python ingestion/csv/ingest.py "{url}"'
     return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
 
+
 @asset(group_name="csv_ingestion", partitions_def=daily_partitions_def)
 def workforce_csv(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
     url = "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
@@ -120,15 +159,14 @@ def workforce_csv(context: AssetExecutionContext, pipes_subprocess_client: Pipes
 
 
 # ------------------------------------------------------------------
-# Alternative: Standard @asset handling dbt execution as a single unit
+# Step 5: dbt Assets Integration (Downstream of ingestion sources)
 # ------------------------------------------------------------------
-@asset(
-    group_name="dbt",
-    partitions_def=daily_partitions_def,
-    deps=[cxpc_folder_ingest, building_folder_ingest, prices_csv, inventory_csv, workforce_csv]
+@dbt_assets(
+    manifest=dbt_project.manifest_path, 
+    partitions_def=daily_partitions_def
 )
 def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    """Step 5: Runs dbt build as a unified asset block after all raw data ingestion finishes."""
+    """Generates partitioned individual dbt model assets downstream of all ingestion sources."""
     target_date = context.partition_key
     context.log.info(f"Running dbt with date_part: {target_date}")
     
