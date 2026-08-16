@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 from dagster import asset, AssetExecutionContext, PipesSubprocessClient, DailyPartitionsDefinition
 from dagster_dbt import dbt_assets, DbtCliResource, DbtProject
 
@@ -20,28 +20,11 @@ dbt_project = DbtProject(
 
 dbt_project.prepare_if_dev()
 
-# 1. Define Daily Partitions (Includes today's ongoing date)
+# Define Daily Partitions (Includes today's ongoing date)
 daily_partitions_def = DailyPartitionsDefinition(
     start_date="2026-01-01", 
     end_offset=1  
 )
-
-@dbt_assets(
-    manifest=dbt_project.manifest_path, 
-    partitions_def=daily_partitions_def
-)
-def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
-    """Generates partitioned dbt assets with a built-in date picker."""
-    target_date = context.partition_key
-    context.log.info(f"Running dbt with date_part: {target_date}")
-    
-    dbt_args = [
-        "run",
-        "--vars",
-        json.dumps({"date_part": target_date})
-    ]
-    yield from dbt.cli(dbt_args, context=context).stream()
-
 
 # ------------------------------------------------------------------
 # Ingestion Setup 
@@ -59,49 +42,62 @@ METALIST_TICKERS = [
 OTHER_TICKERS = ["ALO.AI1"]
 ALL_TICKERS = SMELTOR_TICKERS + METALIST_TICKERS + OTHER_TICKERS
 
-def create_ticker_asset(ticker: str):
-    sanitized_name = ticker.replace(".", "_")
-    asset_name = f"ticker_{sanitized_name}"
-
-    # 2. Add partitions_def so this asset aligns with the calendar UI
-    @asset(name=asset_name, group_name="exchange_ingestion", partitions_def=daily_partitions_def)
-    def _asset(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-
-        # Use partition key instead of live system time to support backfilling properly
-        partition_key = context.partition_key
-        file_date = datetime.strptime(partition_key, "%Y-%m-%d").strftime("%d%m%Y")
-
-        bash_script = f"""
-        set -e
-        tsc && node ./build/ingestion/json/cxpc.js "https://rest.fnar.net/exchange/cxpc/{ticker}"
-        docker exec -i -e PGPASSWORD=abc123 postgres-container psql \\
-            --dbname=prosperous_universe --username=postgres \\
-            < ingestion/sql/cxpc_{sanitized_name}_{file_date}.sql
-        """
-
-        return pipes_subprocess_client.run(
-            command=["bash", "-c", bash_script],
-            context=context,
-            cwd=str(WORKING_DIR),
-        ).get_results()
-
-    return _asset
+@asset(group_name="kotlin_ingestion", partitions_def=daily_partitions_def)
+def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+    """Step 1: Runs the Kotlin CLI jar to fetch all exchange and building payloads."""
+    urls = [f"https://rest.fnar.net/exchange/cxpc/{t}" for t in ALL_TICKERS] + [
+        "https://rest.fnar.net/building/HB2",
+        "https://rest.fnar.net/building/FS"
+    ]
+    url_args = " ".join([f'"{u}"' for u in urls])
+    
+    bash_script = f"""
+    cd ingestion
+    java -jar KotlinCLI-1.0-SNAPSHOT-all.jar {url_args}
+    """
+    
+    return pipes_subprocess_client.run(
+        command=["bash", "-c", bash_script],
+        context=context,
+        cwd=str(WORKING_DIR),
+    ).get_results()
 
 
-ticker_assets = [create_ticker_asset(t) for t in ALL_TICKERS]
+@asset(group_name="typescript_build", partitions_def=daily_partitions_def, deps=[kotlin_cli_ingest])
+def typescript_build(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+    """Step 2: Cleans and builds the TypeScript project after Kotlin ingestion."""
+    bash_script = """
+    set -e
+    tsc --build --clean
+    tsc --build
+    """
+    return pipes_subprocess_client.run(
+        command=["bash", "-c", bash_script],
+        context=context,
+        cwd=str(WORKING_DIR),
+    ).get_results()
 
 
-# Add partitions_def to all remaining assets
-@asset(group_name="building_ingestion", partitions_def=daily_partitions_def)
-def building_costs_hb2(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    bash_script = 'tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/HB2"'
-    return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
+@asset(group_name="exchange_ingestion", partitions_def=daily_partitions_def, deps=[typescript_build])
+def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+    """Step 3: Processes folder-based exchange JSON files."""
+    bash_script = "node ./build/ingestion/json/cxpcFolder.js"
+    return pipes_subprocess_client.run(
+        command=["bash", "-c", bash_script],
+        context=context,
+        cwd=str(WORKING_DIR),
+    ).get_results()
 
 
-@asset(group_name="building_ingestion", partitions_def=daily_partitions_def)
-def building_costs_fs(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    bash_script = 'tsc && node ./build/ingestion/json/building.js "https://rest.fnar.net/building/FS"'
-    return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
+@asset(group_name="building_ingestion", partitions_def=daily_partitions_def, deps=[typescript_build])
+def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+    """Step 4: Processes folder-based building JSON files right after cxpc folder."""
+    bash_script = "node ./build/ingestion/json/buildingFolder.js"
+    return pipes_subprocess_client.run(
+        command=["bash", "-c", bash_script],
+        context=context,
+        cwd=str(WORKING_DIR),
+    ).get_results()
 
 
 @asset(group_name="csv_ingestion", partitions_def=daily_partitions_def)
@@ -122,11 +118,34 @@ def workforce_csv(context: AssetExecutionContext, pipes_subprocess_client: Pipes
     bash_script = f'python ingestion/csv/ingest.py "{url}"'
     return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
 
-# Combine all asset objects including dbt into a single exported list
+
+# ------------------------------------------------------------------
+# dbt Assets (Configured to run last after all ingestion completes)
+# ------------------------------------------------------------------
+@dbt_assets(
+    manifest=dbt_project.manifest_path, 
+    partitions_def=daily_partitions_def,
+    deps=[building_folder_ingest, prices_csv, inventory_csv, workforce_csv]
+)
+def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
+    """Step 5: Generates partitioned dbt assets after all raw data is ingested."""
+    target_date = context.partition_key
+    context.log.info(f"Running dbt with date_part: {target_date}")
+    
+    dbt_args = [
+        "run",
+        "--vars",
+        json.dumps({"date_part": target_date})
+    ]
+    yield from dbt.cli(dbt_args, context=context).stream()
+
+
+# Combine all asset objects into a single exported list
 all_pipeline_assets: List = [
-    *ticker_assets,
-    building_costs_hb2,
-    building_costs_fs,
+    kotlin_cli_ingest,
+    typescript_build,
+    cxpc_folder_ingest,
+    building_folder_ingest,
     prices_csv,
     inventory_csv,
     workforce_csv,
