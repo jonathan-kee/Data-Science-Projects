@@ -193,10 +193,10 @@ async function main() {
     await sequelize.sync({ force: false });
 
     const files = await readdir(inputFolder);
-    const targetFiles = files.filter(file => file.endsWith('.json') && !file.endsWith('AI1.json'));
+    const targetFiles = files.filter(file => file.endsWith('.json') && !file.includes('AI1'));
 
     if (targetFiles.length === 0) {
-      console.log('No eligible files (not ending with AI1.json) found in the directory.');
+      console.log('No eligible files (without "AI1") found in the directory.');
       return;
     }
 
