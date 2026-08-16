@@ -1,3 +1,8 @@
+# Ingestion files
+ingestion/sources_unprocessed/*
+ingestion/sources_processed/*
+ingestion/sql/*
+
 # Logs
 logs
 *.log
@@ -365,3 +370,5 @@ __marimo__/
 
 # Dagster temp files
 .tmp_dagster_home_*
+
+
