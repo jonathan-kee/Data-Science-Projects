@@ -39,3 +39,5 @@ sources:
       - name: cxpc_alo_ai1_raw
   
       - name: inventory_raw
+      
+      - name: workforce_raw
