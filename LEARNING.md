@@ -314,6 +314,13 @@ https://learn.getdbt.com/learn/course/analyses-and-seeds-vs-code/analyses-and-se
 What are seeds?
 https://learn.getdbt.com/learn/course/analyses-and-seeds-vs-code/analyses-and-seeds-30min/understanding-analyses?page=3
 
+# Data Engineer Fundamentals
+## Update patterns
+- Truncate and reload
+- Insert Only
+- Delete
+- Upsert/merge
+
 # Data Engineering With DBT
 ## Chapter 1
 When working with dbt, you will not need to write create table or create view
