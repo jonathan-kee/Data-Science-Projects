@@ -1,3 +1,4 @@
+from datetime import date
 import json
 import os
 from pathlib import Path
@@ -42,9 +43,10 @@ def main():
       dataset_name="raw",
   )
 
-  # Use "replace" for the initial table creation. Change to "merge" on subsequent runs after tables exist.
-  @dlt.resource(name="buildings", write_disposition="merge", primary_key="id")
+  # Use "replace" for initial table creation. Change to "merge" on subsequent runs after tables exist.
+  @dlt.resource(name="buildings", write_disposition="replace", primary_key="id")
   def building_resource():
+    current_date = date.today().isoformat()  # Generates today's date, e.g., '2026-08-17'
     for file_path in target_files:
       try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -59,13 +61,14 @@ def main():
         print(f'Missing "BuildingId" in JSON payload for file {file_path.name}.')
         continue
 
-      # Yield transformed payload data for dlt normalization
+      # Yield transformed payload data including file_date
       yield {
           "id": building_id,
           "ticker": data_payload.get("Ticker"),
           "name": data_payload.get("Name"),
           "area_cost": data_payload.get("AreaCost"),
           "user_name_submitted": data_payload.get("UserNameSubmitted"),
+          "file_date": current_date,
           "building_costs": [
               {
                   "commodity_name": cost.get("CommodityName"),
@@ -86,12 +89,12 @@ def main():
         ' "raw".\n'
     )
 
-    # Safe check for database results now that tables exist
+    # Safe check for database results including the new file_date column
     try:
       with pipeline.sql_client() as client:
         with client.execute_query(
-            "SELECT id, name, ticker, area_cost, user_name_submitted FROM"
-            " buildings"
+            "SELECT id, name, ticker, area_cost, user_name_submitted,"
+            " file_date FROM buildings"
         ) as cursor:
           if cursor.description:
             columns = [desc[0] for desc in cursor.description]
