@@ -1,143 +1,111 @@
 import datetime
-import os
-from pathlib import Path
 import re
 import shutil
-import dlt
-from dlt.destinations import postgres
+from pathlib import Path
 import pandas as pd
+from sqlalchemy import create_engine, text
 
-# Explicit primary key mappings (using standard snake_case column names)
+INPUT_DIR = Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed")
+PROCESSED_DIR = Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed")
+
+DB_URL = "postgresql://postgres:abc123@localhost:5432/prosperous_universe"
+SCHEMA = "raw"
+
 PRIMARY_KEY_MAP = {
     "prices": ["ticker"],
     "inventory": ["ticker", "storage_type"],
-    "recipeinputs": ["key"],
 }
 
+def clean_snake_case(name: str) -> str:
+    """Converts string headers to clean snake_case."""
+    s = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", name.strip())
+    return re.sub(r"[^\w]+", "_", s).lower().strip("_")
 
-def sanitize_prefix(raw_prefix: str) -> str:
-  """Strips query parameters and non-alphanumeric characters (except underscores)."""
-  clean = raw_prefix.split("?")[0]
-  return "".join(c for c in clean if c.isalnum() or c == "_")
+def load_to_postgres(df: pd.DataFrame, target_table: str, pks: list, engine):
+    """Loads a DataFrame into Postgres using append or upsert (merge) strategy."""
+    with engine.begin() as conn:
+        conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA};"))
 
+        if pks:
+            stg_table = f"_stg_{target_table}"
+            # 1. Write current batch to temporary staging table
+            df.to_sql(stg_table, conn, schema=SCHEMA, if_exists="replace", index=False)
 
-def to_snake_case(name: str) -> str:
-  """Converts PascalCase, camelCase, or spaced strings to snake_case."""
-  s = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name.strip())
-  s = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s)
-  return s.lower().replace(" ", "_").replace("__", "_")
+            # 2. Ensure target table exists (clones structure from staging if missing)
+            conn.execute(
+                text(f'CREATE TABLE IF NOT EXISTS "{SCHEMA}"."{target_table}" (LIKE "{SCHEMA}"."{stg_table}");')
+            )
 
+            # 3. Delete existing records in target matching primary keys in staging
+            pk_match = " AND ".join(
+                [f'"{SCHEMA}"."{target_table}"."{pk}" = "{SCHEMA}"."{stg_table}"."{pk}"' for pk in pks]
+            )
+            delete_sql = f"""
+                DELETE FROM "{SCHEMA}"."{target_table}"
+                WHERE EXISTS (
+                    SELECT 1 FROM "{SCHEMA}"."{stg_table}"
+                    WHERE {pk_match}
+                );
+            """
+            conn.execute(text(delete_sql))
 
-def main():
-  input_folder = Path(
-      "/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed"
-  )
-  processed_folder = Path(
-      "/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed"
-  )
+            # 4. Insert new records from staging into target
+            cols = ", ".join([f'"{col}"' for col in df.columns])
+            insert_sql = f"""
+                INSERT INTO "{SCHEMA}"."{target_table}" ({cols})
+                SELECT {cols} FROM "{SCHEMA}"."{stg_table}";
+            """
+            conn.execute(text(insert_sql))
 
-  csv_files = list(input_folder.glob("*.csv"))
+            # 5. Clean up staging table
+            conn.execute(text(f'DROP TABLE IF EXISTS "{SCHEMA}"."{stg_table}";'))
+        else:
+            # Simple append if no primary keys are mapped
+            df.to_sql(target_table, conn, schema=SCHEMA, if_exists="append", index=False)
 
-  if not csv_files:
-    print(f"No .csv files found in {input_folder}")
-    return
-
-  print(f"Found {len(csv_files)} CSV file(s) to process.")
-
-  # dev_mode=True forces dlt to recreate tables and schemas on each run during development
-  pipeline = dlt.pipeline(
-      pipeline_name="csv_folder_ingestion",
-      destination=postgres(
-          credentials="postgresql://postgres:abc123@localhost:5432/prosperous_universe"
-      ),
-      dataset_name="raw",
-      dev_mode=True,
-  )
-
-  resources = []
-
-  for file_path in csv_files:
-    filename = file_path.name
-    name_without_ext = file_path.stem
-
-    parts = name_without_ext.rsplit("_", 1)
-    if len(parts) == 2 and len(parts[1]) == 8 and parts[1].isdigit():
-      raw_prefix, date_str = parts[0], parts[1]
-      formatted_date = f"{date_str[:2]}/{date_str[2:4]}/{date_str[4:]}"
-    else:
-      raw_prefix = name_without_ext
-      formatted_date = datetime.datetime.now().strftime("%d/%m/%Y")
-
-    prefix = sanitize_prefix(raw_prefix).lower()
+def process_file(file_path: Path, engine):
+    """Reads, normalizes, and loads a single CSV file."""
+    raw_stem = file_path.stem.split("?")[0]
+    prefix = re.sub(r"[^\w]+", "", raw_stem.rsplit("_", 1)[0] if "_" in raw_stem else raw_stem).lower()
     target_table = f"{prefix}_raw"
 
-    try:
-      df = pd.read_csv(file_path, sep=",", header="infer")
-    except Exception as e:
-      print(f"Error reading {filename}: {e}")
-      continue
+    df = pd.read_csv(file_path)
+    df.columns = [clean_snake_case(c) for c in df.columns]
 
-    # Standardize headers to snake_case (e.g., StorageType -> storage_type)
-    df.columns = [to_snake_case(col) for col in df.columns]
+    # Add metadata columns (using pd.Timestamp to ensure native TIMESTAMPTZ database type)
+    df.insert(0, "source_file", file_path.name)
+    df.insert(0, "load_time", pd.Timestamp.now(tz="UTC"))
 
-    current_time = datetime.datetime.now().strftime("%H:%M:%S")
-    load_time_str = f"{formatted_date} {current_time}"
+    # Primary key matching and NULL cleaning
+    pks = PRIMARY_KEY_MAP.get(prefix, [])
+    if pks and all(k in df.columns for k in pks):
+        for k in pks:
+            if df[k].dtype == "object":
+                df[k] = df[k].astype(str).str.strip().replace(r"^\s*$", pd.NA, regex=True)
+        df = df.dropna(subset=pks)
 
-    df.insert(0, "source_file", filename)
-    df.insert(0, "load_time", load_time_str)
+    load_to_postgres(df, target_table, pks, engine)
 
-    configured_keys = PRIMARY_KEY_MAP.get(prefix)
-    if isinstance(configured_keys, str):
-      configured_keys = [configured_keys]
+def main():
+    csv_files = list(INPUT_DIR.glob("*.csv"))
+    if not csv_files:
+        print("No CSV files found.")
+        return
 
-    if configured_keys and all(k in df.columns for k in configured_keys):
-      primary_key = configured_keys
-      write_disp = "merge"
-    else:
-      primary_key = None
-      write_disp = "append"
-      if configured_keys:
-        print(
-            f"Warning: Primary key columns {configured_keys} not found in"
-            f" {filename}. Available columns: {list(df.columns)}. Falling back"
-            " to APPEND."
-        )
+    engine = create_engine(DB_URL)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(
-        f"Preparing {len(df)} rows from '{filename}' for '{target_table}'"
-        f" ({write_disp.upper()}"
-        + (f" on {primary_key}" if primary_key else "")
-        + ")"
-    )
-
-    res = dlt.resource(
-        df,
-        name=target_table,
-        write_disposition=write_disp,
-        primary_key=primary_key,
-    )
-    resources.append(res)
-
-  if not resources:
-    print("No valid CSV files to ingest.")
-    return
-
-  try:
-    load_info = pipeline.run(resources)
-    print("\n--- dlt Pipeline Load Summary ---")
-    print(load_info)
-
-    processed_folder.mkdir(parents=True, exist_ok=True)
+    processed_count = 0
     for file_path in csv_files:
-      destination = processed_folder / file_path.name
-      if destination.exists():
-        destination.unlink()
-      shutil.move(str(file_path), str(destination))
-      print(f"Archived {file_path.name} to {destination}")
+        try:
+            process_file(file_path, engine)
+            shutil.move(str(file_path), str(PROCESSED_DIR / file_path.name))
+            processed_count += 1
+            print(f"Loaded and moved: {file_path.name}")
+        except Exception as e:
+            print(f"Failed to process {file_path.name}: {e}")
 
-  except Exception as e:
-    print(f"Error during dlt pipeline execution: {e}")
-
+    print(f"Successfully processed and moved {processed_count} file(s).")
 
 if __name__ == "__main__":
-  main()
+    main()
