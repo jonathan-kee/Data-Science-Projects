@@ -219,14 +219,44 @@ Output should show: Python 3.12.x
 
 # DBT variables
 ## Individual runs with variables
-- dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate --vars '{"date_part": "2026-08-11"}'
+- dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate --vars '{"date_part": "2026-08-10"}'
 - dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate --vars '{"date_part": "2026-08-15"}'
 - dbt run --select recipe_report --full-refresh --vars '{"date_part": "2026-08-15"}'
 
 ## Testing with different variables
 - dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate recipe_report --vars '{"date_part": "2026-08-15"}'
-- dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate recipe_report --vars '{"date_part": "2026-08-11"}'
+- dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate recipe_report --vars '{"date_part": "2026-08-10"}'
 
+# Ingestions Assets
+java -jar KotlinCLI-1.0-SNAPSHOT-all.jar \
+  "https://rest.fnar.net/exchange/cxpc/AL.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/AU.AI1" \ 
+  "https://rest.fnar.net/exchange/cxpc/CF.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/CU.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/FE.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/LI.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/S.AI1"  \
+  "https://rest.fnar.net/exchange/cxpc/STL.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/TI.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/SI.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/RE.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/SEQ.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/BGO.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/MFK.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/BRO.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/BFR.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/RGO.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/UTS.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/BCO.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/AFR.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/SFK.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/HCC.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/BGC.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/FLO.AI1" \
+  "https://rest.fnar.net/exchange/cxpc/ALO.AI1" \
+  "https://rest.fnar.net/building/HB2" \
+  "https://rest.fnar.net/building/FS" \
+  
 # Ingestion Pipeline commands
 cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
 
