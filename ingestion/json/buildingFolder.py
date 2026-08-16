@@ -44,7 +44,7 @@ def main():
   )
 
   # Use "replace" for initial table creation. Change to "merge" on subsequent runs after tables exist.
-  @dlt.resource(name="buildings", write_disposition="replace", primary_key="id")
+  @dlt.resource(name="buildings", write_disposition="merge", primary_key="id")
   def building_resource():
     current_date = date.today().isoformat()  # Generates today's date, e.g., '2026-08-17'
     for file_path in target_files:
