@@ -41,7 +41,7 @@ daily_partitions_def = DailyPartitionsDefinition(
 )
 
 # ------------------------------------------------------------------
-# Custom Translator to Force Group Name to "DBT"
+# Custom Translator to Force dbt Group Name to "DBT"
 # ------------------------------------------------------------------
 class CustomDagsterDbtTranslator(DagsterDbtTranslator):
     def get_group_name(self, dbt_resource_props: Mapping[str, Any]) -> str:
@@ -164,7 +164,7 @@ def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_clie
 
 
 # ------------------------------------------------------------------
-# Step 4: CSV Ingestion Multi-Asset (Connected to PostgreSQL & dbt Sources)
+# Step 4: CSV Ingestion Multi-Asset (Direct Python PostgreSQL Load)
 # ------------------------------------------------------------------
 CSV_TABLE_NAMES = ["prices_raw", "inventory_raw", "workforce_raw"]
 
@@ -178,7 +178,7 @@ CSV_TABLE_NAMES = ["prices_raw", "inventory_raw", "workforce_raw"]
     deps=[kotlin_cli_ingest]
 )
 def csv_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    """Processes folder-based CSV files and executes SQL into PostgreSQL."""
+    """Processes folder-based CSV files and loads them directly into PostgreSQL via Python."""
     bash_script = "python ingestion/csv/ingestFolder.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script], 
@@ -186,30 +186,7 @@ def csv_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: P
         cwd=str(WORKING_DIR)
     ).get_results()
     
-    dt = datetime.strptime(context.partition_key, "%Y-%m-%d")
-    today_str = dt.strftime("%d%m%Y")
-    
-    output_to_prefix = {
-        "prices_raw": "prices",
-        "inventory_raw": "inventory",
-        "workforce_raw": "workforce"
-    }
-    
     for output_name in context.selected_output_names:
-        prefix = output_to_prefix[output_name]
-        sql_filename = f"ingestion/sql/{prefix}_{today_str}.sql"
-        
-        sql_command = f"""
-        docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < {sql_filename}
-        """
-        
-        context.log.info(f"Executing SQL file for {output_name}: {sql_filename}")
-        pipes_subprocess_client.run(
-            command=["bash", "-c", sql_command.strip()],
-            context=context,
-            cwd=str(WORKING_DIR),
-        )
-        
         yield Output(result, output_name=output_name)
 
 
