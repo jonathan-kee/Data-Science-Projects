@@ -40,7 +40,8 @@ dbt_project.prepare_if_dev()
 # Define Daily Partitions (Includes today's ongoing date)
 daily_partitions_def: DailyPartitionsDefinition = DailyPartitionsDefinition(
     start_date="2026-01-01", 
-    end_offset=1  
+    end_offset=1,
+    timezone="Asia/Kuala_Lumpur",  # Replace with your local IANA timezone string
 )
 
 # ------------------------------------------------------------------
