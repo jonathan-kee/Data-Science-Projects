@@ -9,7 +9,7 @@ sources:
       - name: recipe_inputs_time_raw
       - name: prices_raw
       - name: inventory_raw
-      - name: workforce_raw
+      #- name: workforce_raw
       
       # Exchange tables
       - name: cxpc_al_ai1_raw
