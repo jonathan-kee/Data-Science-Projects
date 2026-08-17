@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Mapping, Any
+from typing import List, Mapping, Any, Dict
 from dagster import (
     asset, 
     multi_asset, 
@@ -48,6 +48,16 @@ class CustomDagsterDbtTranslator(DagsterDbtTranslator):
         return "DBT"
 
 # ------------------------------------------------------------------
+# Helper Function for Multi-Asset Outputs
+# ------------------------------------------------------------------
+def build_asset_outs(table_names: List[str]) -> Dict[str, AssetOut]:
+    """Helper to build AssetOut mappings without dict comprehensions."""
+    outs = {}
+    for name in table_names:
+        outs[name] = AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
+    return outs
+
+# ------------------------------------------------------------------
 # Ingestion Setup & Ticker Definitions
 # ------------------------------------------------------------------
 SMELTOR_TICKERS = [
@@ -66,15 +76,23 @@ ALL_TICKERS = SMELTOR_TICKERS + METALIST_TICKERS + OTHER_TICKERS
 @asset(group_name="kotlin_ingestion", partitions_def=daily_partitions_def)
 def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
     """Step 1: Runs the Kotlin CLI jar to fetch all exchange, building, and CSV payloads."""
-    urls = [f"https://rest.fnar.net/exchange/cxpc/{t}" for t in ALL_TICKERS] + [
+    urls = []
+    for t in ALL_TICKERS:
+        urls.append(f"https://rest.fnar.net/exchange/cxpc/{t}")
+    
+    urls.extend([
         "https://rest.fnar.net/building/HB2",
         "https://rest.fnar.net/building/FS",
         "https://rest.fnar.net/csv/prices",
         "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee",
         "https://rest.fnar.net/csv/recipeinputs",
         "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
-    ]
-    url_args = " ".join([f'"{u}"' for u in urls])
+    ])
+    
+    quoted_urls = []
+    for u in urls:
+        quoted_urls.append(f'"{u}"')
+    url_args = " ".join(quoted_urls)
     
     bash_script = f"""
     cd ingestion
@@ -91,13 +109,12 @@ def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: P
 # ------------------------------------------------------------------
 # Step 2: Exchange Ingestion Multi-Asset
 # ------------------------------------------------------------------
-CXPC_TABLE_NAMES = [f"cxpc_{t.lower().replace('.', '_')}_raw" for t in ALL_TICKERS]
+CXPC_TABLE_NAMES = []
+for t in ALL_TICKERS:
+    CXPC_TABLE_NAMES.append(f"cxpc_{t.lower().replace('.', '_')}_raw")
 
 @multi_asset(
-    outs={
-        name: AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
-        for name in CXPC_TABLE_NAMES
-    },
+    outs=build_asset_outs(CXPC_TABLE_NAMES),
     group_name="exchange_ingestion",
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
@@ -114,10 +131,10 @@ def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: 
     dt = datetime.strptime(context.partition_key, "%Y-%m-%d")
     today_str = dt.strftime("%d%m%Y")
     
-    output_to_ticker = {
-        f"cxpc_{t.lower().replace('.', '_')}_raw": t.replace('.', '_')
-        for t in ALL_TICKERS
-    }
+    output_to_ticker = {}
+    for t in ALL_TICKERS:
+        key = f"cxpc_{t.lower().replace('.', '_')}_raw"
+        output_to_ticker[key] = t.replace('.', '_')
     
     for output_name in context.selected_output_names:
         ticker_token = output_to_ticker[output_name]
@@ -143,10 +160,7 @@ def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: 
 BUILDING_TABLE_NAMES = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
 
 @multi_asset(
-    outs={
-        name: AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
-        for name in BUILDING_TABLE_NAMES
-    },
+    outs=build_asset_outs(BUILDING_TABLE_NAMES),
     group_name="building_ingestion",
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
@@ -170,10 +184,7 @@ def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_clie
 CSV_TABLE_NAMES = ["prices_raw", "inventory_raw", "recipe_inputs_raw_csv", "workforce_raw"]
 
 @multi_asset(
-    outs={
-        name: AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
-        for name in CSV_TABLE_NAMES
-    },
+    outs=build_asset_outs(CSV_TABLE_NAMES),
     group_name="csv_ingestion",
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
