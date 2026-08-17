@@ -1,33 +1,36 @@
 import json
+from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import List, Mapping, Any, Dict
+from typing import Any
+
 from dagster import (
-    asset, 
-    multi_asset, 
-    AssetOut, 
-    AssetKey, 
-    AssetExecutionContext, 
-    PipesSubprocessClient, 
+    AssetExecutionContext,
+    AssetKey,
+    AssetOut,
     DailyPartitionsDefinition,
-    Output
+    Output,
+    PipesExecutionResult,
+    PipesSubprocessClient,
+    asset,
+    multi_asset,
 )
 from dagster_dbt import (
-    dbt_assets, 
-    DbtCliResource, 
+    DagsterDbtTranslator,
+    DbtCliResource,
     DbtProject,
-    DagsterDbtTranslator
+    dbt_assets,
 )
 
 # Base directory setup
-WORKING_DIR = Path("/Users/jonathankee/Data-Science-Projects")
-DBT_PROJECT_DIR = WORKING_DIR / "dbtproject"
-PROFILES_DIR = Path.home() / ".dbt"
+WORKING_DIR: Path = Path("/Users/jonathankee/Data-Science-Projects")
+DBT_PROJECT_DIR: Path = WORKING_DIR / "dbtproject"
+PROFILES_DIR: Path = Path.home() / ".dbt"
 
 # ------------------------------------------------------------------
 # dbt Configuration & Project Initialization
 # ------------------------------------------------------------------
-dbt_project = DbtProject(
+dbt_project: DbtProject = DbtProject(
     project_dir=DBT_PROJECT_DIR,
     profiles_dir=PROFILES_DIR,
 )
@@ -35,7 +38,7 @@ dbt_project = DbtProject(
 dbt_project.prepare_if_dev()
 
 # Define Daily Partitions (Includes today's ongoing date)
-daily_partitions_def = DailyPartitionsDefinition(
+daily_partitions_def: DailyPartitionsDefinition = DailyPartitionsDefinition(
     start_date="2026-01-01", 
     end_offset=1  
 )
@@ -44,15 +47,15 @@ daily_partitions_def = DailyPartitionsDefinition(
 # Custom Translator to Force dbt Group Name to "DBT"
 # ------------------------------------------------------------------
 class CustomDagsterDbtTranslator(DagsterDbtTranslator):
-    def get_group_name(self, dbt_resource_props: Mapping[str, Any]) -> str:
+    def get_group_name(self, dbt_resource_props: dict[str, Any]) -> str:
         return "DBT"
 
 # ------------------------------------------------------------------
 # Helper Function for Multi-Asset Outputs
 # ------------------------------------------------------------------
-def build_asset_outs(table_names: List[str]) -> Dict[str, AssetOut]:
+def build_asset_outs(table_names: list[str]) -> dict[str, AssetOut]:
     """Helper to build AssetOut mappings without dict comprehensions."""
-    outs = {}
+    outs: dict[str, AssetOut] = {}
     for name in table_names:
         outs[name] = AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
     return outs
@@ -60,23 +63,26 @@ def build_asset_outs(table_names: List[str]) -> Dict[str, AssetOut]:
 # ------------------------------------------------------------------
 # Ingestion Setup & Ticker Definitions
 # ------------------------------------------------------------------
-SMELTOR_TICKERS = [
+SMELTOR_TICKERS: list[str] = [
     "AL.AI1", "AU.AI1", "CF.AI1", "CU.AI1", "FE.AI1", 
     "LI.AI1", "S.AI1", "STL.AI1", "TI.AI1", "SI.AI1", "RE.AI1"
 ]
 
-METALIST_TICKERS = [
+METALIST_TICKERS: list[str] = [
     "SEQ.AI1", "BGO.AI1", "MFK.AI1", "BRO.AI1", "BFR.AI1", "RGO.AI1", 
     "UTS.AI1", "BCO.AI1", "AFR.AI1", "SFK.AI1", "HCC.AI1", "BGC.AI1", "FLO.AI1"
 ]
 
-OTHER_TICKERS = ["ALO.AI1"]
-ALL_TICKERS = SMELTOR_TICKERS + METALIST_TICKERS + OTHER_TICKERS
+OTHER_TICKERS: list[str] = ["ALO.AI1"]
+ALL_TICKERS: list[str] = SMELTOR_TICKERS + METALIST_TICKERS + OTHER_TICKERS
 
 @asset(group_name="kotlin_ingestion", partitions_def=daily_partitions_def)
-def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+def kotlin_cli_ingest(
+    context: AssetExecutionContext, 
+    pipes_subprocess_client: PipesSubprocessClient
+) -> Any:
     """Step 1: Runs the Kotlin CLI jar to fetch all exchange, building, and CSV payloads."""
-    urls = []
+    urls: list[str] = []
     for t in ALL_TICKERS:
         urls.append(f"https://rest.fnar.net/exchange/cxpc/{t}")
     
@@ -89,12 +95,12 @@ def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: P
         "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
     ])
     
-    quoted_urls = []
+    quoted_urls: list[str] = []
     for u in urls:
         quoted_urls.append(f'"{u}"')
-    url_args = " ".join(quoted_urls)
+    url_args: str = " ".join(quoted_urls)
     
-    bash_script = f"""
+    bash_script: str = f"""
     cd ingestion
     java -jar KotlinCLI-1.0-SNAPSHOT-all.jar {url_args}
     """
@@ -109,7 +115,7 @@ def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: P
 # ------------------------------------------------------------------
 # Step 2: Exchange Ingestion Multi-Asset
 # ------------------------------------------------------------------
-CXPC_TABLE_NAMES = []
+CXPC_TABLE_NAMES: list[str] = []
 for t in ALL_TICKERS:
     CXPC_TABLE_NAMES.append(f"cxpc_{t.lower().replace('.', '_')}_raw")
 
@@ -119,28 +125,31 @@ for t in ALL_TICKERS:
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
 )
-def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+def cxpc_folder_ingest(
+    context: AssetExecutionContext, 
+    pipes_subprocess_client: PipesSubprocessClient
+) -> Iterator[Output]:
     """Processes folder-based exchange JSON files and executes SQL into PostgreSQL."""
-    bash_script = "python ingestion/json/cxpcFolder.py"
+    bash_script: str = "python ingestion/json/cxpcFolder.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
         cwd=str(WORKING_DIR),
     ).get_results()
     
-    dt = datetime.strptime(context.partition_key, "%Y-%m-%d")
-    today_str = dt.strftime("%d%m%Y")
+    dt: datetime = datetime.strptime(context.partition_key, "%Y-%m-%d")
+    today_str: str = dt.strftime("%d%m%Y")
     
-    output_to_ticker = {}
+    output_to_ticker: dict[str, str] = {}
     for t in ALL_TICKERS:
-        key = f"cxpc_{t.lower().replace('.', '_')}_raw"
+        key: str = f"cxpc_{t.lower().replace('.', '_')}_raw"
         output_to_ticker[key] = t.replace('.', '_')
     
     for output_name in context.selected_output_names:
-        ticker_token = output_to_ticker[output_name]
-        sql_filename = f"ingestion/sql/cxpc_{ticker_token}_{today_str}.sql"
+        ticker_token: str = output_to_ticker[output_name]
+        sql_filename: str = f"ingestion/sql/cxpc_{ticker_token}_{today_str}.sql"
         
-        sql_command = f"""
+        sql_command: str = f"""
         docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < {sql_filename}
         """
         
@@ -157,7 +166,7 @@ def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: 
 # ------------------------------------------------------------------
 # Step 3: Building Ingestion Multi-Asset
 # ------------------------------------------------------------------
-BUILDING_TABLE_NAMES = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
+BUILDING_TABLE_NAMES: list[str] = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
 
 @multi_asset(
     outs=build_asset_outs(BUILDING_TABLE_NAMES),
@@ -165,9 +174,12 @@ BUILDING_TABLE_NAMES = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
 )
-def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+def building_folder_ingest(
+    context: AssetExecutionContext, 
+    pipes_subprocess_client: PipesSubprocessClient
+) -> Iterator[Output]:
     """Processes folder-based building JSON files independently."""
-    bash_script = "python ingestion/json/buildingFolder.py"
+    bash_script: str = "python ingestion/json/buildingFolder.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
@@ -181,7 +193,7 @@ def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_clie
 # ------------------------------------------------------------------
 # Step 4: CSV Ingestion Multi-Asset (Direct Python PostgreSQL Load)
 # ------------------------------------------------------------------
-CSV_TABLE_NAMES = ["prices_raw", "inventory_raw", "recipe_inputs_raw_csv", "workforce_raw"]
+CSV_TABLE_NAMES: list[str] = ["prices_raw", "inventory_raw", "recipe_inputs_raw_csv", "workforce_raw"]
 
 @multi_asset(
     outs=build_asset_outs(CSV_TABLE_NAMES),
@@ -189,9 +201,12 @@ CSV_TABLE_NAMES = ["prices_raw", "inventory_raw", "recipe_inputs_raw_csv", "work
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
 )
-def csv_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+def csv_folder_ingest(
+    context: AssetExecutionContext, 
+    pipes_subprocess_client: PipesSubprocessClient
+) -> Iterator[Output]:
     """Processes folder-based CSV files and loads them directly into PostgreSQL via Python."""
-    bash_script = "python ingestion/csv/ingestFolder.py"
+    bash_script: str = "python ingestion/csv/ingestFolder.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script], 
         context=context, 
@@ -210,12 +225,15 @@ def csv_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: P
     partitions_def=daily_partitions_def,
     dagster_dbt_translator=CustomDagsterDbtTranslator()
 )
-def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
+def dbtproject_dbt_assets(
+    context: AssetExecutionContext, 
+    dbt: DbtCliResource
+) -> Iterator[Any]:
     """Generates partitioned individual dbt model assets downstream of all ingestion sources."""
-    target_date = context.partition_key
+    target_date: str = context.partition_key
     context.log.info(f"Running dbt with date_part: {target_date}")
     
-    dbt_args = [
+    dbt_args: list[str] = [
         "run",
         "--vars",
         json.dumps({"date_part": target_date})
@@ -224,7 +242,7 @@ def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
 
 
 # Combine all asset objects into a single exported list
-all_pipeline_assets: List = [
+all_pipeline_assets: list[Any] = [
     kotlin_cli_ingest,
     cxpc_folder_ingest,
     building_folder_ingest,
