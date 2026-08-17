@@ -3,120 +3,195 @@ import json
 import os
 from pathlib import Path
 import shutil
-import dlt
-from dlt.destinations import postgres
+
+import pandas as pd
+from sqlalchemy import create_engine, text
+from sqlalchemy.dialects.postgresql import insert
+
+
+def create_upsert_method(primary_keys):
+    """
+    Returns a custom upsert method for pandas to_sql to perform Postgres 
+    INSERT ... ON CONFLICT DO UPDATE.
+    """
+    def postgres_upsert(table, conn, keys, data_iter):
+        data = [dict(zip(keys, row)) for row in data_iter]
+        stmt = insert(table.table).values(data)
+        
+        # Define columns to update (all columns except the primary keys)
+        update_dict = {
+            c.name: c 
+            for c in stmt.excluded 
+            if c.name not in primary_keys
+        }
+        
+        if update_dict:
+            upsert_stmt = stmt.on_conflict_do_update(
+                index_elements=primary_keys,
+                set_=update_dict
+            )
+        else:
+            upsert_stmt = stmt.on_conflict_do_nothing(
+                index_elements=primary_keys
+            )
+            
+        conn.execute(upsert_stmt)
+    return postgres_upsert
 
 
 def main():
-  # Define directories matching your local paths
-  input_folder = Path(
-      os.getenv(
-          "INPUT_FOLDER",
-          "/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed",
-      )
-  )
-  processed_folder = Path(
-      "/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed"
-  )
-
-  if not input_folder.exists():
-    print(f"Input directory does not exist: {input_folder}")
-    return
-
-  # Filter files: must end with '.json' and NOT contain 'AI1'
-  target_files = [
-      f
-      for f in input_folder.iterdir()
-      if f.is_file() and f.name.endswith(".json") and "AI1" not in f.name
-  ]
-
-  if not target_files:
-    print('No eligible files (without "AI1") found in the directory.')
-    return
-
-  # Initialize dlt pipeline targeting PostgreSQL and schema 'raw'
-  pipeline = dlt.pipeline(
-      pipeline_name="building_ingestion",
-      destination=postgres(
-          credentials="postgresql://postgres:abc123@localhost:5432/prosperous_universe"
-      ),
-      dataset_name="raw",
-  )
-
-  # Use "replace" for initial table creation. Change to "merge" on subsequent runs after tables exist.
-  @dlt.resource(name="buildings", write_disposition="merge", primary_key="id")
-  def building_resource():
-    current_date = date.today().isoformat()  # Generates today's date, e.g., '2026-08-17'
-    for file_path in target_files:
-      try:
-        with open(file_path, "r", encoding="utf-8") as f:
-          data_payload = json.load(f)
-        print(f"Loaded JSON successfully from {file_path.name}!")
-      except Exception as e:
-        print(f"Failed to read or parse JSON file {file_path.name}: {e}")
-        continue
-
-      building_id = data_payload.get("BuildingId")
-      if not building_id:
-        print(f'Missing "BuildingId" in JSON payload for file {file_path.name}.')
-        continue
-
-      # Yield transformed payload data including file_date
-      yield {
-          "id": building_id,
-          "ticker": data_payload.get("Ticker"),
-          "name": data_payload.get("Name"),
-          "area_cost": data_payload.get("AreaCost"),
-          "user_name_submitted": data_payload.get("UserNameSubmitted"),
-          "file_date": current_date,
-          "building_costs": [
-              {
-                  "commodity_name": cost.get("CommodityName"),
-                  "commodity_ticker": cost.get("CommodityTicker"),
-                  "weight": cost.get("Weight"),
-                  "volume": cost.get("Volume"),
-                  "amount": cost.get("Amount"),
-              }
-              for cost in data_payload.get("BuildingCosts", [])
-          ],
-      }
-
-  try:
-    # Run pipeline execution once for all files
-    load_info = pipeline.run(building_resource())
-    print(
-        "\nSUCCESS: Pipeline execution completed and tables created in schema"
-        ' "raw".\n'
+    # Define directories matching your local paths
+    input_folder = Path(
+        os.getenv(
+            "INPUT_FOLDER",
+            "/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed",
+        )
+    )
+    processed_folder = Path(
+        "/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed"
     )
 
-    # Safe check for database results including the new file_date column
-    try:
-      with pipeline.sql_client() as client:
-        with client.execute_query(
-            "SELECT id, name, ticker, area_cost, user_name_submitted,"
-            " file_date FROM buildings"
-        ) as cursor:
-          if cursor.description:
-            columns = [desc[0] for desc in cursor.description]
-            rows = cursor.fetchall()
-            print('--- Queried Database Summary (from schema "raw") ---')
-            for row in rows:
-              print(dict(zip(columns, row)))
-    except Exception as query_err:
-      print(
-          f"Note: Could not run summary print query automatically: {query_err}"
-      )
+    if not input_folder.exists():
+        print(f"Input directory does not exist: {input_folder}")
+        return
 
-    # Move processed files to the processed folder
-    processed_folder.mkdir(parents=True, exist_ok=True)
+    # Filter files: must end with '.json' and NOT contain 'AI1'
+    target_files = [
+        f
+        for f in input_folder.iterdir()
+        if f.is_file() and f.name.endswith(".json") and "AI1" not in f.name
+    ]
+
+    if not target_files:
+        print('No eligible files (without "AI1") found in the directory.')
+        return
+
+    buildings_data = []
+    building_costs_data = []
+    current_date = date.today().isoformat()
+
+    # Parse JSON files
     for file_path in target_files:
-      processed_file_path = processed_folder / file_path.name
-      shutil.move(str(file_path), str(processed_file_path))
-      print(f"Successfully moved JSON file to: {processed_file_path}")
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data_payload = json.load(f)
+            print(f"Loaded JSON successfully from {file_path.name}!")
+        except Exception as e:
+            print(f"Failed to read or parse JSON file {file_path.name}: {e}")
+            continue
 
-  except Exception as e:
-    print(f"Error during pipeline execution: {e}\n")
+        building_id = data_payload.get("BuildingId")
+        if not building_id:
+            print(f'Missing "BuildingId" in JSON payload for file {file_path.name}.')
+            continue
+
+        buildings_data.append({
+            "id": building_id,
+            "ticker": data_payload.get("Ticker"),
+            "name": data_payload.get("Name"),
+            "area_cost": data_payload.get("AreaCost"),
+            "user_name_submitted": data_payload.get("UserNameSubmitted"),
+            "file_date": current_date,
+        })
+
+        for cost in data_payload.get("BuildingCosts", []):
+            building_costs_data.append({
+                "building_id": building_id,
+                "commodity_name": cost.get("CommodityName"),
+                "commodity_ticker": cost.get("CommodityTicker"),
+                "weight": cost.get("Weight"),
+                "volume": cost.get("Volume"),
+                "amount": cost.get("Amount"),
+            })
+
+    if not buildings_data:
+        print("No valid building data found to process.")
+        return
+
+    # Convert to Pandas DataFrames and deduplicate to ensure within-batch idempotency
+    df_buildings = pd.DataFrame(buildings_data).drop_duplicates(subset=["id"], keep="last")
+    df_costs = pd.DataFrame(building_costs_data).drop_duplicates(subset=["building_id", "commodity_ticker"], keep="last")
+
+    # Database connection using SQLAlchemy
+    engine = create_engine("postgresql://postgres:abc123@localhost:5432/prosperous_universe")
+
+    try:
+        # Pre-create Schema and Tables WITH Primary Keys explicitly
+        with engine.begin() as conn:
+            conn.execute(text("CREATE SCHEMA IF NOT EXISTS raw;"))
+            
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS raw.buildings (
+                    id TEXT PRIMARY KEY,
+                    ticker TEXT,
+                    name TEXT,
+                    area_cost DOUBLE PRECISION,
+                    user_name_submitted TEXT,
+                    file_date TEXT
+                );
+            """))
+            
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS raw.building_costs (
+                    building_id TEXT,
+                    commodity_name TEXT,
+                    commodity_ticker TEXT,
+                    weight DOUBLE PRECISION,
+                    volume DOUBLE PRECISION,
+                    amount DOUBLE PRECISION,
+                    PRIMARY KEY (building_id, commodity_ticker),
+                    CONSTRAINT fk_building FOREIGN KEY (building_id) REFERENCES raw.buildings(id) ON DELETE CASCADE
+                );
+            """))
+
+        # Write Main Table using Upsert
+        df_buildings.to_sql(
+            "buildings",
+            engine,
+            schema="raw",
+            if_exists="append",
+            index=False,
+            method=create_upsert_method(primary_keys=["id"])
+        )
+
+        # Write Nested/Child Table using Upsert
+        if not df_costs.empty:
+            df_costs.to_sql(
+                "building_costs",
+                engine,
+                schema="raw",
+                if_exists="append",
+                index=False,
+                method=create_upsert_method(primary_keys=["building_id", "commodity_ticker"])
+            )
+
+        print('\nSUCCESS: Pipeline execution completed with Upserts in schema "raw".\n')
+
+        # Safe check for database results
+        try:
+            query = """
+                SELECT id, name, ticker, area_cost, user_name_submitted, file_date 
+                FROM raw.buildings
+            """
+            with engine.connect() as conn:
+                summary_df = pd.read_sql(text(query), conn)
+                
+            print('--- Queried Database Summary (from schema "raw") ---')
+            for row in summary_df.to_dict(orient="records"):
+                print(row)
+        except Exception as query_err:
+            print(f"Note: Could not run summary print query automatically: {query_err}")
+
+        # Move processed files to the processed folder
+        processed_folder.mkdir(parents=True, exist_ok=True)
+        for file_path in target_files:
+            processed_file_path = processed_folder / file_path.name
+            shutil.move(str(file_path), str(processed_file_path))
+            print(f"Successfully moved JSON file to: {processed_file_path}")
+
+    except Exception as e:
+        print(f"Error during pipeline execution: {e}\n")
 
 
 if __name__ == "__main__":
-  main()
+    main()
