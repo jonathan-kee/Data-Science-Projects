@@ -99,6 +99,14 @@ I guess you can create a ranking for the lowest open prices, and their dates
 # Vscode extensions to download
 sqlfluff to linter sql properly for best practises
 
+# Backup Postgres docker data (Incase I lose all data at some point)
+docker exec -t postgres-container pg_dump -U postgres -d prosperous_universe > ./backup_sql/backup.sql
+docker exec -i postgres-container psql -U postgres -d prosperous_universe < ./backup_sql/backup.sql
+
+# Backup with Github Actions:
+git clone --depth 1 --branch v4 https://github.com/actions/upload-artifact.git .github/actions/upload-artifact
+Run Backup Database workflow
+
 # DBT Website crendentials
 E4J8NLKAYRZ67GK5XWMDDKBR
 
