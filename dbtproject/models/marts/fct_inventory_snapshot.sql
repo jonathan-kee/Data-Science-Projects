@@ -4,12 +4,13 @@ with
         select
             cast("date_part" as date) as snapshot_date,
             cast("time_part" as time) as snapshot_time,
-            to_timestamp("load time", 'DD/MM/YYYY HH24:MI:SS') as loaded_at,
-            "Username" as loaded_by_user,
-            "NaturalId" as natural_id,
-            "StorageType" as storage_type,
-            "Ticker" as ticker,
-            "Amount" as item_amount
+            CAST(CAST("load_time" AS TIMESTAMP) AS DATE) AS date_part,
+            CAST(CAST("load_time" AS TIMESTAMP) AS TIME) AS time_part,
+            "username" as loaded_by_user,
+            "natural_id" as natural_id,
+            "storage_type" as storage_type,
+            "ticker" as ticker,
+            "amount" as item_amount
         from {{ ref("stg_inventory") }}
 
     ),
@@ -31,7 +32,8 @@ select
     -- Timestamps / Date references
     stg.snapshot_date,
     stg.snapshot_time,
-    stg.loaded_at,
+    stg.date_part,
+    stg.time_part,
 
     -- Fact / Numeric Measure
     stg.item_amount

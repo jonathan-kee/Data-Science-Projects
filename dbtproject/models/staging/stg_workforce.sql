@@ -1,5 +1,5 @@
 SELECT
-    CAST(TO_TIMESTAMP("load time", 'DD/MM/YYYY HH24:MI:SS') AS DATE) AS date_part,
-    CAST(TO_TIMESTAMP("load time", 'DD/MM/YYYY HH24:MI:SS') AS TIME) AS time_part,
+    CAST(CAST("load_time" AS TIMESTAMP) AS DATE) AS date_part,
+    CAST(CAST("load_time" AS TIMESTAMP) AS TIME) AS time_part,
     *
 FROM {{ source('prosperous_universe_sources', 'workforce_raw') }}

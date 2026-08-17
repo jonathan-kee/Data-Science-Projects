@@ -1,19 +1,19 @@
 with
     habitat_total_buying_price as (
         select distinct
-            raw.stg_prices."Ticker",
+            raw.stg_prices."ticker",
             raw.building_costs."amount"
-            * raw.stg_prices."AI1-AskPrice" as "total buying price individually"
+            * raw.stg_prices."ai1_ask_price" as "total buying price individually"
         from {{ ref("stg_prices") }}
         inner join
             raw.building_costs
-            on raw.stg_prices."Ticker" = raw.building_costs."commodity_ticker"
+            on raw.stg_prices."ticker" = raw.building_costs."commodity_ticker"
         where
             -- maximum date --
             raw.stg_prices.date_part
             = (select max("date_part") from {{ ref("stg_prices") }})
             -- habitat id --
-            and raw.building_costs."buildingId" in ('79f8f9bf4a56c464041c18995b00c16e')
+            and raw.building_costs."building_id" in ('79f8f9bf4a56c464041c18995b00c16e')
     ),
     habitat_total as (
         select sum("total buying price individually") as "total buying price"
@@ -26,19 +26,19 @@ with
     ),
     finesmith_total_buying_price as (
         select distinct
-            raw.stg_prices."Ticker",
+            raw.stg_prices."ticker",
             raw.building_costs."amount"
-            * raw.stg_prices."AI1-AskPrice" as "total buying price individually"
+            * raw.stg_prices."ai1_ask_price" as "total buying price individually"
         from {{ ref("stg_prices") }}
         inner join
             raw.building_costs
-            on raw.stg_prices."Ticker" = raw.building_costs."commodity_ticker"
+            on raw.stg_prices."ticker" = raw.building_costs."commodity_ticker"
         where
             -- maximum date --
             raw.stg_prices.date_part
             = (select max("date_part") from {{ ref("stg_prices") }})
             -- habitat id --
-            and raw.building_costs."buildingId" in ('2d08c72c3801061979897525a8915fb2')
+            and raw.building_costs."building_id" in ('2d08c72c3801061979897525a8915fb2')
     ),
     finesmith_total as (
         select sum("total buying price individually") as "total buying price"

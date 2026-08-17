@@ -18,14 +18,14 @@ with
             stg_recipe_inputs.materialinputquantity,
             stg_recipe_inputs.materialinput,
             -- Ask Price is seller, You buy from them --
-            stg_prices."AI1-AskPrice",
+            stg_prices."ai1_ask_price",
             stg_recipe_inputs.materialinputquantity
-            * stg_prices."AI1-AskPrice" as "material_input_total_cost",
+            * stg_prices."ai1_ask_price" as "material_input_total_cost",
             stg_recipe_inputs.materialoutputquantity,
             stg_recipe_inputs.materialoutput
         from stg_prices
         left join
-            stg_recipe_inputs on stg_recipe_inputs.materialinput = stg_prices."Ticker"
+            stg_recipe_inputs on stg_recipe_inputs.materialinput = stg_prices."ticker"
     ),
     material_output_total_cost as (
         select
@@ -33,14 +33,14 @@ with
             material_input_total_cost_cte.prefix,
             material_input_total_cost_cte.materialinputquantity,
             material_input_total_cost_cte.materialinput,
-            material_input_total_cost_cte."AI1-AskPrice" as "material_input_buy_price",
+            material_input_total_cost_cte."ai1_ask_price" as "material_input_buy_price",
             material_input_total_cost_cte."material_input_total_cost",
             material_input_total_cost_cte.materialoutputquantity,
             material_input_total_cost_cte.materialoutput,
             -- Bid Price is buyer, You sell to them -- 
-            stg_prices."AI1-BidPrice" as "material_output_sell_price",
+            stg_prices."ai1_bid_price" as "material_output_sell_price",
             material_input_total_cost_cte.materialoutputquantity
-            * stg_prices."AI1-BidPrice" as "material_output_total_sell_price",
+            * stg_prices."ai1_bid_price" as "material_output_total_sell_price",
             (
                 stg_recipe_inputs_time.time_ms / 60000
             ) as "time_taken_per_order_in_minutes",
@@ -52,7 +52,7 @@ with
         from stg_prices
         left join
             material_input_total_cost_cte
-            on material_input_total_cost_cte.materialoutput = stg_prices."Ticker"
+            on material_input_total_cost_cte.materialoutput = stg_prices."ticker"
         left join
             stg_recipe_inputs_time
             on stg_recipe_inputs_time.prefix = material_input_total_cost_cte.prefix

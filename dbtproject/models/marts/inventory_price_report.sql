@@ -11,7 +11,7 @@ with
         inner join max_date_stg_inventory on 1 = 1
         where
             stg_inventory."date_part" = max_date_stg_inventory."max_date_part"
-            and stg_inventory."StorageType" = 'STORE'
+            and stg_inventory."storage_type" = 'STORE'
     ),
     filter_stg_prices_max_date as (
         select *
@@ -21,15 +21,15 @@ with
     ),
     total_selling_price_max_date as (
         select distinct
-            filter_stg_inventory_max_date."Ticker" as "Inventory Ticker",
-            filter_stg_inventory_max_date."Amount",
-            filter_stg_inventory_max_date."Amount"
-            * filter_stg_prices_max_date."AI1-BidPrice" as "total_selling_price"
+            filter_stg_inventory_max_date."ticker" as "Inventory Ticker",
+            filter_stg_inventory_max_date."amount",
+            filter_stg_inventory_max_date."amount"
+            * filter_stg_prices_max_date."ai1_bid_price" as "total_selling_price"
         from filter_stg_inventory_max_date
         inner join
             filter_stg_prices_max_date
-            on filter_stg_prices_max_date."Ticker"
-            = filter_stg_inventory_max_date."Ticker"
+            on filter_stg_prices_max_date."ticker"
+            = filter_stg_inventory_max_date."ticker"
         order by "total_selling_price" desc
     )
 select *

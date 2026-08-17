@@ -2,11 +2,11 @@ with
     source_data as (
 
         select distinct
-            "NaturalId" as natural_id,
-            "Name" as facility_name,
-            "StorageType" as storage_type
+            "natural_id" as natural_id,
+            "name" as facility_name,
+            "storage_type" as storage_type
         from {{ ref("stg_inventory") }}
-        where "NaturalId" is not null
+        where "natural_id" is not null
 
     )
 

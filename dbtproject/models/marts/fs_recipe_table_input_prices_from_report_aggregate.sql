@@ -4,16 +4,16 @@ with
         select
             stg_recipe_inputs_time.*,
             -- Ask Price is seller, You buy from them --
-            "AI1-AskPrice",
+            "ai1_ask_price",
             -- Bid Price is buyer, You sell to them --
-            "AI1-BidPrice",
+            "ai1_bid_price",
             stg_recipe_inputs_time."time_ms" / 60000.0 as "minutes"
         from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
         -- Joining on "materialinput" to get prices for each ingredient
         inner join
             {{ ref("prices_from_recipe_report") }} as prices_from_recipe_report
             on stg_recipe_inputs_time."materialinput"
-            = prices_from_recipe_report."Ticker"
+            = prices_from_recipe_report."ticker"
         where
             -- maximum date --
             prices_from_recipe_report."date_part"
@@ -42,11 +42,11 @@ with
 
             -- MULTIPLY EACH INGREDIENT PRICE BY ITS INPUT QUANTITY --
             sum(
-                "AI1-AskPrice" * "materialinputquantity"
+                "ai1_ask_price" * "materialinputquantity"
             ) as "total_input_materials_AI1_AskPrice",
 
             -- TOTAL INPUT COST DIVIDED BY OUTPUT QUANTITY FOR PER-UNIT COST --
-            sum("AI1-AskPrice" * "materialinputquantity")
+            sum("ai1_ask_price" * "materialinputquantity")
             / max("materialoutputquantity") as "input_materials_AI1_AskPrice_per_unit"
 
         from joining_table

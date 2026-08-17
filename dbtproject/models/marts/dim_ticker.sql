@@ -1,13 +1,13 @@
 with
     source_data as (
-        select distinct "Ticker" as "Ticker"
+        select distinct "ticker" as "ticker"
         from {{ ref("stg_prices") }}
-        where "Ticker" is not null
+        where "ticker" is not null
     )
 
 select
     -- Natural Primary Key for the Dimension
-    "Ticker",
+    "ticker",
 
     -- Metadata / Placeholder attributes (e.g., sector, company_name)
     current_timestamp as created_at

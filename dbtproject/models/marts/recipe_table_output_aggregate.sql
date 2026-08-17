@@ -3,14 +3,14 @@ with
         select
             stg_recipe_inputs_time.*,
             -- Ask Price is seller, You buy from them --
-            stg_prices."AI1-AskPrice",
+            stg_prices."ai1_ask_price",
             -- Bid Price is buyer, You sell to them --
-            stg_prices."AI1-BidPrice",
+            stg_prices."ai1_bid_price",
             stg_recipe_inputs_time."time_ms" / 60000.0 as "minutes"
         from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
         inner join
             {{ ref("stg_prices") }} as stg_prices
-            on stg_recipe_inputs_time."materialoutput" = stg_prices."Ticker"
+            on stg_recipe_inputs_time."materialoutput" = stg_prices."ticker"
         where
             {% if var("date_part", none) is not none %}
                 stg_prices.date_part = '{{ var("date_part") }}'
@@ -34,11 +34,11 @@ with
             ) as "hour and minutes",
 
             -- Multiply Unit Price (1940) by Quantity (e.g. 2) to get Total (3880) --
-            (sum("AI1-BidPrice") / count(*))
+            (sum("ai1_bid_price") / count(*))
             * max("materialoutputquantity") as "total output_materials_AI1_BidPrice",
 
             -- Unit price remains 1940 --
-            sum("AI1-BidPrice") / count(*) as "output_materials_AI1_BidPrice_per_unit"
+            sum("ai1_bid_price") / count(*) as "output_materials_AI1_BidPrice_per_unit"
 
         from joining_table
         group by
