@@ -326,6 +326,11 @@ An asset is an object in persistent storage, such as a table, file, or persisted
 
 ![Multiple Asset](./screenshots/multiAssets.png)
 
+## Partioning based on date
+[Partition based on date](./screenshots/partitionDate.png)
+
+![Partition based on date](./screenshots/partitionDate.png)
+
 # Data Engineer Fundamentals
 ## Update patterns
 - Truncate and reload
