@@ -1,4 +1,4 @@
-name: Pipeline
+name: Backup Database
 
 on:
   workflow_dispatch:
@@ -23,12 +23,15 @@ jobs:
       - name: backup
         run: docker exec -t postgres-container pg_dump -U postgres -d prosperous_universe > ./backup_sql/backup_${TODAY}.sql
 
-      - name: Push backup to GitHub
+      # Copies local vendor action into the runner's internal workspace folder
+      - name: Populate runner workspace with local action
         run: |
-          ENCODED_CONTENT=$(base64 < ./backup_sql/backup_${TODAY}.sql | tr -d '\n')
-          
-          curl -X PUT \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/contents/backup_sql/backup_${TODAY}.sql" \
-            -d "{\"message\":\"chore: add database backup for ${TODAY}\",\"content\":\"${ENCODED_CONTENT}\"}"
+          mkdir -p $GITHUB_WORKSPACE/.github/actions
+          cp -r /Users/jonathankee/Data-Science-Projects/.github/actions/upload-artifact $GITHUB_WORKSPACE/.github/actions/
+
+      - name: Upload backup to GitHub Artifacts
+        uses: ./.github/actions/upload-artifact
+        with:
+          name: db-backup-${{ env.TODAY }}
+          path: /Users/jonathankee/Data-Science-Projects/backup_sql/backup_${{ env.TODAY }}.sql
+          retention-days: 30
