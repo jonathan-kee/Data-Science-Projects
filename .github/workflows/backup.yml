@@ -1,0 +1,28 @@
+name: Pipeline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Pipeline:
+    name: Setup Pipeline
+    runs-on: [self-hosted, macOS, ARM64]
+    defaults:
+      run:
+        working-directory: /Users/jonathankee/Data-Science-Projects
+    steps:
+      - name: Print working directory
+        run: pwd
+
+      - name: Set current date
+        run: echo "TODAY=$(date +'%d%m%Y')" >> $GITHUB_ENV
+
+      - name: backup
+        run: docker exec -t postgres-container pg_dump -U postgres -d prosperous_universe > ./backup_sql/backup_${TODAY}.sql
+
+      - name: Upload backup to GitHub Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ env.TODAY }}
+          path: ./backup_sql/backup_${{ env.TODAY }}.sql
+          retention-days: 30
