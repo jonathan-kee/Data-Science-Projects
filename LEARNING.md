@@ -314,6 +314,18 @@ https://learn.getdbt.com/learn/course/analyses-and-seeds-vs-code/analyses-and-se
 What are seeds?
 https://learn.getdbt.com/learn/course/analyses-and-seeds-vs-code/analyses-and-seeds-30min/understanding-analyses?page=3
 
+# Dagster
+## Asset
+An asset is an object in persistent storage, such as a table, file, or persisted machine learning model. An asset definition is a description, in code, of an asset that should exist and how to produce and update that asset.
+
+[Single Asset](./screenshots/singleAsset.png)
+
+![Single Asset](./screenshots/singleAsset.png)
+
+[Multiple Asset](./screenshots/multiAssets.png)
+
+![Multiple Asset](./screenshots/multiAssets.png)
+
 # Data Engineer Fundamentals
 ## Update patterns
 - Truncate and reload
