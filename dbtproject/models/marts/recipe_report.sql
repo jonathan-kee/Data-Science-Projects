@@ -21,6 +21,7 @@ select
     "total output_materials_AI1_BidPrice",
     "total output_materials_AI1_BidPrice"
     - "total input_materials_AI1_AskPrice" as "profit of buy minus sell",
+    (1440 / recipe_table_input_aggregate."minutes per order") as "order_per_day",
     (1440 / recipe_table_input_aggregate."minutes per order") * (
         "total output_materials_AI1_BidPrice" - "total input_materials_AI1_AskPrice"
     ) as "profit per day",
