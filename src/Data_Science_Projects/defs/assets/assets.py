@@ -44,11 +44,19 @@ daily_partitions_def: DailyPartitionsDefinition = DailyPartitionsDefinition(
 )
 
 # ------------------------------------------------------------------
-# Custom Translator to Force dbt Group Name to "DBT"
+# Custom Translator to Disconnect dbt Assets from Upstream Ingestion
 # ------------------------------------------------------------------
 class CustomDagsterDbtTranslator(DagsterDbtTranslator):
     def get_group_name(self, dbt_resource_props: dict[str, Any]) -> str:
         return "DBT"
+
+    def get_asset_key(self, dbt_resource_props: dict[str, Any]) -> AssetKey:
+        # Renames dbt source keys so they no longer match the "prosperous_universe_sources" 
+        # keys emitted by ingestion multi-assets, severing upstream dependency edges.
+        if dbt_resource_props.get("resource_type") == "source":
+            return AssetKey(["dbt_raw_sources", dbt_resource_props["name"]])
+        
+        return super().get_asset_key(dbt_resource_props)
 
 # ------------------------------------------------------------------
 # Helper Function for Multi-Asset Outputs
@@ -218,7 +226,7 @@ def csv_folder_ingest(
 
 
 # ------------------------------------------------------------------
-# Step 5: dbt Assets Integration (Assigned to 'DBT' Group)
+# Step 5: Standalone dbt Assets Integration
 # ------------------------------------------------------------------
 @dbt_assets(
     manifest=dbt_project.manifest_path, 
@@ -229,7 +237,7 @@ def dbtproject_dbt_assets(
     context: AssetExecutionContext, 
     dbt: DbtCliResource
 ) -> Iterator[Any]:
-    """Generates partitioned individual dbt model assets downstream of all ingestion sources."""
+    """Generates all dbt model assets as an independent pipeline graph."""
     target_date: str = context.partition_key
     context.log.info(f"Running dbt with date_part: {target_date}")
     
