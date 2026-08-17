@@ -7,14 +7,11 @@ sources:
     tables: 
       - name: recipe_inputs_raw
       - name: recipe_inputs_time_raw
-      
       - name: prices_raw
-        config:
-          meta:
-            dagster:
-              asset_key: ["prices_csv"]
-
-      # Let dbt manage these as native dbt source nodes in the graph
+      - name: inventory_raw
+      - name: workforce_raw
+      
+      # Exchange tables
       - name: cxpc_al_ai1_raw
       - name: cxpc_au_ai1_raw
       - name: cxpc_cf_ai1_raw
@@ -40,15 +37,3 @@ sources:
       - name: cxpc_sfk_ai1_raw
       - name: cxpc_uts_ai1_raw
       - name: cxpc_alo_ai1_raw
-
-      - name: inventory_raw
-        config:
-          meta:
-            dagster:
-              asset_key: ["inventory_csv"]
-      
-      - name: workforce_raw
-        config:
-          meta:
-            dagster:
-              asset_key: ["workforce_csv"]

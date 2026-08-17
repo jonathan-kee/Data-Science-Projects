@@ -57,10 +57,13 @@ ALL_TICKERS = SMELTOR_TICKERS + METALIST_TICKERS + OTHER_TICKERS
 
 @asset(group_name="kotlin_ingestion", partitions_def=daily_partitions_def)
 def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    """Step 1: Runs the Kotlin CLI jar to fetch all exchange and building payloads."""
+    """Step 1: Runs the Kotlin CLI jar to fetch all exchange, building, and CSV payloads."""
     urls = [f"https://rest.fnar.net/exchange/cxpc/{t}" for t in ALL_TICKERS] + [
         "https://rest.fnar.net/building/HB2",
-        "https://rest.fnar.net/building/FS"
+        "https://rest.fnar.net/building/FS",
+        "https://rest.fnar.net/csv/prices",
+        "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee",
+        "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
     ]
     url_args = " ".join([f'"{u}"' for u in urls])
     
@@ -76,22 +79,9 @@ def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: P
     ).get_results()
 
 
-@asset(group_name="typescript_build", partitions_def=daily_partitions_def, deps=[kotlin_cli_ingest])
-def typescript_build(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    """Step 2: Cleans and builds the TypeScript project after Kotlin ingestion."""
-    bash_script = """
-    set -e
-    tsc --build --clean
-    tsc --build
-    """
-    return pipes_subprocess_client.run(
-        command=["bash", "-c", bash_script],
-        context=context,
-        cwd=str(WORKING_DIR),
-    ).get_results()
-
-
-# Step 3: Exchange Ingestion Multi-Asset matching dbt's source key format [source_name, table_name]
+# ------------------------------------------------------------------
+# Step 2: Exchange Ingestion Multi-Asset
+# ------------------------------------------------------------------
 CXPC_TABLE_NAMES = [f"cxpc_{t.lower().replace('.', '_')}_raw" for t in ALL_TICKERS]
 
 @multi_asset(
@@ -101,18 +91,17 @@ CXPC_TABLE_NAMES = [f"cxpc_{t.lower().replace('.', '_')}_raw" for t in ALL_TICKE
     },
     group_name="exchange_ingestion",
     partitions_def=daily_partitions_def,
-    deps=[typescript_build]
+    deps=[kotlin_cli_ingest]
 )
 def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
     """Processes folder-based exchange JSON files and executes SQL into PostgreSQL."""
-    bash_script = "node ./build/ingestion/json/cxpcFolder.js"
+    bash_script = "python ingestion/json/cxpcFolder.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
         cwd=str(WORKING_DIR),
     ).get_results()
     
-    # Format partition key (YYYY-MM-DD) into DDMMYYYY for SQL filenames
     dt = datetime.strptime(context.partition_key, "%Y-%m-%d")
     today_str = dt.strftime("%d%m%Y")
     
@@ -139,7 +128,9 @@ def cxpc_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: 
         yield Output(result, output_name=output_name)
 
 
-# Step 4: Building Ingestion Multi-Asset matching dbt source format, independent of exchange ingestion
+# ------------------------------------------------------------------
+# Step 3: Building Ingestion Multi-Asset
+# ------------------------------------------------------------------
 BUILDING_TABLE_NAMES = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
 
 @multi_asset(
@@ -149,11 +140,11 @@ BUILDING_TABLE_NAMES = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
     },
     group_name="building_ingestion",
     partitions_def=daily_partitions_def,
-    deps=[typescript_build]
+    deps=[kotlin_cli_ingest]
 )
 def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    """Processes folder-based building JSON files independently after typescript build."""
-    bash_script = "node ./build/ingestion/json/buildingFolder.js"
+    """Processes folder-based building JSON files independently."""
+    bash_script = "python ingestion/json/buildingFolder.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
@@ -164,24 +155,54 @@ def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_clie
         yield Output(result, output_name=output_name)
 
 
-@asset(group_name="csv_ingestion", partitions_def=daily_partitions_def)
-def prices_csv(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    bash_script = 'python ingestion/csv/ingest.py "https://rest.fnar.net/csv/prices"'
-    return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
+# ------------------------------------------------------------------
+# Step 4: CSV Ingestion Multi-Asset (Connected to PostgreSQL & dbt Sources)
+# ------------------------------------------------------------------
+CSV_TABLE_NAMES = ["prices_raw", "inventory_raw", "workforce_raw"]
 
-
-@asset(group_name="csv_ingestion", partitions_def=daily_partitions_def)
-def inventory_csv(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    url = "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
-    bash_script = f'python ingestion/csv/ingest.py "{url}"'
-    return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
-
-
-@asset(group_name="csv_ingestion", partitions_def=daily_partitions_def)
-def workforce_csv(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
-    url = "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
-    bash_script = f'python ingestion/csv/ingest.py "{url}"'
-    return pipes_subprocess_client.run(command=["bash", "-c", bash_script], context=context, cwd=str(WORKING_DIR)).get_results()
+@multi_asset(
+    outs={
+        name: AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
+        for name in CSV_TABLE_NAMES
+    },
+    group_name="csv_ingestion",
+    partitions_def=daily_partitions_def,
+    deps=[kotlin_cli_ingest]
+)
+def csv_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: PipesSubprocessClient):
+    """Processes folder-based CSV files and executes SQL into PostgreSQL."""
+    bash_script = "python ingestion/csv/ingestFolder.py"
+    result = pipes_subprocess_client.run(
+        command=["bash", "-c", bash_script], 
+        context=context, 
+        cwd=str(WORKING_DIR)
+    ).get_results()
+    
+    dt = datetime.strptime(context.partition_key, "%Y-%m-%d")
+    today_str = dt.strftime("%d%m%Y")
+    
+    output_to_prefix = {
+        "prices_raw": "prices",
+        "inventory_raw": "inventory",
+        "workforce_raw": "workforce"
+    }
+    
+    for output_name in context.selected_output_names:
+        prefix = output_to_prefix[output_name]
+        sql_filename = f"ingestion/sql/{prefix}_{today_str}.sql"
+        
+        sql_command = f"""
+        docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < {sql_filename}
+        """
+        
+        context.log.info(f"Executing SQL file for {output_name}: {sql_filename}")
+        pipes_subprocess_client.run(
+            command=["bash", "-c", sql_command.strip()],
+            context=context,
+            cwd=str(WORKING_DIR),
+        )
+        
+        yield Output(result, output_name=output_name)
 
 
 # ------------------------------------------------------------------
@@ -207,11 +228,8 @@ def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
 # Combine all asset objects into a single exported list
 all_pipeline_assets: List = [
     kotlin_cli_ingest,
-    typescript_build,
     cxpc_folder_ingest,
     building_folder_ingest,
-    prices_csv,
-    inventory_csv,
-    workforce_csv,
+    csv_folder_ingest,
     dbtproject_dbt_assets,
 ]
