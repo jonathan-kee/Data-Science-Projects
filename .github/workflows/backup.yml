@@ -1,4 +1,4 @@
-name: backup database
+name: Pipeline
 
 on:
   workflow_dispatch:
@@ -17,6 +17,9 @@ jobs:
       - name: Set current date
         run: echo "TODAY=$(date +'%d%m%Y')" >> $GITHUB_ENV
 
+      - name: Create backup directory if missing
+        run: mkdir -p ./backup_sql
+
       - name: backup
         run: docker exec -t postgres-container pg_dump -U postgres -d prosperous_universe > ./backup_sql/backup_${TODAY}.sql
 
@@ -24,5 +27,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: db-backup-${{ env.TODAY }}
-          path: ./backup_sql/backup_${{ env.TODAY }}.sql
+          # Use the explicit full path here:
+          path: /Users/jonathankee/Data-Science-Projects/backup_sql/backup_${{ env.TODAY }}.sql
           retention-days: 30
