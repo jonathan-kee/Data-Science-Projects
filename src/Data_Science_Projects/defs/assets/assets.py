@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Mapping, Any
 from dagster import (
     asset, 
     multi_asset, 
@@ -15,7 +15,8 @@ from dagster import (
 from dagster_dbt import (
     dbt_assets, 
     DbtCliResource, 
-    DbtProject
+    DbtProject,
+    DagsterDbtTranslator
 )
 
 # Base directory setup
@@ -38,6 +39,13 @@ daily_partitions_def = DailyPartitionsDefinition(
     start_date="2026-01-01", 
     end_offset=1  
 )
+
+# ------------------------------------------------------------------
+# Custom Translator to Force Group Name to "DBT"
+# ------------------------------------------------------------------
+class CustomDagsterDbtTranslator(DagsterDbtTranslator):
+    def get_group_name(self, dbt_resource_props: Mapping[str, Any]) -> str:
+        return "DBT"
 
 # ------------------------------------------------------------------
 # Ingestion Setup & Ticker Definitions
@@ -206,11 +214,12 @@ def csv_folder_ingest(context: AssetExecutionContext, pipes_subprocess_client: P
 
 
 # ------------------------------------------------------------------
-# Step 5: dbt Assets Integration (Downstream of ingestion sources)
+# Step 5: dbt Assets Integration (Assigned to 'DBT' Group)
 # ------------------------------------------------------------------
 @dbt_assets(
     manifest=dbt_project.manifest_path, 
-    partitions_def=daily_partitions_def
+    partitions_def=daily_partitions_def,
+    dagster_dbt_translator=CustomDagsterDbtTranslator()
 )
 def dbtproject_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
     """Generates partitioned individual dbt model assets downstream of all ingestion sources."""
