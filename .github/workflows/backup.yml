@@ -1,7 +1,10 @@
-name: Backup Database
+name: Pipeline
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   Pipeline:
@@ -11,13 +14,6 @@ jobs:
       run:
         working-directory: /Users/jonathankee/Data-Science-Projects
     steps:
-      # 1. Runs your local downloaded checkout action
-      - name: Checkout repository
-        uses: ./.github/actions/checkout
-
-      - name: Print working directory
-        run: pwd
-
       - name: Set current date
         run: echo "TODAY=$(date +'%d%m%Y')" >> $GITHUB_ENV
 
@@ -27,10 +23,12 @@ jobs:
       - name: backup
         run: docker exec -t postgres-container pg_dump -U postgres -d prosperous_universe > ./backup_sql/backup_${TODAY}.sql
 
-      # 2. Runs your local downloaded upload-artifact action
-      - name: Upload backup to GitHub Artifacts
-        uses: ./.github/actions/upload-artifact
-        with:
-          name: db-backup-${{ env.TODAY }}
-          path: ./backup_sql/backup_${{ env.TODAY }}.sql
-          retention-days: 30
+      - name: Push backup to GitHub
+        run: |
+          ENCODED_CONTENT=$(base64 < ./backup_sql/backup_${TODAY}.sql | tr -d '\n')
+          
+          curl -X PUT \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/backup_sql/backup_${TODAY}.sql" \
+            -d "{\"message\":\"chore: add database backup for ${TODAY}\",\"content\":\"${ENCODED_CONTENT}\"}"
