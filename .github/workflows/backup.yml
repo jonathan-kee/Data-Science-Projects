@@ -24,9 +24,8 @@ jobs:
         run: docker exec -t postgres-container pg_dump -U postgres -d prosperous_universe > ./backup_sql/backup_${TODAY}.sql
 
       - name: Upload backup to GitHub Artifacts
-        uses: actions/upload-artifact@v4
+        uses: ./.github/actions/upload-artifact
         with:
-          name: db-backup-${{ env.TODAY }}
-          # Use the explicit full path here:
-          path: /Users/jonathankee/Data-Science-Projects/backup_sql/backup_${{ env.TODAY }}.sql
-          retention-days: 30
+            name: db-backup-${{ env.TODAY }}
+            path: /Users/jonathankee/Data-Science-Projects/backup_sql/backup_${{ env.TODAY }}.sql
+            retention-days: 30
