@@ -254,8 +254,12 @@ Rename the table in datagrip to "recipe_inputs_raw"
 - python ingestion/json/buildingFolder.py
 - python ingestion/csv/ingestFolder.py
 
+- Run createRecipeTime.sql in sql folder
+- Rename the table in datagrip to "recipe_inputs_raw"
+
 - cd dbtproject
 - dbt run
+- dbt run (second time because there's a bug)
 
 # Ingestion Pipeline commands
 cxpc_AL_AI1.json is Download from https://doc.fnar.net/#/exchange/get_exchange_cxpc__ExchangeTicker_
