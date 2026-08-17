@@ -71,6 +71,7 @@ def kotlin_cli_ingest(context: AssetExecutionContext, pipes_subprocess_client: P
         "https://rest.fnar.net/building/FS",
         "https://rest.fnar.net/csv/prices",
         "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee",
+        "https://rest.fnar.net/csv/recipeinputs",
         "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
     ]
     url_args = " ".join([f'"{u}"' for u in urls])
@@ -166,7 +167,7 @@ def building_folder_ingest(context: AssetExecutionContext, pipes_subprocess_clie
 # ------------------------------------------------------------------
 # Step 4: CSV Ingestion Multi-Asset (Direct Python PostgreSQL Load)
 # ------------------------------------------------------------------
-CSV_TABLE_NAMES = ["prices_raw", "inventory_raw", "workforce_raw"]
+CSV_TABLE_NAMES = ["prices_raw", "inventory_raw", "recipe_inputs_raw_csv", "workforce_raw"]
 
 @multi_asset(
     outs={
