@@ -11,7 +11,8 @@ SELECT
     fct."Close",
     fct."High",
     fct."Low",
-    fct."Volume"
+    fct."Volume",
+    fct."Traded"
 FROM {{ ref('fact_market_data') }} AS fct
 -- Join the Asset Dimension
 JOIN {{ ref('dim_ticker') }}  AS dim_t 
