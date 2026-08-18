@@ -6,39 +6,8 @@ import shutil
 
 import pandas as pd
 from sqlalchemy import create_engine, text
-from sqlalchemy.dialects.postgresql import insert
 
-
-def create_upsert_method(primary_keys):
-    """
-    Returns a custom upsert method for pandas to_sql to perform Postgres 
-    INSERT ... ON CONFLICT DO UPDATE.
-    """
-    def postgres_upsert(table, conn, keys, data_iter):
-        data = [dict(zip(keys, row)) for row in data_iter]
-        stmt = insert(table.table).values(data)
-        
-        # Define columns to update (all columns except the primary keys)
-        update_dict = {
-            c.name: c 
-            for c in stmt.excluded 
-            if c.name not in primary_keys
-        }
-        
-        if update_dict:
-            upsert_stmt = stmt.on_conflict_do_update(
-                index_elements=primary_keys,
-                set_=update_dict
-            )
-        else:
-            upsert_stmt = stmt.on_conflict_do_nothing(
-                index_elements=primary_keys
-            )
-            
-        conn.execute(upsert_stmt)
-    return postgres_upsert
-
-
+# This code implements a latest state pattern.
 def main():
     # Define directories matching your local paths
     input_folder = Path(
@@ -55,14 +24,13 @@ def main():
         print(f"Input directory does not exist: {input_folder}")
         return
 
-    # Filter files: must end with '.json' and NOT contain 'AI1'
-    target_files = [
-        f
-        for f in input_folder.iterdir()
-        if f.is_file() and f.name.endswith(".json") and "AI1" not in f.name
-    ]
+    # Filter files: must end with '.json' and NOT contain 'AI1' (No list comprehension)
+    target_files = []
+    for f in input_folder.iterdir():
+        if f.is_file() and f.name.endswith(".json") and "AI1" not in f.name:
+            target_files.append(f)
 
-    if not target_files:
+    if len(target_files) == 0:
         print('No eligible files (without "AI1") found in the directory.')
         return
 
@@ -104,7 +72,7 @@ def main():
                 "amount": cost.get("Amount"),
             })
 
-    if not buildings_data:
+    if len(buildings_data) == 0:
         print("No valid building data found to process.")
         return
 
@@ -116,8 +84,8 @@ def main():
     engine = create_engine("postgresql://postgres:abc123@localhost:5432/prosperous_universe")
 
     try:
-        # Pre-create Schema and Tables WITH Primary Keys explicitly
         with engine.begin() as conn:
+            # Pre-create Schema and Tables WITH Primary Keys explicitly
             conn.execute(text("CREATE SCHEMA IF NOT EXISTS raw;"))
             
             conn.execute(text("""
@@ -144,26 +112,103 @@ def main():
                 );
             """))
 
-        # Write Main Table using Upsert
-        df_buildings.to_sql(
-            "buildings",
-            engine,
-            schema="raw",
-            if_exists="append",
-            index=False,
-            method=create_upsert_method(primary_keys=["id"])
-        )
-
-        # Write Nested/Child Table using Upsert
-        if not df_costs.empty:
-            df_costs.to_sql(
-                "building_costs",
-                engine,
+            # ---------------------------------------------------------
+            # Merge / Upsert for 'buildings' Table via Staging
+            # ---------------------------------------------------------
+            pk_buildings = ["id"]
+            staging_buildings = "buildings_stg"
+            
+            df_buildings.to_sql(
+                name=staging_buildings,
+                con=conn,
                 schema="raw",
-                if_exists="append",
-                index=False,
-                method=create_upsert_method(primary_keys=["building_id", "commodity_ticker"])
+                if_exists="replace",
+                index=False
             )
+            
+            # Gather column names with quotes (No list comprehension)
+            b_cols_quoted = []
+            for col in df_buildings.columns:
+                b_cols_quoted.append(f'"{col}"')
+            b_col_str = ", ".join(b_cols_quoted)
+            
+            # Gather update conditions (No list comprehension)
+            b_update_clauses = []
+            for col in df_buildings.columns:
+                if col not in pk_buildings:
+                    b_update_clauses.append(f'"{col}" = EXCLUDED."{col}"')
+            
+            # Gather primary keys with quotes
+            b_pk_quoted = []
+            for pk in pk_buildings:
+                b_pk_quoted.append(f'"{pk}"')
+            b_pk_str = ", ".join(b_pk_quoted)
+            
+            if len(b_update_clauses) > 0:
+                b_set_clause = ", ".join(b_update_clauses)
+                b_conflict_action = f"DO UPDATE SET {b_set_clause}"
+            else:
+                b_conflict_action = "DO NOTHING"
+
+            merge_buildings_sql = f"""
+                INSERT INTO raw.buildings ({b_col_str})
+                SELECT {b_col_str} FROM raw.{staging_buildings}
+                ON CONFLICT ({b_pk_str})
+                {b_conflict_action};
+            """
+            
+            conn.execute(text(merge_buildings_sql))
+            conn.execute(text(f"DROP TABLE raw.{staging_buildings};"))
+
+
+            # ---------------------------------------------------------
+            # Merge / Upsert for 'building_costs' Table via Staging
+            # ---------------------------------------------------------
+            if not df_costs.empty:
+                pk_costs = ["building_id", "commodity_ticker"]
+                staging_costs = "building_costs_stg"
+                
+                df_costs.to_sql(
+                    name=staging_costs,
+                    con=conn,
+                    schema="raw",
+                    if_exists="replace",
+                    index=False
+                )
+                
+                # Gather column names with quotes
+                c_cols_quoted = []
+                for col in df_costs.columns:
+                    c_cols_quoted.append(f'"{col}"')
+                c_col_str = ", ".join(c_cols_quoted)
+                
+                # Gather update conditions
+                c_update_clauses = []
+                for col in df_costs.columns:
+                    if col not in pk_costs:
+                        c_update_clauses.append(f'"{col}" = EXCLUDED."{col}"')
+                
+                # Gather primary keys with quotes
+                c_pk_quoted = []
+                for pk in pk_costs:
+                    c_pk_quoted.append(f'"{pk}"')
+                c_pk_str = ", ".join(c_pk_quoted)
+                
+                if len(c_update_clauses) > 0:
+                    c_set_clause = ", ".join(c_update_clauses)
+                    c_conflict_action = f"DO UPDATE SET {c_set_clause}"
+                else:
+                    c_conflict_action = "DO NOTHING"
+
+                merge_costs_sql = f"""
+                    INSERT INTO raw.building_costs ({c_col_str})
+                    SELECT {c_col_str} FROM raw.{staging_costs}
+                    ON CONFLICT ({c_pk_str})
+                    {c_conflict_action};
+                """
+                
+                conn.execute(text(merge_costs_sql))
+                conn.execute(text(f"DROP TABLE raw.{staging_costs};"))
 
         print('\nSUCCESS: Pipeline execution completed with Upserts in schema "raw".\n')
 
@@ -177,6 +222,7 @@ def main():
                 summary_df = pd.read_sql(text(query), conn)
                 
             print('--- Queried Database Summary (from schema "raw") ---')
+            # Iterate through rows without list/dictionary comprehensions
             for row in summary_df.to_dict(orient="records"):
                 print(row)
         except Exception as query_err:

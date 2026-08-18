@@ -6,39 +6,8 @@ import shutil
 
 import pandas as pd
 from sqlalchemy import create_engine, text, inspect
-from sqlalchemy.dialects.postgresql import insert
 
-
-def create_upsert_method(primary_keys):
-    """
-    Returns a custom upsert method for pandas to_sql to perform Postgres 
-    INSERT ... ON CONFLICT DO UPDATE.
-    """
-    def postgres_upsert(table, conn, keys, data_iter):
-        data = [dict(zip(keys, row)) for row in data_iter]
-        stmt = insert(table.table).values(data)
-        
-        # Define columns to update (all columns except the primary keys)
-        update_dict = {
-            c.name: c 
-            for c in stmt.excluded 
-            if c.name not in primary_keys
-        }
-        
-        if update_dict:
-            upsert_stmt = stmt.on_conflict_do_update(
-                index_elements=primary_keys,
-                set_=update_dict
-            )
-        else:
-            upsert_stmt = stmt.on_conflict_do_nothing(
-                index_elements=primary_keys
-            )
-            
-        conn.execute(upsert_stmt)
-    return postgres_upsert
-
-
+# This code implements a latest state pattern.
 def process_files():
     # Define directories
     input_folder = Path(
@@ -57,9 +26,14 @@ def process_files():
 
     # Regex pattern matching *AI1_DDMMYYYY.json
     pattern = re.compile(r"^.*AI1_\d{8}\.json$")
-    target_files = [f for f in input_folder.iterdir() if pattern.match(f.name)]
+    
+    # Find target files (No list comprehension)
+    target_files = []
+    for f in input_folder.iterdir():
+        if pattern.match(f.name):
+            target_files.append(f)
 
-    if not target_files:
+    if len(target_files) == 0:
         print("No files matching the pattern *AI1_DDMMYYYY.json found in the directory.")
         return
 
@@ -83,6 +57,8 @@ def process_files():
 
         # 1. Transform table name: cxpc_afr_ai1_raw
         table_name = f"cxpc_{file_prefix.replace('.', '_')}_raw".lower()
+        staging_table = f"{table_name}_stg"
+        primary_keys = ["Interval", "DateEpochMs"]
 
         # 2. Convert DDMMYYYY (e.g. 16082026) to SQL Date format YYYY-MM-DD (2026-08-16)
         try:
@@ -114,16 +90,16 @@ def process_files():
         # Push metadata and deduplicate (prevents within-batch upsert errors)
         df["file_date"] = formatted_date
         
-        # We must drop exact duplicate primary keys within the same file to prevent Postgres errors
-        df = df.drop_duplicates(subset=["Interval", "DateEpochMs"], keep="last")
+        # Drop exact duplicate primary keys within the same file to prevent Postgres errors
+        df = df.drop_duplicates(subset=primary_keys, keep="last")
 
         try:
             # Check if dynamic table already exists
             inspector = inspect(engine)
             table_exists = inspector.has_table(table_name, schema="raw")
             
+            # Step 1: If target table doesn't exist, create an empty one and set the primary keys
             if not table_exists:
-                # If table doesn't exist, create it with 0 rows, then explicitly add Primary Keys
                 df.head(0).to_sql(table_name, engine, schema="raw", if_exists="fail", index=False)
                 with engine.begin() as conn:
                     # Note: We quote the column names because PostgreSQL forces lowercase unquoted identifiers
@@ -131,17 +107,56 @@ def process_files():
                         f'ALTER TABLE raw.{table_name} ADD PRIMARY KEY ("Interval", "DateEpochMs");'
                     ))
 
-            # Execute the Upsert
-            df.to_sql(
-                name=table_name,
-                con=engine,
-                schema="raw",
-                if_exists="append",
-                index=False,
-                method=create_upsert_method(primary_keys=["Interval", "DateEpochMs"])
-            )
+            # Step 2: Push data to a staging table
+            # We use a single connection for the staging table write and merge execution
+            with engine.begin() as conn:
+                df.to_sql(
+                    name=staging_table,
+                    con=conn,
+                    schema="raw",
+                    if_exists="replace", # Replaces the staging table for every batch
+                    index=False
+                )
+
+                # Step 3: Construct the Merge/Upsert SQL Query
+                
+                # Gather column names with quotes (No list comprehension)
+                columns_quoted = []
+                for col in df.columns:
+                    columns_quoted.append(f'"{col}"')
+                col_str = ", ".join(columns_quoted)
+                
+                # Gather update conditions (No list comprehension)
+                update_clauses = []
+                for col in df.columns:
+                    if col not in primary_keys:
+                        update_clauses.append(f'"{col}" = EXCLUDED."{col}"')
+                
+                # Gather primary keys with quotes
+                pk_quoted = []
+                for pk in primary_keys:
+                    pk_quoted.append(f'"{pk}"')
+                pk_str = ", ".join(pk_quoted)
+
+                if len(update_clauses) > 0:
+                    set_clause = ", ".join(update_clauses)
+                    conflict_action = f"DO UPDATE SET {set_clause}"
+                else:
+                    conflict_action = "DO NOTHING"
+
+                # Standard SQL Merge Pattern via INSERT ... ON CONFLICT
+                merge_sql = f"""
+                    INSERT INTO raw.{table_name} ({col_str})
+                    SELECT {col_str} FROM raw.{staging_table}
+                    ON CONFLICT ({pk_str})
+                    {conflict_action};
+                """
+                
+                # Step 4: Execute the merge and drop the staging table
+                conn.execute(text(merge_sql))
+                conn.execute(text(f"DROP TABLE raw.{staging_table};"))
             
-            print(f"Successfully upserted data into table raw.{table_name}!")
+            print(f"Successfully merged/upserted data into table raw.{table_name}!")
 
             # Move processed file to processed folder
             processed_folder.mkdir(parents=True, exist_ok=True)
