@@ -13,13 +13,13 @@ SELECT
     fct."Low",
     fct."Volume",
     fct."Traded"
-FROM {{ ref('fact_market_data') }} AS fct
+FROM {{ ref('fact_sme_market_data') }} AS fct
 -- Join the Asset Dimension
 JOIN {{ ref('dim_ticker') }}  AS dim_t 
     ON fct."ticker" = dim_t."ticker"
 -- Join the Datetime Dimension
-JOIN {{ ref('dim_datetime') }}  AS dim_d 
+JOIN {{ ref('dim_sme_datetime') }}  AS dim_d 
     ON fct."DateEpochMs" = dim_d."DateEpochMs"
 -- Join the Interval Dimension
-JOIN {{ ref('dim_interval') }} AS dim_i 
+JOIN {{ ref('dim_sme_interval') }} AS dim_i 
     ON fct."interval_name" = dim_i."interval_name"
