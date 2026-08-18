@@ -38,11 +38,17 @@ Fact table for aggregate function, Dimension table for where & group by clause
 
 # Reports
 ## SQL Reports
-[Profit Perday Report](./screenshots/profitPerDayReport.png)
+[Profit Perday Report](./screenshots/profitPerDayReport2.png)
 
-![Profit Perday Report](./screenshots/profitPerDayReport.png)
+![Profit Perday Report](./screenshots/profitPerDayReport2.png)
 
 Shows daily profit minus workforce cost.
+
+[Cost Perday Report](./screenshots/costPerDayReport.png)
+
+![Cost Perday Report](./screenshots/costPerDayReport.png)
+
+Shows daily cost that consist of production cost and workforce cost, to be used to estimate cost of refilling at commodity exchange.
 
 [SME Recipe Report](./screenshots/recipe_report.png)
 
