@@ -39,4 +39,3 @@ select
     ("profit per day" * 2) - "cost_per_day" as "profit per day"
 from profit
 cross join cost
-;
