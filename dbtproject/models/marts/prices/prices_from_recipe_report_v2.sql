@@ -42,8 +42,14 @@ with
         where
             {% if var("date_part", none) is not none %}
                 stg_prices.date_part = '{{ var("date_part") }}'
+                and recipe_report.report_date = '{{ var("date_part") }}'
             {% else %}
                 stg_prices.date_part = (
+                    select max(dim_d.date_part) 
+                    from {{ ref('fact_ticker_quotes') }} fct
+                    inner join {{ ref('dim_date_time') }} dim_d on fct.date_time_id = dim_d.date_time_id
+                )
+                and recipe_report.report_date = (
                     select max(dim_d.date_part) 
                     from {{ ref('fact_ticker_quotes') }} fct
                     inner join {{ ref('dim_date_time') }} dim_d on fct.date_time_id = dim_d.date_time_id
