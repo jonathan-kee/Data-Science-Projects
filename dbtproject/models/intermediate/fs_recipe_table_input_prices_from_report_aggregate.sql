@@ -11,14 +11,14 @@ with
         from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
         -- Joining on "materialinput" to get prices for each ingredient
         inner join
-            {{ ref("prices_from_recipe_report") }} as prices_from_recipe_report
+            {{ ref("prices_from_recipe_report_v2") }} as prices_from_recipe_report
             on stg_recipe_inputs_time."materialinput"
             = prices_from_recipe_report."ticker"
         where
             {% if var("date_part", none) is not none %}
                 prices_from_recipe_report."date_part" = '{{ var("date_part") }}'
             {% else %}
-                prices_from_recipe_report."date_part" = (select max("date_part") from {{ ref("prices_from_recipe_report") }})
+                prices_from_recipe_report."date_part" = (select max("date_part") from {{ ref("prices_from_recipe_report_v2") }})
             {% endif %}
             -- filter by SME
             and prefix = 'FS'
