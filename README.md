@@ -6,6 +6,12 @@
 
 ![First Profitable Run](./screenshots/FirstProfitableRun.png)
 
+[Star Schema Query](./screenshots/starSchemaQuery.png)
+
+![Star Schema Query](./screenshots/starSchemaQuery.png)
+
+Fact table for aggregate function, Dimension table for where & group by clause
+
 [Time Series Analysis](./screenshots/timeSeriesAnalysis.png)
 
 ![Time Series Analysis](./screenshots/timeSeriesAnalysis.png)
