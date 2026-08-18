@@ -4,7 +4,7 @@ import shutil
 import uuid
 from pathlib import Path
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import Date, create_engine, text
 
 INPUT_DIR = Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed")
 PROCESSED_DIR = Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_processed")
@@ -75,8 +75,15 @@ def load_to_postgres(df: pd.DataFrame, target_table: str, pks: list, engine):
         # Use a unique staging table name per run to prevent collision/leftover issues
         stg_table = f"_stg_{target_table}_{uuid.uuid4().hex[:8]}"
         
-        # 2. Write current batch to temporary staging table
-        df.to_sql(stg_table, conn, schema=SCHEMA, if_exists="replace", index=False)
+        # 2. Write current batch to temporary staging table with explicit Date type mapping
+        df.to_sql(
+            stg_table, 
+            conn, 
+            schema=SCHEMA, 
+            if_exists="replace", 
+            index=False,
+            dtype={"file_date": Date()}
+        )
 
         # 3. Ensure target table exists (clones structure from staging if missing)
         conn.execute(
@@ -197,10 +204,11 @@ def process_file(file_path: Path, engine):
     df.columns = clean_cols
 
     current_time = pd.Timestamp.now(tz="UTC")
+    file_date_val = pd.to_datetime(file_date_str).date()
 
     # Add metadata columns using the extracted filename date
     df.insert(0, "source_file", file_path.name)
-    df.insert(0, "file_date", file_date_str)
+    df.insert(0, "file_date", file_date_val)
     df.insert(0, "load_time", current_time)
 
     # Primary key matching, NULL cleaning, and batch deduplication
