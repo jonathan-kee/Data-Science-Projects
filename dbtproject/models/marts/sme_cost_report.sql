@@ -1,3 +1,11 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key=['report_date', 'original_query'],
+        incremental_strategy='delete+insert'
+    )
+}}
+
 select
     -- 1. Add a daily date identifier to stamp each snapshot
     cast('{{ var("date_part", run_started_at.strftime("%Y-%m-%d")) }}' as date) as report_date,
