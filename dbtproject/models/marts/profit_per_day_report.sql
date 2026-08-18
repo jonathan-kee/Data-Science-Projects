@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        unique_key=['report_date', 'original_query'],
+        unique_key=['report_date'],
         incremental_strategy='delete+insert'
     )
 }}
