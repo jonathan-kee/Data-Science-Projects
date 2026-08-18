@@ -183,6 +183,10 @@ Generate lineage report:
 
 View results: Open dist/index.html in your browser
 
+# Dagster UI
++group:"exchange_ingestion" or +group:"csv_ingestion" or +group:"building_ingestion" 
+group:"DBT" 
+
 # Dagster setup
 Install UV (macOS and Linux)
 - curl -LsSf https://astral.sh/uv/install.sh | sh
