@@ -1,24 +1,24 @@
 select
     -- Dimension attributes (Human-readable metadata)
-    t.ticker,
-    dt.quote_date,
-    dt.time_part,
-    dt.load_timestamp,
-    f.provider_code,
+    dim_t.ticker,
+    dim_d.quote_date,
+    dim_d.time_part,
+    dim_d.load_timestamp,
+    fct.provider_code,
     
     -- Fact measures (Quantitative financial metrics)
-    f.mmbuy,
-    f.mmsell,
-    f.average_price,
-    f.ask_amt,
-    f.ask_price,
-    f.ask_avail,
-    f.bid_amt,
-    f.bid_price,
-    f.bid_avail
+    fct.mmbuy,
+    fct.mmsell,
+    fct.average_price,
+    fct.ask_amt,
+    fct.ask_price,
+    fct.ask_avail,
+    fct.bid_amt,
+    fct.bid_price,
+    fct.bid_avail
 
-from {{ ref('fact_ticker_quotes') }} f
-inner join {{ ref('dim_ticker') }} t 
-    on f.ticker_id = t.ticker_id
-inner join {{ ref('dim_date_time') }} dt 
-    on f.date_time_id = dt.date_time_id
+from {{ ref('fact_ticker_quotes') }} fct
+inner join {{ ref('dim_ticker') }} dim_t
+    on fct.ticker_id = dim_t.ticker_id
+inner join {{ ref('dim_date_time') }} dim_d 
+    on fct.date_time_id = dim_d.date_time_id
