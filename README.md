@@ -38,6 +38,12 @@ Fact table for aggregate function, Dimension table for where & group by clause
 
 # Reports
 ## SQL Reports
+[Profit Perday Report](./screenshots/profitPerDayReport.png)
+
+![Profit Perday Report](./screenshots/profitPerDayReport.png)
+
+Shows daily profit minus workforce cost.
+
 [SME Recipe Report](./screenshots/recipe_report.png)
 
 ![SME Recipe Report](./screenshots/recipe_report.png)
@@ -250,7 +256,10 @@ Output should show: Python 3.12.x
 ## Testing with different variables
 - dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate recipe_report --vars '{"date_part": "2026-08-15"}'
 - dbt run --select recipe_table_input_aggregate recipe_table_output_aggregate recipe_report --vars '{"date_part": "2026-08-10"}'
-
+- dbt run --select fs_recipe_table_output_aggregate  --vars '{"date_part": "2026-08-17"}'
+- dbt run --select fs_recipe_table_input_prices_from_report_aggregate  --vars '{"date_part": "2026-08-17"}' 
+^
+This is missing data
 # Recreate Table
 Run createRecipeTime.sql in sql folder
 
