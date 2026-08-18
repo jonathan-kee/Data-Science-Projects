@@ -42,3 +42,5 @@ models:
       +materialized: table
     analytics:
       +materialized: view
+    intermediate:
+      +materialized: view
