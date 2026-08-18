@@ -144,6 +144,96 @@ You might have a dimension tables that have more dimension tables relying on it,
 
 ![Snow Flake](./screenshots/snowflakeSchema.png)
 
+## Dimensional Modelling for prices
+Question: Can you explain how you decide to denormalize the table into fact and dimension
+
+Answer (Gemini):
+Deciding to transform a wide, flat staging table into a star schema (fact and dimension tables) follows a structured data engineering methodology known as **Dimensional Modeling** (pioneered by Ralph Kimball).
+
+*(Note: While the prompt mentions "denormalizing," this process is actually **normalization and dimensional structuring**—breaking a single wide, denormalized table down into distinct, relational entity and fact tables).*
+
+The decision to split your pricing data into `fact_ticker_quotes`, `dim_ticker`, and `dim_date_time` was guided by four core evaluation steps:
+
+---
+
+### Step 1: Define the "Grain" (The Atomic Unit)
+
+The first question in dimensional modeling is: *What does a single row represent?*
+
+* In the raw staging table, a row represented a single ticker combined with *all* providers horizontally.
+* To make the data analytically useful, the grain was redefined to be more granular: **one specific ticker, at one specific timestamp, from one specific provider (`ai1`, `ci1`, `ci2`, etc.).**
+
+### Step 2: Separate "Facts" (Metrics) from "Dimensions" (Context)
+
+Once the grain was set, columns were sorted into two buckets based on their behavior:
+
+* **Facts (Quantitative/Measurable):** Numbers that you want to calculate, average, or sum. These belong in the **fact table** (`mmbuy`, `mmsell`, `average_price`, `ask_price`, `bid_amt`).
+* **Dimensions (Descriptive Context):** Textual attributes used for filtering, grouping, slicing, and dicing. These belong in **dimension tables** (the ticker name, calendar dates, load timestamps, and provider codes).
+
+### Step 3: Solve Horizontal Column Sprawl (Unpivoting)
+
+Your raw source had columns repeated across six different providers (`ai1_...`, `ci1_...`, `ci2_...`, `nc1_...`, `nc2_...`, `ic1_...`).
+
+* **The Problem:** If you keep data horizontally wide, adding a 7th provider requires altering your database schema and rewriting every downstream query.
+* **The Solution:** Dimensional modeling dictates that repeating groups should be **unpivoted** into rows. By turning the provider prefixes into a row-level attribute (`provider_code`), the database grows *vertically* (adding rows) rather than *horizontally* (adding infinite columns), which is how modern data warehouses are designed to scale.
+
+### Step 4: Optimize Storage and Referential Integrity via Surrogate Keys
+
+Instead of storing text strings like `'AAR'` or `'2026-08-17'` across millions of provider rows in a massive fact table, the model replaces them with lightweight integer/hashed foreign keys (`ticker_id`, `date_time_id`).
+
+* This significantly shrinks the storage footprint on disk.
+* It ensures that descriptive metadata (like ticker names or dates) is stored in one single place (`dim_ticker`, `dim_date_time`) rather than duplicated redundantly across every transaction row.
+
+Question: Something is wrong because the original data is 738 rows, but query the fact and dimension table together results in 44428 rows.
+
+Answer (Gemini):
+```python
+import pandas as pd
+df = pd.read_csv('stg_prices.csv')
+print("Original rows:", len(df))
+print("Number of providers:", 6)
+print("Expected unpivoted rows:", len(df) * 6)
+
+
+```
+
+```text
+Original rows: 738
+Number of providers: 6
+Expected unpivoted rows: 4428
+
+
+```
+
+That is actually completely normal and mathematically expected! It is not a bug—it is the direct result of **unpivoting** your data.
+
+### The Math Behind the Row Count
+
+* **Original Rows:** 738 (each row represents a unique ticker and timestamp in your raw file).
+* **Providers Unpivoted:** 6 providers (`ai1`, `ci1`, `ci2`, `nc1`, `nc2`, `ic1`).
+* **Resulting Fact Table Rows:** $738 \times 6 = 4,428$ rows.
+
+---
+
+### Why Did This Happen?
+
+In your original staging table, your data was **wide (horizontal)**:
+
+* Every single row held *all 6 providers side-by-side* across 50 columns.
+
+In your new fact table (`fact_ticker_quotes`), your data is **tall (vertical)**:
+
+* Instead of cramming 6 providers into one row, the unpivoting process broke them apart so that **each provider gets its own dedicated row** for that ticker and timestamp.
+
+### What This Means for Your Data
+
+Your total data volume didn't actually increase; it just changed dimensions.
+
+* **Wide View:** 738 rows $\times$ 50 columns.
+* **Star Schema View:** 4,428 rows $\times$ roughly 12 clean columns (with provider code moved from a column name into a row attribute).
+
+This vertical growth is standard practice in dimensional modeling because it makes querying specific providers, filtering by provider, or adding a 7th provider in the future clean and seamless without breaking your database schema.
+
 
 # Resources to learn DBT:
 Building your First Model:
