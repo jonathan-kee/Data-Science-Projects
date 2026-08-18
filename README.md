@@ -62,6 +62,12 @@ Shows which Metalist Studio's recipe shows the highest ROI
 
 Shows the daily cost of Workforce.  
 
+[SME Cost Report](./screenshots/smeCostReport.png)
+
+![SME Cost Report](./screenshots/smeCostReport.png)
+
+Shows daily Smeltor's recipe cost, to be used to estimate cost of refilling at commodity exchange.
+
 [cxpx_al_ai_report_high](./screenshots/cxpx_al_a1_report_high.png)
 
 ![cxpx_al_ai_report_high](./screenshots/cxpx_al_a1_report_high.png)
