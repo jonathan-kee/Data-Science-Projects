@@ -13,7 +13,7 @@ with
             end as "ai1_ask_price"
         from {{ ref("stg_prices") }} as stg_prices
         inner join
-            {{ ref("recipe_report") }} as recipe_report
+            {{ ref("sme_recipe_report") }} as recipe_report
             on recipe_report."Output_Material" = stg_prices."ticker"
         where
             stg_prices.date_part

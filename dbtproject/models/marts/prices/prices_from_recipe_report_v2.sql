@@ -37,7 +37,7 @@ with
                 where fct.provider_code = 'ai1'
             ) as stg_prices
         inner join
-            {{ ref("recipe_report") }} as recipe_report
+            {{ ref("sme_recipe_report") }} as recipe_report
             on recipe_report."Output_Material" = stg_prices."ticker"
         where
             {% if var("date_part", none) is not none %}
