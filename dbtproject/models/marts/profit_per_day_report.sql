@@ -19,7 +19,7 @@ with
             {% endif %}
     ),
 
-    cost as (
+    cost as (   
         select 
             report_date, 
             sum("Cost Per Day") as "cost_per_day"
@@ -33,9 +33,12 @@ with
         group by report_date
     )
 
--- ("profit per day" * 2) because I have 2 production of AL --
+-- ("profit per day" * 3) because I have 3 production of AL --
 select 
     cost.report_date, 
-    ("profit per day" * 2) - "cost_per_day" as "profit per day"
+    "profit per day",
+    3 as "production_amount",
+    "cost_per_day",
+    ("profit per day" * 3) - "cost_per_day" as "profit_per_day"
 from profit
 cross join cost
