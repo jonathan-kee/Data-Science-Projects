@@ -12,7 +12,7 @@ with
                 else stg_prices."ai1_ask_price"
             end as "ai1_ask_price"
         from {{ ref("stg_prices") }} as stg_prices
-        left join
+        inner join
             {{ ref("recipe_report") }} as recipe_report
             on recipe_report."Output_Material" = stg_prices."ticker"
         where
