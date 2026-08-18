@@ -38,17 +38,23 @@ Fact table for aggregate function, Dimension table for where & group by clause
 
 # Reports
 ## SQL Reports
+[SME Recipe Report](./screenshots/recipe_report.png)
+
+![SME Recipe Report](./screenshots/recipe_report.png)
+
+Shows daily which Smeltor's recipe shows the highest ROI.
+
 [FS Recipe Report](./screenshots/fsReport.png)
 
 ![FS Recipe Report](./screenshots/fsReport.png)
 
 Shows which Metalist Studio's recipe shows the highest ROI
 
-[Recipe Report](./screenshots/recipe_report.png)
+[Workforce Report](./screenshots/workforcePriceReport.png)
 
-![Recipe Report](./screenshots/recipe_report.png)
+![Workforce Report](./screenshots/workforcePriceReport.png)
 
-Shows which Smeltor's recipe shows the highest ROI
+Shows the daily cost of Workforce.  
 
 [cxpx_al_ai_report_high](./screenshots/cxpx_al_a1_report_high.png)
 
