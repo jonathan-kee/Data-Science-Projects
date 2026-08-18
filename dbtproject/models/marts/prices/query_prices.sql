@@ -1,7 +1,7 @@
 select
     -- Dimension attributes (Human-readable metadata)
     dim_t.ticker,
-    dim_d.quote_date,
+    dim_d.date_part,
     dim_d.time_part,
     dim_d.load_timestamp,
     fct.provider_code,

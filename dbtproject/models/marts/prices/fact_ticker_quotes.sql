@@ -103,6 +103,6 @@ from unpivoted u
 inner join tickers t 
     on u.ticker = t.ticker
 inner join date_times dt 
-    on u.date_part::date = dt.quote_date
+    on u.date_part::date = dt.date_part
     and u.time_part = dt.time_part 
     and u.load_time::timestamp = dt.load_timestamp
