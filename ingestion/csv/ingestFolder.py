@@ -14,16 +14,14 @@ SCHEMA = "raw"
 
 # Primary key mapping defining the behavior of each table:
 PRIMARY_KEY_MAP = {
-    # HISTORICAL TIMESERIES: Uses filename date component + entity keys
+    # HISTORICAL TIMESERIES: Uses filename date component (file_date) + entity keys
     # Subsequent runs on a new day insert new rows, preserving historical data over time.
-    "prices": ["ticker", "load_date"],
+    "prices": ["ticker", "file_date"],
     
     # LATEST STATE: Overwrites existing records per snapshot
-    # Subsequent runs overwrite existing records so the table always reflects the most current snapshot.
     "inventory": ["ticker", "storage_type"],
 
     # LATEST STATE: Overwrites existing records per snapshot
-    # Subsequent runs overwrite existing records so the table always reflects the most current snapshot.
     "workforce": ["planet_natural_id", "material_ticker"]
 }
 
@@ -67,7 +65,7 @@ def load_to_postgres(df: pd.DataFrame, target_table: str, pks: list, engine):
                     dtype_str = str(df[col].dtype)
                     if "datetime" in dtype_str:
                         sql_type = "TIMESTAMPTZ" if ("UTC" in dtype_str or (hasattr(df[col], 'dt') and df[col].dt.tz is not None)) else "TIMESTAMP"
-                    elif col == "load_date":
+                    elif col == "file_date":
                         sql_type = "DATE"
                     else:
                         sql_type = type_map.get(dtype_str, "TEXT")
@@ -127,10 +125,10 @@ def load_to_postgres(df: pd.DataFrame, target_table: str, pks: list, engine):
                 columns_quoted.append(f'"{col}"')
             col_str = ", ".join(columns_quoted)
             
-            # Gather update clauses, EXPLICITLY excluding 'load_time' AND 'load_date'
+            # Gather update clauses, EXPLICITLY excluding 'load_time' AND 'file_date'
             update_clauses = []
             for col in df.columns:
-                if col not in pks and col != "load_time" and col != "load_date":
+                if col not in pks and col != "load_time" and col != "file_date":
                     update_clauses.append(f'"{col}" = EXCLUDED."{col}"')
             
             pk_quoted = []
@@ -174,20 +172,20 @@ def process_file(file_path: Path, engine):
     prefix = re.sub(r"[^\w]+", "", parts[0]).lower()
     
     # Extract 8-digit date from filename (e.g., 17082026 -> DDMMYYYY)
-    load_date_str = None
+    file_date_str = None
     if len(parts) > 1 and re.match(r"^\d{8}$", parts[1]):
         date_str = parts[1]
         day = date_str[0:2]
         month = date_str[2:4]
         year = date_str[4:8]
         try:
-            load_date_str = f"{year}-{month}-{day}"
+            file_date_str = f"{year}-{month}-{day}"
         except ValueError:
             pass
             
     # Fallback to current date if filename doesn't contain a valid date pattern
-    if not load_date_str:
-        load_date_str = pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d")
+    if not file_date_str:
+        file_date_str = pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d")
 
     target_table = f"{prefix}_raw"
 
@@ -202,7 +200,7 @@ def process_file(file_path: Path, engine):
 
     # Add metadata columns using the extracted filename date
     df.insert(0, "source_file", file_path.name)
-    df.insert(0, "load_date", load_date_str)
+    df.insert(0, "file_date", file_date_str)
     df.insert(0, "load_time", current_time)
 
     # Primary key matching, NULL cleaning, and batch deduplication
