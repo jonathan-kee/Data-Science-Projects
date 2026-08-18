@@ -2,15 +2,6 @@ version: 2
 
 models:
 # dim_ticker & fct_prices
-  - name: dim_ticker
-    description: "Dimension table containing unique stock tickers."
-    columns:
-      - name: '"Ticker"'
-        description: "Natural primary key for stock tickers."
-        data_tests:
-          - unique
-          - not_null
-
   - name: fct_prices
     description: "Fact table for stock prices identified by composite primary key (ticker, date_part, time_part)."
     columns:
@@ -58,5 +49,43 @@ models:
               field: facility_key
       - name: item_amount
         description: "Quantity/amount of stock recorded."
+        tests:
+          - not_null
+
+  - name: dim_ticker
+    description: "Dimension table for financial tickers/symbols."
+    columns:
+      - name: ticker_id
+        tests:
+          - unique
+          - not_null
+      - name: ticker
+        tests:
+          - not_null
+
+  - name: dim_date_time
+    description: "Dimension table capturing quote timestamps and load times."
+    columns:
+      - name: date_time_id
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_ticker_quotes
+    description: "Fact table storing unpivoted quotes, asks, bids, and averages across providers."
+    columns:
+      - name: ticker_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_ticker')
+              field: ticker_id
+      - name: date_time_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date_time')
+              field: date_time_id
+      - name: provider_code
         tests:
           - not_null
