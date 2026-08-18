@@ -138,7 +138,7 @@ def cxpc_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    """Processes folder-based exchange JSON files and executes SQL into PostgreSQL."""
+    """Processes folder-based exchange JSON files via Dagster Pipes."""
     bash_script: str = "python ingestion/json/cxpcFolder.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
@@ -146,29 +146,7 @@ def cxpc_folder_ingest(
         cwd=str(WORKING_DIR),
     ).get_results()
     
-    dt: datetime = datetime.strptime(context.partition_key, "%Y-%m-%d")
-    today_str: str = dt.strftime("%d%m%Y")
-    
-    output_to_ticker: dict[str, str] = {}
-    for t in ALL_TICKERS:
-        key: str = f"cxpc_{t.lower().replace('.', '_')}_raw"
-        output_to_ticker[key] = t.replace('.', '_')
-    
     for output_name in context.selected_output_names:
-        ticker_token: str = output_to_ticker[output_name]
-        sql_filename: str = f"ingestion/sql/cxpc_{ticker_token}_{today_str}.sql"
-        
-        sql_command: str = f"""
-        docker exec -i -e PGPASSWORD=abc123 postgres-container psql --dbname=prosperous_universe --username=postgres < {sql_filename}
-        """
-        
-        context.log.info(f"Executing SQL file for {output_name}: {sql_filename}")
-        pipes_subprocess_client.run(
-            command=["bash", "-c", sql_command.strip()],
-            context=context,
-            cwd=str(WORKING_DIR),
-        )
-        
         yield Output(result, output_name=output_name)
 
 
