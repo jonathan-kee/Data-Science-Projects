@@ -1,3 +1,11 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key=['date_part', 'ticker'],
+        incremental_strategy='delete+insert'
+    )
+}}
+
 with
     all_tables as (
         select
@@ -32,12 +40,15 @@ with
             {{ ref("recipe_report") }} as recipe_report
             on recipe_report."Output_Material" = stg_prices."ticker"
         where
-            stg_prices.date_part
-            = (
-                select max(dim_d.date_part) 
-                from {{ ref('fact_ticker_quotes') }} fct
-                inner join {{ ref('dim_date_time') }} dim_d on fct.date_time_id = dim_d.date_time_id
-            )
+            {% if var("date_part", none) is not none %}
+                stg_prices.date_part = '{{ var("date_part") }}'
+            {% else %}
+                stg_prices.date_part = (
+                    select max(dim_d.date_part) 
+                    from {{ ref('fact_ticker_quotes') }} fct
+                    inner join {{ ref('dim_date_time') }} dim_d on fct.date_time_id = dim_d.date_time_id
+                )
+            {% endif %}
     ),
     tofilter as (
         select
