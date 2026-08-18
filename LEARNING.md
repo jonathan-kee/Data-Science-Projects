@@ -183,6 +183,42 @@ Here is how the two approaches compare across key areas:
 | **Data Redundancy** | High (intentionally duplicated for speed) | Low (eliminated via normalization) |
 | **Write/Update Safety** | Risk of update anomalies; harder to maintain | High integrity; safe for frequent updates |
 
+Question: So I can query the same thing Star Schema or normalized table or denormalized table?
+
+Yes, absolutely. From a purely functional standpoint, **you can retrieve the exact same data and business insights** from either a denormalized (flat) table or a star schema. Both contain the underlying data points—the difference lies entirely in *how* the data is structured, stored, and processed under the hood.
+
+Here is how the three patterns compare in practice:
+
+---
+
+### 1. The Denormalized Table (The Flat Table)
+
+* **What it is:** All dimensions and facts live together in one massive, wide table (e.g., every single row repeats the ticker name, full timezone string, interval name, and all numerical metrics).
+* **When you can use it:** For quick, one-off queries, small datasets, or when you want to bypass joins entirely.
+* **The Catch:** As your market data grows into hundreds of millions or billions of rows, storing repeating strings causes massive data bloat, slower full-table scans, and higher cloud storage/compute costs.
+
+### 2. The Normalized Table (3NF / Relational Database)
+
+* **What it is:** Data is broken down into many highly granular tables to completely eliminate data duplication (following Third Normal Form). To get a report, you might have to join 5 to 10 tables together (e.g., Facts $\rightarrow$ Tickers $\rightarrow$ Exchanges $\rightarrow$ Countries $\rightarrow$ Currencies).
+* **When you can use it:** In transactional databases (OLTP) like PostgreSQL or MySQL powering an application, where writing data quickly and avoiding update anomalies is the top priority.
+* **The Catch:** Highly normalized schemas are notoriously painful for reporting. The sheer number of required joins degrades analytical query performance.
+
+### 3. The Star Schema (Dimensional Modeling)
+
+* **What it is:** A hybrid sweet spot designed specifically for analytics (OLAP). It flattens out excessive normalization by keeping dimensions wide and descriptive, surrounding a single central fact table.
+* **Why it's preferred for reporting:** It gives you the performance benefits of a denormalized structure while maintaining the data governance, cleanliness, and storage efficiency of a relational model.
+
+---
+
+### Summary Checklist
+
+| Feature | Denormalized (Flat) | Normalized (3NF) | Star Schema (Dimensional) |
+| --- | --- | --- | --- |
+| **Primary Use Case** | Simple or ad-hoc queries | Application backends (OLTP) | Business Intelligence & Reporting (OLAP) |
+| **Query Complexity** | Very low (No joins) | High (Many joins) | Low to Moderate (Simple 1-level joins) |
+| **Storage Efficiency** | Low (High data duplication) | High (Zero redundancy) | Optimized (Compact dimensions, lean facts) |
+| **Maintenance** | Harder to update cleanly | Easy to update, slow to query | Easy to update dimensions, scalable for facts |
+
 ## Dimensional Modelling for prices
 Question: Can you explain how you decide to denormalize the table into fact and dimension
 
