@@ -1,57 +1,6 @@
 version: 2
 
 models:
-# dim_ticker & fct_prices
-  - name: fct_prices
-    description: "Fact table for stock prices identified by composite primary key (ticker, date_part, time_part)."
-    columns:
-      - name: '"Ticker"'
-        description: "Foreign key linking to dim_ticker."
-        data_tests:
-          - not_null
-          - relationships:
-              to: ref('dim_ticker')
-              field: '"Ticker"'
-
-      - name: date_part
-        description: "Part 2 of Composite PK: Date of snapshot."
-        data_tests:
-          - not_null
-
-      - name: time_part
-        description: "Part 3 of Composite PK: Time of snapshot."
-        data_tests:
-          - not_null
-
-# Dim_facility & fct_inventory_snapshot
-  - name: dim_facility
-    description: "Dimension table containing facility and storage locations."
-    columns:
-      - name: facility_key
-        description: "Surrogate Primary Key generated via MD5."
-        tests:
-          - unique
-          - not_null
-      - name: natural_id
-        description: "Operational Natural ID."
-        tests:
-          - not_null
-
-  - name: fct_inventory_snapshot
-    description: "Fact table tracking inventory stock amounts per facility snapshot."
-    columns:
-      - name: facility_key
-        description: "Foreign key linking to dim_facility."
-        tests:
-          - not_null
-          - relationships:
-              to: ref('dim_facility')
-              field: facility_key
-      - name: item_amount
-        description: "Quantity/amount of stock recorded."
-        tests:
-          - not_null
-
   - name: dim_ticker
     description: "Dimension table for financial tickers/symbols."
     columns:
