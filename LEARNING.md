@@ -144,6 +144,45 @@ You might have a dimension tables that have more dimension tables relying on it,
 
 ![Snow Flake](./screenshots/snowflakeSchema.png)
 
+Question: What's the advantage of star schema over normalized table?
+
+Answer (Gemini):
+Comparing a star schema to a normalized database structure (such as Third Normal Form or 3NF) highlights a classic trade-off between **analytical performance/simplicity** and **storage efficiency/data integrity**.
+
+Here is how the two approaches compare across key areas:
+
+### 1. Query Performance
+
+* **Star Schema:** **Significantly faster for analytics.** Because dimension tables are denormalized (flat), queries require far fewer `JOIN` operations. Analytical databases and columnar storage engines (like Snowflake, BigQuery, or Redshift) are heavily optimized to scan wide, flat tables.
+* **Normalized Tables:** **Slower for analytics.** A fully normalized transactional schema splits data across many small tables. Answering a single business question might require joining 5 to 10 tables together, which creates heavy overhead for analytical engines.
+
+### 2. Simplicity and Usability
+
+* **Star Schema:** **Intuitive for business users and BI tools.** The structure—consisting of a central fact table surrounded by descriptive dimension tables—clearly maps to business concepts (e.g., "Show me *sales* by *product category* and *store location*"). It works seamlessly with Business Intelligence tools like Tableau, Power BI, and Looker.
+* **Normalized Tables:** **Complex for reporting.** The high number of foreign keys and relationships makes writing ad-hoc analytical queries difficult and prone to errors for anyone other than database administrators.
+
+### 3. Storage Efficiency
+
+* **Star Schema:** **Higher storage footprint.** Denormalization means repeating descriptive data (e.g., duplicating a customer's city and region name across every transaction row or every record in the customer dimension). However, with modern cloud storage and columnar compression, this downside is largely negligible.
+* **Normalized Tables:** **Highly efficient storage.** Data is stored only once, eliminating redundancy. If an attribute changes (like a customer's name or a product's category), you only update it in a single place.
+
+### 4. Write Performance & Data Integrity (OLTP vs. OLAP)
+
+* **Star Schema:** **Poor for frequent writes/updates.** Updating redundant data across a denormalized schema increases the risk of anomalies. Star schemas are designed for **OLAP** (Online Analytical Processing)—meaning bulk, batch loads (ETL) rather than real-time row-level inserts and updates.
+* **Normalized Tables:** **Optimized for writes.** This structure is built for **OLTP** (Online Transaction Processing) systems like e-commerce checkouts or banking apps, where thousands of users are simultaneously inserting, updating, and deleting individual rows safely without data duplication.
+
+---
+
+### Summary Comparison Table
+
+| Feature | Star Schema (Denormalized) | Normalized Tables (3NF) |
+| --- | --- | --- |
+| **Primary Use Case** | Business Intelligence & Analytics (OLAP) | Transactional Systems & Applications (OLTP) |
+| **Query Speed** | Extremely fast for aggregations and scans | Slower for complex analytical joins |
+| **Join Complexity** | Low (few joins, flat structure) | High (many foreign key relationships) |
+| **Data Redundancy** | High (intentionally duplicated for speed) | Low (eliminated via normalization) |
+| **Write/Update Safety** | Risk of update anomalies; harder to maintain | High integrity; safe for frequent updates |
+
 ## Dimensional Modelling for prices
 Question: Can you explain how you decide to denormalize the table into fact and dimension
 
