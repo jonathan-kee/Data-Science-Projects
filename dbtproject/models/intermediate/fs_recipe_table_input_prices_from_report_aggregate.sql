@@ -15,9 +15,11 @@ with
             on stg_recipe_inputs_time."materialinput"
             = prices_from_recipe_report."ticker"
         where
-            -- maximum date --
-            prices_from_recipe_report."date_part"
-            = (select max("date_part") from {{ ref("prices_from_recipe_report") }})
+            {% if var("date_part", none) is not none %}
+                prices_from_recipe_report."date_part" = '{{ var("date_part") }}'
+            {% else %}
+                prices_from_recipe_report."date_part" = (select max("date_part") from {{ ref("prices_from_recipe_report") }})
+            {% endif %}
             -- filter by SME
             and prefix = 'FS'
     ),
@@ -55,7 +57,3 @@ with
 select *
 from group_by_total_input
 order by 1
-
--- FS:1xFE=>16xSFK
--- 5771.666666666666
--- price of 1 FE 1318.5

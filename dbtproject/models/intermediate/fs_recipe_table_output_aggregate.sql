@@ -12,8 +12,11 @@ with
             {{ ref("stg_prices") }} as stg_prices
             on stg_recipe_inputs_time."materialoutput" = stg_prices."ticker"
         where
-            stg_prices.date_part
-            = (select max("date_part") from {{ ref("stg_prices") }})
+            {% if var("date_part", none) is not none %}
+                stg_prices.date_part = '{{ var("date_part") }}'
+            {% else %}
+                stg_prices.date_part = (select max("date_part") from {{ ref("stg_prices") }})
+            {% endif %}
             and prefix = 'FS'
     ),
     
@@ -33,7 +36,6 @@ with
                 ' mins'
             ) as "hour and minutes",
             
-            -- This one looks wrong
             -- Multiply Unit Price (1940) by Quantity (e.g. 2) to get Total (3880) --
             (sum("ai1_bid_price") / count(*))
             * max("materialoutputquantity") as "total_output_materials_AI1_BidPrice",
