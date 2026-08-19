@@ -40,6 +40,7 @@ Fact table for aggregate function, Dimension table for where & group by clause
 
 ![Defining Conceptual Relationships](./screenshots/relationships.png)
 
+Note: When writing query the first table should the the parent table, and the join table should be the child table.
 
 # Reports
 ## SQL Reports
