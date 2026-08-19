@@ -17,6 +17,7 @@ dependencies = [
     "numpy>=1.26.0",
     "pandas>=2.0.0,<3.0.0",
     "scipy>=1.11.4",
+    "seaborn>=0.13.0",
 
     # Database Drivers & Connections
     "SQLAlchemy>=1.4.0,<2.1.0",
