@@ -12,7 +12,12 @@ select distinct
         '{{ var("date_part", run_started_at.strftime("%Y-%m-%d")) }}' as date
     ) as report_date,
     stg_workforce."material_ticker" as material_ticker,
-    stg_workforce."daily_amount" * stg_prices."ai1_ask_price" as "Cost Per Day"
+    stg_prices."ai1_ask_price" as "material_ask_price",
+    stg_prices."ai1_bid_price" as "material_bid_price",
+    stg_prices."ai1_ask_price" - stg_prices."ai1_bid_price" as "material_price_spead",
+    stg_workforce."daily_amount" * stg_prices."ai1_ask_price" as "cost_per_day_ask_price",
+    stg_workforce."daily_amount" * stg_prices."ai1_bid_price" as "cost_per_day_bid_price",
+    (stg_workforce."daily_amount" * stg_prices."ai1_ask_price") - ( stg_workforce."daily_amount" * stg_prices."ai1_bid_price" ) as "cost_per_day_spread"
 from {{ ref("stg_workforce") }} as stg_workforce
 join
     {{ ref("stg_prices") }} as stg_prices

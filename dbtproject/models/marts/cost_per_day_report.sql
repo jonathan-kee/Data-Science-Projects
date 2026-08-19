@@ -21,7 +21,7 @@ with
     ),
 
     cost as (
-        select report_date, sum("Cost Per Day") as "cost_per_day"
+        select report_date, sum("cost_per_day_ask_price") as "cost_per_day"
         from {{ ref("workforce_price_report") }}
         where
             {% if var("date_part", none) is not none %}
