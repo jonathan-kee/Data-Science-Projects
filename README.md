@@ -36,9 +36,9 @@ Fact table for aggregate function, Dimension table for where & group by clause
 
 ![Medallion Archictecture](./screenshots/medallionArchitecture.png)
 
-[Defining Relationships](./screenshots/relationships.png)
+[Defining Conceptual Relationships](./screenshots/relationships.png)
 
-![Defining Relationships](./screenshots/relationships.png)
+![Defining Conceptual Relationships](./screenshots/relationships.png)
 
 
 # Reports
