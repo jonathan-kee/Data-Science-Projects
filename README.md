@@ -36,6 +36,11 @@ Fact table for aggregate function, Dimension table for where & group by clause
 
 ![Medallion Archictecture](./screenshots/medallionArchitecture.png)
 
+[Defining Relationships](./screenshots/relationships.png)
+
+![Defining Relationships](./screenshots/relationships.png)
+
+
 # Reports
 ## SQL Reports
 [Profit Perday Report](./screenshots/profitPerDayReport2.png)
