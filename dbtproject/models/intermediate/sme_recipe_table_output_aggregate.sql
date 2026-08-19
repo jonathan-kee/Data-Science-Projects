@@ -7,12 +7,13 @@ with
             -- Bid Price is buyer, You sell to them --
             stg_prices."ai1_bid_price",
             stg_recipe_inputs_time."time_ms" / 60000.0 as "minutes"
-        from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
+        -- PARENT TABLE: Acting as the base table that holds the master list of prices
+        from {{ ref("stg_prices_partition_date") }} as stg_prices
+        -- CHILD TABLE: Joining the many recipe inputs that rely on those parent prices
         inner join
-            {{ ref("stg_prices_partition_date") }} as stg_prices
-            on stg_recipe_inputs_time."materialoutput" = stg_prices."ticker"
-        where
-           prefix = 'SME'
+            {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
+            on stg_prices."ticker" = stg_recipe_inputs_time."materialoutput"
+        where prefix = 'SME'
     ),
     group_by_total_output as (
         select

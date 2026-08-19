@@ -3,19 +3,20 @@ with
         select
             stg_recipe_inputs_time.*,
             -- Ask Price is seller, You buy from them --
-            "ai1_ask_price",
+            stg_prices."ai1_ask_price",
             -- Bid Price is buyer, You sell to them --
-            "ai1_bid_price",
+            stg_prices."ai1_bid_price",
             stg_recipe_inputs_time."time_ms" / 60000.0 as "minutes"
-        from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
-        -- Joining on "materialinput" to get prices for each ingredient
+        -- PARENT TABLE: Acting as the base table holding the master list of prices
+        from {{ ref("stg_prices_partition_date") }} as stg_prices
+        -- CHILD TABLE: Joining the many recipe inputs that use these ingredients
         inner join
-            {{ ref("stg_prices_partition_date") }} as stg_prices
-            on stg_recipe_inputs_time."materialinput" = stg_prices."ticker"
+            {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
+            on stg_prices."ticker" = stg_recipe_inputs_time."materialinput"
         where
-            -- filter by SME
-            prefix = 'SME'
-            and materialinput <> 'ALO'
+            -- filter by SME and exclude ALO
+            stg_recipe_inputs_time.prefix = 'SME'
+            and stg_recipe_inputs_time.materialinput <> 'ALO'
     ),
     group_by_total_input as (
         select
