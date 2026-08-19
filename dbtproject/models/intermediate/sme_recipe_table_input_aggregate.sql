@@ -10,16 +10,11 @@ with
         from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
         -- Joining on "materialinput" to get prices for each ingredient
         inner join
-            {{ ref("stg_prices") }} as stg_prices
+            {{ ref("stg_prices_partition_date") }} as stg_prices
             on stg_recipe_inputs_time."materialinput" = stg_prices."ticker"
         where
-            {% if var("date_part", none) is not none %}
-                stg_prices.date_part = '{{ var("date_part") }}'
-            {% else %}
-                stg_prices.date_part = (select max("date_part") from {{ ref("stg_prices") }})
-            {% endif %}
             -- filter by SME
-            and prefix = 'SME'
+            prefix = 'SME'
             and materialinput <> 'ALO'
     ),
     group_by_total_input as (

@@ -9,15 +9,10 @@ with
             stg_recipe_inputs_time."time_ms" / 60000.0 as "minutes"
         from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
         inner join
-            {{ ref("stg_prices") }} as stg_prices
+            {{ ref("stg_prices_partition_date") }} as stg_prices
             on stg_recipe_inputs_time."materialoutput" = stg_prices."ticker"
         where
-            {% if var("date_part", none) is not none %}
-                stg_prices.date_part = '{{ var("date_part") }}'
-            {% else %}
-                stg_prices.date_part = (select max("date_part") from {{ ref("stg_prices") }})
-            {% endif %}
-            and prefix = 'FS'
+            prefix = 'FS'
     ),
     
     -- FS:1xZR-1xAL=>1xAFR = 22000 "AI1-BidPrice"
