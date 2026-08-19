@@ -115,7 +115,7 @@ More volume means more liquidity that means less risk
 Aggreates table cannot find information individually, you have to join up with another table
 
 # Data Modelling
-Link t0 What is STAR schema | Star vs Snowflake Schema | Fact vs Dimension Table
+Link to What is STAR schema | Star vs Snowflake Schema | Fact vs Dimension Table
 - https://www.youtube.com/watch?v=hQvCOBv_-LE
 
 Data comes in highly denormalized (a lot of duplicate data because not relational). Everything is stored in a single row
