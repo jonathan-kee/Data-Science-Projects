@@ -21,24 +21,29 @@ with
     ),
 
     cost as (
-        select report_date, sum("cost_per_day_ask_price") as "cost_per_day"
-        from {{ ref("workforce_price_report") }}
+        select
+            report_date,
+            "smeltor_cost_per_day",
+            "workforce_cost_per_day",
+            "total_cost_per_day"
+        from {{ ref("cost_per_day_report") }}
         where
             {% if var("date_part", none) is not none %}
                 report_date = '{{ var("date_part") }}'
             {% else %}
                 report_date
-                = (select max(report_date) from {{ ref("workforce_price_report") }})
+                = (select max(report_date) from {{ ref("cost_per_day_report") }})
             {% endif %}
-        group by report_date
     )
 
 -- ("profit per day" * 3) because I have 3 production of AL --
 select
     cost.report_date,
-    "profit per day",
+    profit."profit per day",
     3 as "production_amount",
-    "cost_per_day",
-    ("profit per day" * 3) - "cost_per_day" as "profit_per_day"
+    cost."workforce_cost_per_day",
+    -- The reason I did not include smeltor_cost_per_day was because profit per day
+    -- already take into account
+    (profit."profit per day" * 3) - cost."workforce_cost_per_day" as "profit_per_day"
 from profit
 cross join cost
