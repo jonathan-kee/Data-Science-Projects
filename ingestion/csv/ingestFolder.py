@@ -132,10 +132,10 @@ def load_to_postgres(df: pd.DataFrame, target_table: str, pks: list, engine):
                 columns_quoted.append(f'"{col}"')
             col_str = ", ".join(columns_quoted)
             
-            # Gather update clauses, EXPLICITLY excluding 'load_time' AND 'file_date'
+            # FIX: Updated to include 'load_time' and 'file_date' during UPSERTs so snapshots refresh timestamps
             update_clauses = []
             for col in df.columns:
-                if col not in pks and col != "load_time" and col != "file_date":
+                if col not in pks:
                     update_clauses.append(f'"{col}" = EXCLUDED."{col}"')
             
             pk_quoted = []
