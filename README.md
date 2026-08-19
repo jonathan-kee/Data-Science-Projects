@@ -207,6 +207,9 @@ Make dbt test dimension and fact tables
 dbt test --select dim_ticker fct_prices
 dbt test --select dim_facility fct_inventory_snapshot
 
+# DBT when making changes to incremental model
+dbt run --full-refresh --select your_incremental_model_name
+
 # DBT column lineage
 Change dictory to dbtproject to run dbt commands:
 - cd dbtproject
