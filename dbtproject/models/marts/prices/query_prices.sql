@@ -5,7 +5,7 @@ select
     dim_d.time_part,
     dim_d.load_timestamp,
     fct.provider_code,
-    
+
     -- Fact measures (Quantitative financial metrics)
     fct.mmbuy,
     fct.mmsell,
@@ -17,8 +17,6 @@ select
     fct.bid_price,
     fct.bid_avail
 
-from {{ ref('fact_ticker_quotes') }} fct
-inner join {{ ref('dim_ticker') }} dim_t
-    on fct.ticker_id = dim_t.ticker_id
-inner join {{ ref('dim_date_time') }} dim_d 
-    on fct.date_time_id = dim_d.date_time_id
+from {{ ref("fact_ticker_quotes") }} fct
+inner join {{ ref("dim_ticker") }} dim_t on fct.ticker_id = dim_t.ticker_id
+inner join {{ ref("dim_date_time") }} dim_d on fct.date_time_id = dim_d.date_time_id

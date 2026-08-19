@@ -1,8 +1,8 @@
 {{
     config(
-        materialized='incremental',
-        unique_key=['date_part', 'ticker'],
-        incremental_strategy='delete+insert'
+        materialized="incremental",
+        unique_key=["date_part", "ticker"],
+        incremental_strategy="delete+insert",
     )
 }}
 
@@ -28,11 +28,11 @@ with
                     fct.bid_price,
                     -- Fact measures (Quantitative financial metrics)
                     fct.ask_price
-                from {{ ref('fact_ticker_quotes') }} fct
+                from {{ ref("fact_ticker_quotes") }} fct
                 inner join
-                    {{ ref('dim_ticker') }} dim_t on fct.ticker_id = dim_t.ticker_id
+                    {{ ref("dim_ticker") }} dim_t on fct.ticker_id = dim_t.ticker_id
                 inner join
-                    {{ ref('dim_date_time') }} dim_d
+                    {{ ref("dim_date_time") }} dim_d
                     on fct.date_time_id = dim_d.date_time_id
                 where fct.provider_code = 'ai1'
             ) as stg_prices
@@ -45,14 +45,18 @@ with
                 and recipe_report.report_date = '{{ var("date_part") }}'
             {% else %}
                 stg_prices.date_part = (
-                    select max(dim_d.date_part) 
-                    from {{ ref('fact_ticker_quotes') }} fct
-                    inner join {{ ref('dim_date_time') }} dim_d on fct.date_time_id = dim_d.date_time_id
+                    select max(dim_d.date_part)
+                    from {{ ref("fact_ticker_quotes") }} fct
+                    inner join
+                        {{ ref("dim_date_time") }} dim_d
+                        on fct.date_time_id = dim_d.date_time_id
                 )
                 and recipe_report.report_date = (
-                    select max(dim_d.date_part) 
-                    from {{ ref('fact_ticker_quotes') }} fct
-                    inner join {{ ref('dim_date_time') }} dim_d on fct.date_time_id = dim_d.date_time_id
+                    select max(dim_d.date_part)
+                    from {{ ref("fact_ticker_quotes") }} fct
+                    inner join
+                        {{ ref("dim_date_time") }} dim_d
+                        on fct.date_time_id = dim_d.date_time_id
                 )
             {% endif %}
     ),

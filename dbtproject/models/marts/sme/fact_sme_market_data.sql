@@ -1,17 +1,13 @@
-{{ config(
-    materialized='table'
-) }}
+{{ config(materialized="table") }}
 
-WITH source_data AS (
-    SELECT * FROM {{ ref('sme_cxpc') }}
-)
+with source_data as (select * from {{ ref("sme_cxpc") }})
 
-SELECT 
+select
     -- Foreign Keys linking to your dimensions
     source_data."ticker",
     source_data."DateEpochMs",
-    source_data."Interval" AS interval_name,
-    
+    source_data."Interval" as interval_name,
+
     -- Fact Metrics
     source_data."Open",
     source_data."Close",
@@ -19,7 +15,7 @@ SELECT
     source_data."Low",
     source_data."Volume",
     source_data."Traded",
-    
+
     -- Audit / Metadata columns
     source_data."file_date"
-FROM source_data
+from source_data

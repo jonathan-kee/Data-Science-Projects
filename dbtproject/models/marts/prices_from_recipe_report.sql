@@ -20,7 +20,11 @@ with
             = (select max(stg_prices.date_part) from {{ ref("stg_prices") }})
     ),
     tofilter as (
-        select date_part, "ticker", MAX("ai1_bid_price") AS "ai1_bid_price", MIN("ai1_ask_price") AS "ai1_ask_price"
+        select
+            date_part,
+            "ticker",
+            max("ai1_bid_price") as "ai1_bid_price",
+            min("ai1_ask_price") as "ai1_ask_price"
         from all_tables
         group by date_part, "ticker"
     )

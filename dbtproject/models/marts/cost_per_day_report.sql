@@ -1,8 +1,8 @@
 {{
     config(
-        materialized='incremental',
-        unique_key=['report_date'],
-        incremental_strategy='delete+insert'
+        materialized="incremental",
+        unique_key=["report_date"],
+        incremental_strategy="delete+insert",
     )
 }}
 
@@ -15,27 +15,27 @@ with
             {% if var("date_part", none) is not none %}
                 and report_date = '{{ var("date_part") }}'
             {% else %}
-                and report_date = (select max(report_date) from {{ ref("sme_cost_report") }})
+                and report_date
+                = (select max(report_date) from {{ ref("sme_cost_report") }})
             {% endif %}
     ),
 
-    cost as (   
-        select 
-            report_date, 
-            sum("Cost Per Day") as "cost_per_day"
+    cost as (
+        select report_date, sum("Cost Per Day") as "cost_per_day"
         from {{ ref("workforce_price_report") }}
         where
             {% if var("date_part", none) is not none %}
                 report_date = '{{ var("date_part") }}'
             {% else %}
-                report_date = (select max(report_date) from {{ ref("workforce_price_report") }})
+                report_date
+                = (select max(report_date) from {{ ref("workforce_price_report") }})
             {% endif %}
         group by report_date
     )
 
 -- ("profit per day" * 3) because I have 3 production of AL --
-select 
-    cost.report_date, 
+select
+    cost.report_date,
     sme_cost."cost per day" as "smeltor_cost_per_day",
     cost."cost_per_day" as "workforce_cost_per_day",
     sme_cost."cost per day" + cost."cost_per_day" as "total_cost_per_day"

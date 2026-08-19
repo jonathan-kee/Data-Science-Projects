@@ -1,15 +1,11 @@
-{{ config(
-    materialized='table'
-) }}
+{{ config(materialized="table") }}
 
-WITH source_data AS (
-    SELECT * FROM {{ ref('fs_cxpc') }}
-)
+with source_data as (select * from {{ ref("fs_cxpc") }})
 
-SELECT DISTINCT 
+select distinct
     source_data."DateEpochMs",
     source_data."timezone",
     source_data."date_part",
     source_data."time_part"
-FROM source_data
-WHERE source_data."DateEpochMs" IS NOT NULL
+from source_data
+where source_data."DateEpochMs" is not null

@@ -46,10 +46,13 @@ with
         join material_input_time on 1 = 1
         join material_output_time on 1 = 1
         where original_query = 'FS:1xCU-300xPE=>10xBCO'
-    ),material_input_time_3 as (
+    ),
+    material_input_time_3 as (
         select max("minutes per order") as "minutes per order"
         from raw.recipe_table_input_aggregate
-        where original_query in ('SME:6xALO-1xO-1xC-1xFLX=>4xAL', 'SME:5xCUO-10xO-1xSIO=>3xCU')
+        where
+            original_query
+            in ('SME:6xALO-1xO-1xC-1xFLX=>4xAL', 'SME:5xCUO-10xO-1xSIO=>3xCU')
     ),
     material_output_time_3 as (
         select "minutes per order"

@@ -1,11 +1,11 @@
-SELECT 
+select
     -- Descriptive columns from Dimension tables
     dim_t."ticker",
     dim_d."date_part",
     dim_d."time_part",
     dim_d."timezone",
     dim_i."interval_name",
-    
+
     -- Metrics from the Fact table
     fct."Open",
     fct."Close",
@@ -13,13 +13,12 @@ SELECT
     fct."Low",
     fct."Volume",
     fct."Traded"
-FROM {{ ref('fact_sme_market_data') }} AS fct
+from {{ ref("fact_sme_market_data") }} as fct
 -- Join the Asset Dimension
-JOIN {{ ref('dim_ticker') }}  AS dim_t 
-    ON fct."ticker" = dim_t."ticker"
+join {{ ref("dim_ticker") }} as dim_t on fct."ticker" = dim_t."ticker"
 -- Join the Datetime Dimension
-JOIN {{ ref('dim_sme_datetime') }}  AS dim_d 
-    ON fct."DateEpochMs" = dim_d."DateEpochMs"
+join {{ ref("dim_sme_datetime") }} as dim_d on fct."DateEpochMs" = dim_d."DateEpochMs"
 -- Join the Interval Dimension
-JOIN {{ ref('dim_sme_interval') }} AS dim_i 
-    ON fct."interval_name" = dim_i."interval_name"
+join
+    {{ ref("dim_sme_interval") }} as dim_i
+    on fct."interval_name" = dim_i."interval_name"

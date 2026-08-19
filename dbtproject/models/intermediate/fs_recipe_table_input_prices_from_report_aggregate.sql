@@ -18,7 +18,10 @@ with
             {% if var("date_part", none) is not none %}
                 prices_from_recipe_report."date_part" = '{{ var("date_part") }}'
             {% else %}
-                prices_from_recipe_report."date_part" = (select max("date_part") from {{ ref("prices_from_recipe_report_v2") }})
+                prices_from_recipe_report."date_part" = (
+                    select max("date_part")
+                    from {{ ref("prices_from_recipe_report_v2") }}
+                )
             {% endif %}
             -- filter by SME
             and prefix = 'FS'
