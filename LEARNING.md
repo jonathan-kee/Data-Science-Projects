@@ -92,25 +92,6 @@ Link to website download for Mac Os:
 
 ![Excel Pivot Table](./screenshots/ExcelPivotTable.png)
 
-# Calculation for Prosperous Universe
-[Profit Per Day](./screenshots/calculationProfitPerDay.png)
-
-![Profit Per Day](./screenshots/calculationProfitPerDay.png)
-
-4109 for AL is buy minus sell profit
-4581 for CL is buy minus sell profit
-
-[Index Per Day Part 1](./screenshots/PartOneIndex.png)
-
-![Index Per Day Part 1](./screenshots/PartOneIndex.png)
-
-[Index Per Day Part 2](./screenshots/PartTwoIndex.png)
-
-![Index Per Day Part 2](./screenshots/PartTwoIndex.png)
-
-# Commodity Exchange Learning
-More volume means more liquidity that means less risk
-
 # SQL Learnings
 Aggreates table cannot find information individually, you have to join up with another table
 
@@ -741,3 +722,27 @@ My raw schema in Prosperous Universe Database contains many tables and views.
 
 # Extra Readme
 https://unix.stackexchange.com/questions/15348/writing-basic-systemd-service-files
+
+# Prosperous Universe Learnings
+## Calculation for Prosperous Universe
+[Profit Per Day](./screenshots/calculationProfitPerDay.png)
+
+![Profit Per Day](./screenshots/calculationProfitPerDay.png)
+
+4109 for AL is buy minus sell profit
+4581 for CL is buy minus sell profit
+
+[Index Per Day Part 1](./screenshots/PartOneIndex.png)
+
+![Index Per Day Part 1](./screenshots/PartOneIndex.png)
+
+[Index Per Day Part 2](./screenshots/PartTwoIndex.png)
+
+![Index Per Day Part 2](./screenshots/PartTwoIndex.png)
+
+## Ways to increase profits
+When you have funds and can wait for a period of time after settling cost of workforce & materials, 
+you can use that extra funds to buy materials at bid price for cheaper than ask price
+
+## Commodity Exchange Learning
+More volume means more liquidity that means less risk
