@@ -212,7 +212,9 @@ def csv_folder_ingest(
     manifest=dbt_project.manifest_path, 
     partitions_def=daily_partitions_def,
     dagster_dbt_translator=CustomDagsterDbtTranslator(),
-    backfill_policy=BackfillPolicy.multi_run()
+    backfill_policy=BackfillPolicy.multi_run(),
+    # Limits concurrency to 1 run at a time, to enable sequential order running
+    op_tags={"dagster/max_concurrent_runs": "1"}  
 )
 def dbtproject_dbt_assets(
     context: AssetExecutionContext, 
