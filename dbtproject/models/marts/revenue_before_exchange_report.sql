@@ -27,4 +27,3 @@ select
             and material_ticker = 'AL'
     ) as "total_revenue_before_exchange"
 from raw.revenue_per_day_report
-;
