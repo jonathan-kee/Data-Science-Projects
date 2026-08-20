@@ -57,6 +57,11 @@ Shows daily profit minus workforce cost.
 
 Shows daily cost that consist of production cost and workforce cost, to be used to estimate cost of refilling at commodity exchange.
 
+[Revenue Before Exchange](./screenshots/revenueBeforeExchange.png)
+
+![Revenue Before Exchange](./screenshots/revenueBeforeExchange.png)
+Shows revenue before going to the exchange, divide by daily cost to estimate plan expansion & maintainance of base.
+
 [Days to support base Report](./screenshots/daysToSupportBaseReport.png)
 
 ![Days to support base Report](./screenshots/daysToSupportBaseReport.png)
