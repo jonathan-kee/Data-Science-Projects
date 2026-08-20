@@ -197,12 +197,14 @@ def process_file(file_path: Path, engine):
     target_table = f"{prefix}_raw"
 
     df = pd.read_csv(file_path)
-    
+
+    # Make Columns lower case
     clean_cols = []
     for c in df.columns:
         clean_cols.append(clean_snake_case(c))
     df.columns = clean_cols
 
+    # Make Pandas verions of current time and file date
     current_time = pd.Timestamp.now(tz="UTC")
     file_date_val = pd.to_datetime(file_date_str).date()
 
