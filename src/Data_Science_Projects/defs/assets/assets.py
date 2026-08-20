@@ -8,6 +8,7 @@ from dagster import (
     AssetExecutionContext,
     AssetKey,
     AssetOut,
+    BackfillPolicy,
     DailyPartitionsDefinition,
     Output,
     PipesExecutionResult,
@@ -210,29 +211,37 @@ def csv_folder_ingest(
 @dbt_assets(
     manifest=dbt_project.manifest_path, 
     partitions_def=daily_partitions_def,
-    dagster_dbt_translator=CustomDagsterDbtTranslator()
+    dagster_dbt_translator=CustomDagsterDbtTranslator(),
+    backfill_policy=BackfillPolicy.multi_run()
 )
 def dbtproject_dbt_assets(
     context: AssetExecutionContext, 
     dbt: DbtCliResource
 ) -> Iterator[Any]:
     """Generates all dbt model assets as an independent pipeline graph."""
-    # Handle both single partitions and ranges (e.g., backfills) safely
-    partition_range = context.partition_key_range
-    start_date: str = partition_range.start
-    end_date: str = partition_range.end
     
-    context.log.info(f"Running dbt for date range: {start_date} to {end_date}")
-    
+    if context.has_partition_key:
+        start_date: str = context.partition_key
+        end_date: str = context.partition_key
+        date_part: str = context.partition_key
+    else:
+        partition_range = context.partition_key_range
+        start_date = partition_range.start
+        end_date = partition_range.end
+        date_part = start_date
+
+    context.log.info(f"Running dbt execution for date range: {start_date} to {end_date}")
+
     dbt_args: list[str] = [
         "run",
         "--vars",
         json.dumps({
             "start_date": start_date,
             "end_date": end_date,
-            "date_part": start_date # Kept temporarily so current dbt models don't error out
+            "date_part": date_part
         })
     ]
+    
     yield from dbt.cli(dbt_args, context=context).stream()
 
 
