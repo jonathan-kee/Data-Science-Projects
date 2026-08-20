@@ -8,7 +8,7 @@
 
 with
     profit as (
-        select "profit per day"
+        select "profit_per_day"
         from {{ ref("sme_recipe_report") }}
         where
             original_query = 'SME:6xALO-1xO-1xC-1xFLX=>4xAL'
@@ -39,11 +39,11 @@ with
 -- ("profit per day" * 3) because I have 3 production of AL --
 select
     cost.report_date,
-    profit."profit per day",
+    profit."profit_per_day",
     3 as "production_amount",
     cost."workforce_cost_per_day",
     -- The reason I did not include smeltor_cost_per_day was because profit per day
     -- already take into account
-    (profit."profit per day" * 3) - cost."workforce_cost_per_day" as "profit_per_day"
+    (profit."profit_per_day" * 3) - cost."workforce_cost_per_day" as "total_profit_per_day"
 from profit
 cross join cost
