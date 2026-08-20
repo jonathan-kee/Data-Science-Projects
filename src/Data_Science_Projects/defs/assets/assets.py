@@ -217,13 +217,21 @@ def dbtproject_dbt_assets(
     dbt: DbtCliResource
 ) -> Iterator[Any]:
     """Generates all dbt model assets as an independent pipeline graph."""
-    target_date: str = context.partition_key
-    context.log.info(f"Running dbt with date_part: {target_date}")
+    # Handle both single partitions and ranges (e.g., backfills) safely
+    partition_range = context.partition_key_range
+    start_date: str = partition_range.start
+    end_date: str = partition_range.end
+    
+    context.log.info(f"Running dbt for date range: {start_date} to {end_date}")
     
     dbt_args: list[str] = [
         "run",
         "--vars",
-        json.dumps({"date_part": target_date})
+        json.dumps({
+            "start_date": start_date,
+            "end_date": end_date,
+            "date_part": start_date # Kept temporarily so current dbt models don't error out
+        })
     ]
     yield from dbt.cli(dbt_args, context=context).stream()
 
