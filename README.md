@@ -210,6 +210,33 @@ dbt test --select dim_facility fct_inventory_snapshot
 # DBT when making changes to incremental model
 dbt run --full-refresh --select your_incremental_model_name
 
+Question: But how do we backup the previous data before the the new columns arrive
+
+1. Create a Quick Backup Table
+CREATE TABLE raw.profit_per_day_report_backup AS
+SELECT * 
+FROM raw.profit_per_day_report;
+
+2. Run the Full Refresh
+dbt run --select profit_per_day_report --full-refresh
+
+3. Migrate the Old Data to the New Table
+INSERT INTO raw.profit_per_day_report (
+    report_date,
+    profit_per_day, -- The new column name
+    production_amount,
+    workforce_cost_per_day,
+    total_profit_per_day
+)
+SELECT 
+    report_date,
+    "profit per day", -- The old column name mapped to the new one
+    production_amount,
+    workforce_cost_per_day,
+    total_profit_per_day
+FROM raw.profit_per_day_report_backup
+WHERE report_date < CURRENT_DATE; -- Adjust this to prevent inserting duplicates
+
 # DBT column lineage
 Change dictory to dbtproject to run dbt commands:
 - cd dbtproject
