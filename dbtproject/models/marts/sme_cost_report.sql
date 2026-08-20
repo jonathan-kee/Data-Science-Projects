@@ -23,7 +23,7 @@ select
         "total output_materials_AI1_BidPrice" - "total input_materials_AI1_AskPrice"
     ) as "profit per day",
     (1440 / recipe_table_input_aggregate."minutes per order")
-    * "input_materials_AI1_AskPrice_per_unit" as "cost per day",
+    * "total input_materials_AI1_AskPrice" as "cost per day",
     sme_traded_report."traded_rank" as "traded_rank"
 from {{ ref("sme_recipe_table_input_aggregate") }} as recipe_table_input_aggregate
 join
