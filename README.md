@@ -57,6 +57,12 @@ Shows daily profit minus workforce cost.
 
 Shows daily cost that consist of production cost and workforce cost, to be used to estimate cost of refilling at commodity exchange.
 
+[Days to support base Report](./screenshots/daysToSupportBaseReport.png)
+
+![Days to support base Report](./screenshots/daysToSupportBaseReport.png)
+
+Shows how long until needs to replenish supplies for base
+
 [SME Recipe Report](./screenshots/recipe_report.png)
 
 ![SME Recipe Report](./screenshots/recipe_report.png)
