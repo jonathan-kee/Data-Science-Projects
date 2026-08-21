@@ -56,7 +56,7 @@ select
     41.67 as "production_fee_per_day",
     sme_cost."cost per day" as "smeltor_cost_per_day",
     cost."cost_per_day" as "workforce_cost_per_day",
-    sme_cost."cost per day" + cost."cost_per_day" as "total_cost_per_day"
+    sme_cost."cost per day" + cost."cost_per_day" + 41.67 as "total_cost_per_day"
 from sme_cost
 -- UPDATED: Replaced CROSS JOIN with an INNER JOIN to prevent row duplication on ranges
 join cost 
