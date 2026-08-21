@@ -6,7 +6,8 @@ select
     (1440 / recipe_table_input_aggregate."minutes per order") as "orders_per_day",
     (1440 / recipe_table_input_aggregate."minutes per order") * materialinputquantity as "material_used_per_day",
     stg_inventory.amount as "inventory_amount",
-    stg_inventory.amount / ((1440 / recipe_table_input_aggregate."minutes per order") * materialinputquantity )as "days_left"
+    stg_inventory.amount / ((1440 / recipe_table_input_aggregate."minutes per order") * materialinputquantity ) as "days_left_per_building",
+    (stg_inventory.amount / ((1440 / recipe_table_input_aggregate."minutes per order") * materialinputquantity ) ) / 4 as "total_days_left_per_building"
 from {{ ref("stg_recipe_inputs_time") }} as stg_recipe_inputs_time
 join {{ ref("sme_recipe_table_input_aggregate") }}as recipe_table_input_aggregate on
 stg_recipe_inputs_time.original_query = recipe_table_input_aggregate.original_query
