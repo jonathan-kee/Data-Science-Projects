@@ -140,7 +140,7 @@ def cxpc_folder_ingest(
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
     """Processes folder-based exchange JSON files via Dagster Pipes."""
-    bash_script: str = "python ingestion/json/cxpcFolder.py"
+    bash_script: str = "python ingestion/json/cxpcFolderCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
@@ -167,7 +167,7 @@ def building_folder_ingest(
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
     """Processes folder-based building JSON files independently."""
-    bash_script: str = "python ingestion/json/buildingFolder.py"
+    bash_script: str = "python ingestion/json/buildingFolderCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
@@ -194,7 +194,7 @@ def csv_folder_ingest(
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
     """Processes folder-based CSV files and loads them directly into PostgreSQL via Python."""
-    bash_script: str = "python ingestion/csv/ingestFolder.py"
+    bash_script: str = "python ingestion/csv/ingestFolderCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script], 
         context=context, 
