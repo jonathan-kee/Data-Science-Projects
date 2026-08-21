@@ -1,6 +1,6 @@
 with
     report1 as (
-        select "materialinput", "days_left"
+        select "materialinput", "total_days_left_per_building" as "days_left"
         from {{ ref("days_to_support_recipe_report") }}
 
     ),
