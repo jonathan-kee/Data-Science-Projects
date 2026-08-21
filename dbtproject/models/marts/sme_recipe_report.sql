@@ -24,12 +24,12 @@ select
     "total output_materials_AI1_BidPrice"
     - "total input_materials_AI1_AskPrice" as "profit_of_buy_minus_sell",
     (1440 / recipe_table_input_aggregate."minutes per order") as "order_per_day",
-    (1440 / recipe_table_input_aggregate."minutes per order") * (
-        "total output_materials_AI1_BidPrice"
-    ) as "revenue_per_day",
-    (1440 / recipe_table_input_aggregate."minutes per order") * (
-        "total output_materials_AI1_BidPrice" - "total input_materials_AI1_AskPrice"
-    ) as "profit_per_day",
+    (1440 / recipe_table_input_aggregate."minutes per order")
+    * 25.00 as "production_fee_per_day",
+    (1440 / recipe_table_input_aggregate."minutes per order")
+    * ("total output_materials_AI1_BidPrice") as "revenue_per_day",
+    (1440 / recipe_table_input_aggregate."minutes per order") * ("total output_materials_AI1_BidPrice" - "total input_materials_AI1_AskPrice")
+    - (1440 / recipe_table_input_aggregate."minutes per order") * 25.00 as "profit_per_day",
     sme_traded_report."traded_rank" as "traded_rank"
 from {{ ref("sme_recipe_table_input_aggregate") }} as recipe_table_input_aggregate
 join

@@ -53,6 +53,7 @@ with
 -- ("profit per day" * 3) because I have 3 production of AL --
 select
     cost.report_date,
+    41.67 as "production_fee_per_day",
     sme_cost."cost per day" as "smeltor_cost_per_day",
     cost."cost_per_day" as "workforce_cost_per_day",
     sme_cost."cost per day" + cost."cost_per_day" as "total_cost_per_day"
