@@ -11,6 +11,12 @@ models:
   - name: prices_from_recipe_report
     description: This is to ovewrite exisitng pricing data from SME (Smeltor) output
 
+  - name: revenue_per_day_report
+    description: Calculate the revenue per day from sme_recipe_report
+
+  - name: revenue_before_exchange_report
+    description: Calculate the total revenue from sme_recipe_report and inventory before going to exchange
+
   - name: stg_cxpc_al_ai1
     description: Contains chart data for ticker al_ai1
 
