@@ -26,6 +26,9 @@ dependencies = [
     "pyarrow>=14.0.0",
     "pangres>=4.1",
 
+    # Ingestion
+    "duckdb",
+
     # Utilities & Environment
     "requests",
     "ipykernel>=6.31.0",
