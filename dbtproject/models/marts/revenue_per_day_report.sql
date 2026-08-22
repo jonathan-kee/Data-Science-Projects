@@ -33,6 +33,6 @@ with
 select
     profit.report_date,
     profit."revenue_per_day",
-    3 as "production_amount",
-    profit."revenue_per_day" * 3 as "total_revenue_per_day"
+    4 as "production_amount",
+    profit."revenue_per_day" * 4 as "total_revenue_per_day"
 from profit
