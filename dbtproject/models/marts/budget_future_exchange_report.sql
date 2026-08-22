@@ -36,4 +36,4 @@ with
         order by future_revenue_before_exchange.report_date
     )
 select *
-from future_calculation;
+from future_calculation
