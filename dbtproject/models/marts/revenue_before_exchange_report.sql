@@ -26,4 +26,4 @@ select
             report_date = (select max(report_date) from {{ ref("inventory_price_report_v2") }})
             and material_ticker = 'AL'
     ) as "total_revenue_before_exchange"
-from raw.revenue_per_day_report
+from {{ ref("revenue_per_day_report") }}
