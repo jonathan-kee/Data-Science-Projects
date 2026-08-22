@@ -95,6 +95,8 @@ Link to website download for Mac Os:
 # SQL Learnings
 Aggreates table cannot find information individually, you have to join up with another table
 
+Date is a good candidate for the common data, in order for two table to join, there has to be data in common
+
 # Data Modelling
 Link to What is STAR schema | Star vs Snowflake Schema | Fact vs Dimension Table
 - https://www.youtube.com/watch?v=hQvCOBv_-LE
