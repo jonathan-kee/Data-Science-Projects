@@ -369,9 +369,22 @@ Rename the table in datagrip to "recipe_inputs_raw"
 - java -jar KotlinCLI-1.0-SNAPSHOT-all.jar "https://rest.fnar.net/exchange/cxpc/AL.AI1" "https://rest.fnar.net/exchange/cxpc/AU.AI1" "https://rest.fnar.net/exchange/cxpc/CF.AI1" "https://rest.fnar.net/exchange/cxpc/CU.AI1" "https://rest.fnar.net/exchange/cxpc/FE.AI1" "https://rest.fnar.net/exchange/cxpc/LI.AI1" "https://rest.fnar.net/exchange/cxpc/S.AI1" "https://rest.fnar.net/exchange/cxpc/STL.AI1" "https://rest.fnar.net/exchange/cxpc/TI.AI1" "https://rest.fnar.net/exchange/cxpc/SI.AI1" "https://rest.fnar.net/exchange/cxpc/RE.AI1" "https://rest.fnar.net/exchange/cxpc/SEQ.AI1" "https://rest.fnar.net/exchange/cxpc/BGO.AI1" "https://rest.fnar.net/exchange/cxpc/MFK.AI1" "https://rest.fnar.net/exchange/cxpc/BRO.AI1" "https://rest.fnar.net/exchange/cxpc/BFR.AI1" "https://rest.fnar.net/exchange/cxpc/RGO.AI1" "https://rest.fnar.net/exchange/cxpc/UTS.AI1" "https://rest.fnar.net/exchange/cxpc/BCO.AI1" "https://rest.fnar.net/exchange/cxpc/AFR.AI1" "https://rest.fnar.net/exchange/cxpc/SFK.AI1" "https://rest.fnar.net/exchange/cxpc/HCC.AI1" "https://rest.fnar.net/exchange/cxpc/BGC.AI1" "https://rest.fnar.net/exchange/cxpc/FLO.AI1" "https://rest.fnar.net/exchange/cxpc/ALO.AI1" "https://rest.fnar.net/building/HB2" "https://rest.fnar.net/building/FS" "https://rest.fnar.net/csv/prices" "https://rest.fnar.net/csv/inventory?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee" https://rest.fnar.net/csv/recipeinputs "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
 
 - cd ..  
-- python ingestion/json/cxpcFolderCompress.py
+
+- python ingestion/json/cxpcFolderCompress.py 
+Pipeline finished in 2.6795 seconds.
+- python ingestion/json/cxpcFolderDuckCompress.py 
+Pipeline finished in 1.3910 seconds. 2x increase
+
 - python ingestion/json/buildingFolderCompress.py
+Pipeline finished in 0.1905 seconds.
+- python ingestion/json/buildingFolderDuckCompress.py 
+Pipeline finished in 0.1881 seconds.
+
 - python ingestion/csv/ingestFolderCompress.py
+Pipeline finished in 0.2114 seconds.
+- python ingestion/csv/ingestFolderDuckCompress.py
+Pipeline finished in 0.6661 seconds.
+
 In case need to reverse the process:
 - python ingestion/reverseCompress.py
 
