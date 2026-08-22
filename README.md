@@ -62,6 +62,16 @@ Shows daily cost that consist of production cost and workforce cost, to be used 
 ![Revenue Before Exchange](./screenshots/revenueBeforeExchange.png)
 Shows revenue before going to the exchange, divide by daily cost to estimate plan expansion & maintainance of base.
 
+[Budget on Exchange](./screenshots/budgetExchange.png)
+
+![Budget on Exchange](./screenshots/budgetExchange.png)
+Shows how long to sustain base on day of exchange.
+
+[Budget on Future Exchange](./screenshots/budgetFutureExchange.png)
+
+![Budget on Future Exchange](./screenshots/budgetFutureExchange.png)
+Shows how long to sustain base on future day of exchange.
+
 [Days to support base Report](./screenshots/daysToSupportBaseReport.png)
 
 ![Days to support base Report](./screenshots/daysToSupportBaseReport.png)
