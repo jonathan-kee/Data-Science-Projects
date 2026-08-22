@@ -8,9 +8,6 @@ models:
   - name: sme_recipe_report
     description: Calculate revenue a day, profit per day (minus smeltor recipe cost only) 
 
-  - name: recipe_table_output_aggregate
-    description: Calculate the selling price of SME (Smeltor)
-
   - name: prices_from_recipe_report
     description: This is to ovewrite exisitng pricing data from SME (Smeltor) output
 
