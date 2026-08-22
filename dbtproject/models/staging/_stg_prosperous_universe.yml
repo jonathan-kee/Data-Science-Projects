@@ -1,9 +1,9 @@
 models:
   - name: sme_recipe_table_input_aggregate
-    description: Calculate the input recipe required for report
+    description: Calculate the buying price of SME (Smeltor) required for report
 
   - name: sme_recipe_table_output_aggregate
-    description: Calculate the output recipe required for report
+    description: Calculate the selling price of SME (Smeltor) required for report
 
   - name: sme_recipe_report
     description: Calculate revenue a day, profit per day (minus smeltor recipe cost only) 
