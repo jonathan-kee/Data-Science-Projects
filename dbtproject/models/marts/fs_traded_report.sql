@@ -42,8 +42,8 @@ with
     rank_all_sources as (
         select
             "ticker",
-            sum("Traded") as "total_traded",
-            dense_rank() over (order by sum("Traded") desc) as "traded_rank"
+            sum("traded") as "total_traded",
+            dense_rank() over (order by sum("traded") desc) as "traded_rank"
         from all_sources
         group by "ticker"
     )

@@ -3,9 +3,9 @@
 -- urgent you want to sell) --
 with
     base as (
-        select "date_part"::date as date_part, "High" as high
+        select "date_part"::date as date_part, "high" as high
         from {{ ref("stg_cxpc_al_ai1") }}
-        where "Interval" = 'DAY_ONE'
+        where "interval" = 'DAY_ONE'
     ),
     max_date as (
         select max("date_part"::date) as max_date_part from {{ ref("stg_cxpc_al_ai1") }}

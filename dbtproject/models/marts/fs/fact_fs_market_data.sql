@@ -5,16 +5,16 @@ with source_data as (select * from {{ ref("fs_cxpc") }})
 select
     -- Foreign Keys linking to your dimensions
     source_data."ticker",
-    source_data."DateEpochMs",
-    source_data."Interval" as interval_name,
+    source_data."date_epoch_ms",
+    source_data."interval" as interval_name,
 
     -- Fact Metrics
-    source_data."Open",
-    source_data."Close",
-    source_data."High",
-    source_data."Low",
-    source_data."Volume",
-    source_data."Traded",
+    source_data."open",
+    source_data."close",
+    source_data."high",
+    source_data."low",
+    source_data."volume",
+    source_data."traded",
 
     -- Audit / Metadata columns
     source_data."file_date"

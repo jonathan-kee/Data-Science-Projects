@@ -3,9 +3,9 @@
 with source_data as (select * from {{ ref("sme_cxpc") }})
 
 select distinct
-    source_data."DateEpochMs",
+    source_data."date_epoch_ms",
     source_data."timezone",
     source_data."date_part",
     source_data."time_part"
 from source_data
-where source_data."DateEpochMs" is not null
+where source_data."date_epoch_ms" is not null

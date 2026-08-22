@@ -7,17 +7,17 @@ select
     dim_i."interval_name",
 
     -- Metrics from the Fact table
-    fct."Open",
-    fct."Close",
-    fct."High",
-    fct."Low",
-    fct."Volume",
-    fct."Traded"
+    fct."open",
+    fct."close",
+    fct."high",
+    fct."low",
+    fct."volume",
+    fct."traded"
 from {{ ref("fact_sme_market_data") }} as fct
 -- Join the Asset Dimension
 join {{ ref("dim_ticker") }} as dim_t on fct."ticker" = dim_t."ticker"
 -- Join the Datetime Dimension
-join {{ ref("dim_sme_datetime") }} as dim_d on fct."DateEpochMs" = dim_d."DateEpochMs"
+join {{ ref("dim_sme_datetime") }} as dim_d on fct."date_epoch_ms" = dim_d."date_epoch_ms"
 -- Join the Interval Dimension
 join
     {{ ref("dim_sme_interval") }} as dim_i

@@ -3,9 +3,9 @@
 -- urgent you want to sell) --
 with
     base as (
-        select "date_part"::date as date_part, "Low" as low
+        select "date_part"::date as date_part, "low" as low
         from {{ ref("stg_cxpc_al_ai1") }}
-        where "Interval" = 'DAY_ONE'
+        where "interval" = 'DAY_ONE'
     ),
 
     begining_month_minimum_low as (

@@ -44,7 +44,7 @@ with
         from all_smeltor_sources s
         join max_dates m on s.ticker = m.ticker
         where
-            s."Interval" = 'DAY_ONE'
+            s."interval" = 'DAY_ONE'
             -- Filters sme_prices to the 7-day range up to max_date
             and s."date_part" between m.max_date - interval '6 days' and m.max_date
     )
