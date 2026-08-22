@@ -492,3 +492,15 @@ WITH (FORMAT csv, HEADER true, NULL '');
 - COPY recipe_inputs_raw
 FROM '/tmp/recipeInputs.csv'
 WITH (FORMAT csv, HEADER true, NULL '');
+
+# Sysadmin commands
+ps aux | grep "dagster"
+
+# Finance terms
+ Revenue is the total amount of money a business brings in from selling its goods or services before any expenses or costs are subtracted.
+ 
+ Here is how it compares to profit:
+ Revenue (Top Line): The total money collected from sales.
+ Profit (Bottom Line): The money left over after you subtract all your costs, expenses, and taxes from the revenue.
+ 
+ Formula: $\text{Profit} = \text{Revenue} - \text{Total Costs}$
