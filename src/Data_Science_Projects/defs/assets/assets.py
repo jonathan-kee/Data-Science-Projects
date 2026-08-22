@@ -238,6 +238,7 @@ def dbtproject_dbt_assets(
         "run",
         "--vars",
         json.dumps({
+            "production_amount": 4,  # Explicitly passed along with dynamic dates
             "start_date": start_date,
             "end_date": end_date,
             "date_part": date_part
