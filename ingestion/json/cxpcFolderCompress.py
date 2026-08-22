@@ -3,6 +3,7 @@ import json
 import os
 import re
 import tarfile
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -11,6 +12,8 @@ from sqlalchemy import create_engine, text
 
 # This code implements a latest state pattern.
 def process_files():
+    start_time = time.perf_counter()
+
     # Define directories
     input_folder = Path(
         os.getenv(
@@ -134,6 +137,10 @@ def process_files():
         print("No files were processed successfully.")
     else:
         print(f"Successfully processed and bundled {processed_count} JSON file(s) into {batch_tar_name}.")
+
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    print(f"\nPipeline finished in {elapsed_time:.4f} seconds.")
 
 if __name__ == "__main__":
     process_files()

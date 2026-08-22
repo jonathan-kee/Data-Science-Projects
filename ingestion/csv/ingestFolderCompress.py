@@ -1,11 +1,13 @@
 import datetime
+import os
 import re
 import tarfile
+import time
 from pathlib import Path
 
 import pandas as pd
+from pangres import upsert
 from sqlalchemy import create_engine, text
-from pangres import upsert  
 
 # --- Configuration & Paths ---
 INPUT_DIR = Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed")
@@ -84,6 +86,8 @@ def process_file(file_path: Path, engine):
     load_to_postgres(df, target_table, pks, engine)
 
 def main():
+    start_time = time.perf_counter()
+
     csv_files = list(INPUT_DIR.glob("*.csv"))
         
     if not csv_files:
@@ -124,6 +128,10 @@ def main():
         print("No files were processed successfully.")
     else:
         print(f"Successfully processed and bundled {processed_count} file(s) into {batch_tar_name}.")
+
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    print(f"\nPipeline finished in {elapsed_time:.4f} seconds.")
 
 if __name__ == "__main__":
     main()

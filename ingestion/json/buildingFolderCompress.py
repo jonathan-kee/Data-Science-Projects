@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import tarfile
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -9,6 +10,8 @@ from pangres import upsert
 from sqlalchemy import create_engine, text
 
 def main():
+    start_time = time.perf_counter()
+
     # Define directories matching your local paths
     input_folder = Path(
         os.getenv(
@@ -152,6 +155,10 @@ def main():
 
     except Exception as e:
         print(f"Error during pipeline execution: {e}\n")
+
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    print(f"\nPipeline finished in {elapsed_time:.4f} seconds.")
 
 
 if __name__ == "__main__":

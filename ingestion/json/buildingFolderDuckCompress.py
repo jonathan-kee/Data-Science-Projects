@@ -3,6 +3,7 @@ import json
 import os
 import re
 import tarfile
+import time
 from pathlib import Path
 
 import duckdb
@@ -166,6 +167,8 @@ def process_file(file_path: Path, duck_con, engine):
         perform_upsert(engine, "building_costs_raw", "building_costs_raw_staging", PRIMARY_KEY_MAP["building_costs"], costs_cols)
 
 def main():
+    start_time = time.perf_counter()
+
     if not INPUT_DIR.exists():
         print(f"Input directory does not exist: {INPUT_DIR}")
         return
@@ -209,6 +212,10 @@ def main():
         print("No building files were processed successfully.")
     else:
         print(f"\nSUCCESS: Successfully processed and bundled {processed_count} JSON file(s) into {batch_tar_name}.")
+
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    print(f"\nPipeline finished in {elapsed_time:.4f} seconds.")
 
 if __name__ == "__main__":
     main()

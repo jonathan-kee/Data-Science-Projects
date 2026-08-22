@@ -1,6 +1,8 @@
 import datetime
+import os
 import re
 import tarfile
+import time
 from pathlib import Path
 
 import duckdb
@@ -145,6 +147,8 @@ def process_file(file_path: Path, duck_con, engine):
 
 
 def main():
+    start_time = time.perf_counter()
+
     csv_files = list(INPUT_DIR.glob("*.csv"))
     if not csv_files:
         print("No CSV files found.")
@@ -182,6 +186,10 @@ def main():
         print("No files were processed successfully.")
     else:
         print(f"Successfully processed and bundled {processed_count} file(s) into {batch_tar_name}.")
+
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    print(f"\nPipeline finished in {elapsed_time:.4f} seconds.")
 
 if __name__ == "__main__":
     main()
