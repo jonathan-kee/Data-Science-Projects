@@ -20,6 +20,12 @@ models:
   - name: profit_per_day_report
     description: Calculate profit by total revenue minus workforce cost and smelter cost
 
+  - name: budget_exchange_report
+    description: Shows how long to sustain base on day of exchange. 
+
+  - name: budge_future_exchange_report
+    description: Shows how long to sustain base on future day of exchange.
+
   - name: stg_cxpc_al_ai1
     description: Contains chart data for ticker al_ai1
 
