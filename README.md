@@ -125,6 +125,13 @@ dbt run --full-refresh --select your_incremental_model_name
 
 Question: But how do we backup the previous data before the the new columns arrive
 
+# DBT full refresh
+cd /Users/jonathankee/Data-Science-Projects/dbtproject
+dbt run --full-refresh
+rm -rf target/
+rm -rf dbt_packages/
+dbt deps
+
 1. Create a Quick Backup Table
 CREATE TABLE raw.profit_per_day_report_backup AS
 SELECT * 
@@ -166,6 +173,39 @@ View results: Open dist/index.html in your browser
 # Dagster UI
 +group:"exchange_ingestion" or +group:"csv_ingestion" or +group:"building_ingestion" 
 group:"DBT" 
+
+# Dagster setup environment
+mkdir -p ~/.dagster
+cd ~/.dagster
+touch dagster.yaml
+
+Paste the following code to dagster.yaml 
+``` yaml
+run_coordinator:
+  module: dagster.core.run_coordinator
+  class: QueuedRunCoordinator
+  config:
+    max_concurrent_runs: 10
+```
+
+## Add Dagster to environement
+echo 'export DAGSTER_HOME="$HOME/.dagster"' >> ~/.zshrc
+source ~/.zshrc
+echo $DAGSTER_HOME
+
+## Run the dagster command
+dagster instance concurrency set dbt_execution_pool 1
+
+Output:
+Set concurrency limit for dbt_execution_pool to 1.
+
+What the above fixes:
+This fixe a **file race condition caused by parallel file access**.
+
+1. **The Parallel Clash:** When you ran 1, 4, or 7 partitions simultaneously, Dagster spun up separate background processes for each partition.
+2. **The Shared Workspace:** Your dbt project relies on a local folder called `dbt_packages/dbt_utils` (which holds external packages like `dbt_utils`).
+3. **The Collision:** All 7 partition processes tried to read, write, or check that folder *at the exact same millisecond*. One process would try to read a file inside `dbt_packages` right as another partition process was modifying, cleaning, or accessing it. This caused a `FileNotFoundError` because a file suddenly vanished or wasn't found in time.
+4. **The Solution:** By assigning the dbt asset to a **concurrency pool with a limit of 1**, Dagster allowed all 7 partition runs to start up, but forced the actual dbt execution steps to queue up and wait their turn. Partition 1 ran its dbt code completely alone, finished, and only *then* did Partition 2 start, followed by 3, all the way to 7. Because they never touched the `dbt_packages` folder at the same time, the error disappeared completely!
 
 # Dagster setup
 Install UV (macOS and Linux)
