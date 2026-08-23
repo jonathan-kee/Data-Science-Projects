@@ -35,3 +35,4 @@ select
     {{ var("production_amount") }} as "production_amount",
     profit."revenue_per_day" * {{ var("production_amount") }} as "total_revenue_per_day"
 from profit
+order by report_date asc

@@ -63,3 +63,4 @@ from sme_cost
 -- UPDATED: Replaced CROSS JOIN with an INNER JOIN to prevent row duplication on ranges
 join cost 
     on sme_cost.report_date = cost.report_date
+order by cost.report_date asc
