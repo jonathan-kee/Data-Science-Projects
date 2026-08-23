@@ -36,13 +36,11 @@ dbt_project: DbtProject = DbtProject(
     profiles_dir=PROFILES_DIR,
 )
 
-dbt_project.prepare_if_dev()
-
 # Define Daily Partitions (Includes today's ongoing date)
 daily_partitions_def: DailyPartitionsDefinition = DailyPartitionsDefinition(
     start_date="2026-01-01", 
     end_offset=1,
-    timezone="Asia/Kuala_Lumpur",  # Replace with your local IANA timezone string
+    timezone="Asia/Kuala_Lumpur",
 )
 
 # ------------------------------------------------------------------
@@ -53,8 +51,6 @@ class CustomDagsterDbtTranslator(DagsterDbtTranslator):
         return "DBT"
 
     def get_asset_key(self, dbt_resource_props: dict[str, Any]) -> AssetKey:
-        # Renames dbt source keys so they no longer match the "prosperous_universe_sources" 
-        # keys emitted by ingestion multi-assets, severing upstream dependency edges.
         if dbt_resource_props.get("resource_type") == "source":
             return AssetKey(["dbt_raw_sources", dbt_resource_props["name"]])
         
@@ -64,7 +60,6 @@ class CustomDagsterDbtTranslator(DagsterDbtTranslator):
 # Helper Function for Multi-Asset Outputs
 # ------------------------------------------------------------------
 def build_asset_outs(table_names: list[str]) -> dict[str, AssetOut]:
-    """Helper to build AssetOut mappings without dict comprehensions."""
     outs: dict[str, AssetOut] = {}
     for name in table_names:
         outs[name] = AssetOut(key=AssetKey(["prosperous_universe_sources", name]))
@@ -91,7 +86,6 @@ def kotlin_cli_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Any:
-    """Step 1: Runs the Kotlin CLI jar to fetch all exchange, building, and CSV payloads."""
     urls: list[str] = []
     for t in ALL_TICKERS:
         urls.append(f"https://rest.fnar.net/exchange/cxpc/{t}")
@@ -139,7 +133,6 @@ def cxpc_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    """Processes folder-based exchange JSON files via Dagster Pipes."""
     bash_script: str = "python ingestion/json/cxpcFolderCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
@@ -166,7 +159,6 @@ def building_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    """Processes folder-based building JSON files independently."""
     bash_script: str = "python ingestion/json/buildingFolderCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
@@ -193,7 +185,6 @@ def csv_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    """Processes folder-based CSV files and loads them directly into PostgreSQL via Python."""
     bash_script: str = "python ingestion/csv/ingestFolderCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script], 
@@ -213,15 +204,12 @@ def csv_folder_ingest(
     partitions_def=daily_partitions_def,
     dagster_dbt_translator=CustomDagsterDbtTranslator(),
     backfill_policy=BackfillPolicy.multi_run(),
-    # Limits concurrency to 1 run at a time, to enable sequential order running
-    op_tags={"dagster/max_concurrent_runs": "1"}  
+    pool="dbt_execution_pool"  # <-- Uses the native concurrency pool cleanly
 )
 def dbtproject_dbt_assets(
     context: AssetExecutionContext, 
     dbt: DbtCliResource
 ) -> Iterator[Any]:
-    """Generates all dbt model assets as an independent pipeline graph."""
-    
     if context.has_partition_key:
         start_date: str = context.partition_key
         end_date: str = context.partition_key
@@ -238,7 +226,7 @@ def dbtproject_dbt_assets(
         "run",
         "--vars",
         json.dumps({
-            "production_amount": 4,  # Explicitly passed along with dynamic dates
+            "production_amount": 4,
             "start_date": start_date,
             "end_date": end_date,
             "date_part": date_part
@@ -248,7 +236,6 @@ def dbtproject_dbt_assets(
     yield from dbt.cli(dbt_args, context=context).stream()
 
 
-# Combine all asset objects into a single exported list
 all_pipeline_assets: list[Any] = [
     kotlin_cli_ingest,
     cxpc_folder_ingest,
