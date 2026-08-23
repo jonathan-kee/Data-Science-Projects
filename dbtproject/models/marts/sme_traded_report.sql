@@ -39,6 +39,7 @@ with
             sum("traded") as "total_traded",
             dense_rank() over (order by sum("traded") desc) as "traded_rank"
         from all_sources
+        where interval = 'DAY_ONE'
         group by "ticker"
     )
 select *
