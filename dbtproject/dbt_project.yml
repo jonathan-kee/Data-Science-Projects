@@ -9,7 +9,7 @@ profile: 'dbtproject'
 
 # Global variables accessible across all dbt models via {{ var("variable_name") }}
 vars:
-  production_amount: 4
+  production_amount: 6
 
 # These configurations specify where dbt should look for different types of files.
 model-paths: ["models"]
