@@ -40,6 +40,10 @@ Fact table for aggregate function, Dimension table for where & group by clause
 
 ![Defining Conceptual Relationships](./screenshots/relationships.png)
 
+[Update Strategy for raw tables](./screenshots/relationships.png)
+
+![Update Strategy for raw tables](./screenshots/relationships.png)
+
 Note: When writing query the first table should the the parent table, and the join table should be the child table.
 This is especially important when using joins like left join.
 
@@ -309,16 +313,22 @@ Rename the table in datagrip to "recipe_inputs_raw"
 Pipeline finished in 2.6795 seconds.
 - python ingestion/json/cxpcFolderDuckCompress.py 
 Pipeline finished in 1.3910 seconds. 2x increase
+- python ingestion/json/cxpcFolderDuckModuleCompress.py 
+Pipeline finished in 1.6105 seconds.
 
 - python ingestion/json/buildingFolderCompress.py
 Pipeline finished in 0.1905 seconds.
 - python ingestion/json/buildingFolderDuckCompress.py 
 Pipeline finished in 0.1881 seconds.
+- python ingestion/json/buildingFolderDuckModuleCompress.py 
+Pipeline finished in 0.0869 seconds.
 
 - python ingestion/csv/ingestFolderCompress.py
 Pipeline finished in 0.2114 seconds.
 - python ingestion/csv/ingestFolderDuckCompress.py
 Pipeline finished in 0.6661 seconds.
+- python ingestion/csv/ingestFolderDuckModuleCompress.py
+Pipeline finished in 0.5844 seconds.
 
 In case need to reverse the process:
 - python ingestion/reverseCompress.py
