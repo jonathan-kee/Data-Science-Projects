@@ -1,16 +1,15 @@
 import re
-import sys  # 1. Added missing import
+import sys
 from pathlib import Path
 
-# 2. Add the directory containing the 'ingestion' package (e.g., Data-Science-Projects) to sys.path
-# If script is in ingestion/scripts/cxpc_ingest.py, use .parent.parent.parent
-# If script is in ingestion/cxpc_ingest.py, use .parent.parent
+# Add the directory containing the 'ingestion' package to sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from ingestion.utils import clean_snake_case, parse_filename_date
-from ingestion.db import init_connections, perform_upsert
+# IMPORT THE NEW FUNCTION HERE
+from ingestion.db import init_connections, perform_truncate_insert
 from ingestion.archive import process_and_archive_batch
 
 INPUT_DIR = Path("/Users/jonathankee/Data-Science-Projects/ingestion/sources_unprocessed")
@@ -43,7 +42,14 @@ def process_file(file_path: Path):
         QUALIFY ROW_NUMBER() OVER (PARTITION BY {pk_partition}) = 1;
     """)
 
-    perform_upsert(engine, table_name, staging_table, [clean_snake_case(pk) for pk in primary_keys], final_columns)
+    # CALL THE TRUNCATE INSERT FUNCTION HERE
+    perform_truncate_insert(
+        engine, 
+        table_name, 
+        staging_table, 
+        [clean_snake_case(pk) for pk in primary_keys], 
+        final_columns
+    )
 
 def main():
     pattern = re.compile(r"^.*AI1_\d{8}\.json$")
