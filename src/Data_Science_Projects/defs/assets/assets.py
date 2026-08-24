@@ -133,7 +133,7 @@ def cxpc_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    bash_script: str = "python ingestion/json/cxpcFolderCompress.py"
+    bash_script: str = "python ingestion/json/cxpcFolderDuckCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
@@ -159,7 +159,7 @@ def building_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    bash_script: str = "python ingestion/json/buildingFolderCompress.py"
+    bash_script: str = "python ingestion/json/buildingFolderDuckCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
@@ -185,7 +185,7 @@ def csv_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    bash_script: str = "python ingestion/csv/ingestFolderCompress.py"
+    bash_script: str = "python ingestion/csv/ingestFolderDuckCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script], 
         context=context, 
@@ -226,7 +226,7 @@ def dbtproject_dbt_assets(
         "run",
         "--vars",
         json.dumps({
-            "production_amount": 4,
+            "production_amount": 6,
             "start_date": start_date,
             "end_date": end_date,
             "date_part": date_part
