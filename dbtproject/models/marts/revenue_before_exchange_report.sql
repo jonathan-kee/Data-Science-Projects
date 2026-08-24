@@ -3,7 +3,7 @@ select
     (
         select days_left
         from {{ ref("days_to_support_base_report") }}
-        where materialinput = 'O'
+        where materialinput = 'RAT'
     ) as "days_left",
     revenue_per_day,
     -- coalesce to handle when inventory has not AL -- 
@@ -18,7 +18,7 @@ select
         revenue_per_day * (
             select days_left
             from {{ ref("days_to_support_base_report") }}
-            where materialinput = 'O'
+            where materialinput = 'RAT'
         )
     ) + coalesce((
         select total_selling_price
