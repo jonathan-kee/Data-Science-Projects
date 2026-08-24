@@ -133,7 +133,7 @@ def cxpc_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    bash_script: str = "python ingestion/json/cxpcFolderDuckCompress.py"
+    bash_script: str = "python ingestion/json/cxpcFolderDuckModuleCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
@@ -159,7 +159,7 @@ def building_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    bash_script: str = "python ingestion/json/buildingFolderDuckCompress.py"
+    bash_script: str = "python ingestion/json/buildingFolderDuckModuleCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script],
         context=context,
@@ -185,7 +185,7 @@ def csv_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    bash_script: str = "python ingestion/csv/ingestFolderDuckCompress.py"
+    bash_script: str = "python ingestion/csv/ingestFolderDuckModuleCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script], 
         context=context, 
