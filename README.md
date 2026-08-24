@@ -171,8 +171,11 @@ Generate lineage report:
 View results: Open dist/index.html in your browser
 
 # Dagster UI
-+group:"exchange_ingestion" or +group:"csv_ingestion" or +group:"building_ingestion" 
-group:"DBT" 
+Run Ingestion code:
+- +group:"exchange_ingestion" or +group:"csv_ingestion" or +group:"building_ingestion" 
+
+Run Dbt code:
+- group:"DBT" 
 
 # Dagster setup environment
 mkdir -p ~/.dagster
