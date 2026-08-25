@@ -465,7 +465,8 @@ FROM '/tmp/recipeInputs.csv'
 WITH (FORMAT csv, HEADER true, NULL '');
 
 # Sysadmin commands
-ps aux | grep "dagster"
+Open rsyslog to see Dagster logs:
+/opt/homebrew/var/log/rsyslog-remote.log
 
 # Finance terms
  Revenue is the total amount of money a business brings in from selling its goods or services before any expenses or costs are subtracted.
