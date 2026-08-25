@@ -196,6 +196,8 @@ run_coordinator:
 ```
 
 ## Add Dagster to environement
+*** Make sure the default shell in vscode is zsh ***
+
 echo 'export DAGSTER_HOME="$HOME/.dagster"' >> ~/.zshrc
 source ~/.zshrc
 echo $DAGSTER_HOME
