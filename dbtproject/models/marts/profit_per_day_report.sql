@@ -62,7 +62,8 @@ select
     -- The reason I did not include smeltor_cost_per_day was because profit per day
     -- already take into account
     ((profit."revenue_per_day" -  cost."smeltor_cost_per_day") * profit."production_amount") as "recipe_profit_all_building",
-    ((profit."revenue_per_day" -  cost."smeltor_cost_per_day") * profit."production_amount") - cost."workforce_cost_per_day" as "total_profit_per_day"
+    ((profit."revenue_per_day" -  cost."smeltor_cost_per_day") * profit."production_amount") - cost."workforce_cost_per_day" as "total_profit_per_day",
+    cost."workforce_cost_per_day" / ((profit."revenue_per_day" -  cost."smeltor_cost_per_day") * profit."production_amount") * 100 as "cost_to_revenue_ratio"
 from profit
 -- UPDATED: Replaced CROSS JOIN with an INNER JOIN to prevent row duplication on ranges
 join cost 
