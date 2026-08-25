@@ -37,7 +37,7 @@ syslog_logger.setLevel(logging.INFO)
 if not syslog_logger.handlers:
     handler = SysLogHandler(address=("127.0.0.1", 10514), socktype=socket.SOCK_DGRAM)
     handler.setFormatter(
-        logging.Formatter("%(asctime)s dagster[%(process)d]: %(levelname)s - %(message)s\n")
+        logging.Formatter("dagster[%(process)d]: %(levelname)s - %(message)s\n")
     )
     syslog_logger.addHandler(handler)
 
