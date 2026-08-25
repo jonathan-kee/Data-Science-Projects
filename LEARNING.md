@@ -722,6 +722,21 @@ My raw schema in Prosperous Universe Database contains many tables and views.
 
 ## Schema Search Path
 
+# Sysadmin
+## Install rsyslog 
+brew install rsyslog
+
+Open file at /opt/homebrew/etc/rsyslog.conf
+
+## Restart rsyslog to load this config
+brew services restart rsyslog
+
+## Send a test log entry to port 10514
+nc -u -w 1 127.0.0.1 10514 <<< "<14>Test log entry on port 10514"
+
+## Inspect the output file
+cat /opt/homebrew/var/log/rsyslog-remote.log
+
 # Extra Readme
 https://unix.stackexchange.com/questions/15348/writing-basic-systemd-service-files
 
