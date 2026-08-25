@@ -135,6 +135,7 @@ dbt run --full-refresh
 rm -rf target/
 rm -rf dbt_packages/
 dbt deps
+dbt compile
 
 1. Create a Quick Backup Table
 CREATE TABLE raw.profit_per_day_report_backup AS
