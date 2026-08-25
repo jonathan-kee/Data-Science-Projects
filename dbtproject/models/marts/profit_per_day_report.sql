@@ -10,9 +10,9 @@ with
     profit as (
         select 
             report_date, -- ADDED: Need this here so we can join it to 'cost' later
+            "revenue_per_building",
             "revenue_per_day",
-            "production_amount",
-            "total_revenue_per_day"
+            "production_amount"
         from {{ ref("revenue_per_day_report") }} as revenue_per_day_report
         where  
             -- UPDATED: Support ranges first

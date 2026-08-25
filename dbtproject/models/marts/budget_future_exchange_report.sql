@@ -20,7 +20,7 @@ with
             where original_query = 'SME:6xALO-1xO-1xC-1xFLX=>4xAL'
             and sme_recipe_report.report_date = (select max(report_date)from {{ ref("sme_recipe_report") }} )  #}
 
-        select revenue_per_day_report.report_date, "total_revenue_per_day" * number_of_days_to_support_for_budget as "total_future_revenue"
+        select revenue_per_day_report.report_date, "revenue_per_day" * number_of_days_to_support_for_budget as "total_future_revenue"
         from {{ ref("revenue_per_day_report") }} as revenue_per_day_report
         join calculation on revenue_per_day_report.report_date = calculation.report_date
     ),

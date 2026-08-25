@@ -31,8 +31,8 @@ with
 
 select
     profit.report_date,
-    profit."revenue_per_day",
+    profit."revenue_per_day" as "revenue_per_building",
     {{ var("production_amount") }} as "production_amount",
-    profit."revenue_per_day" * {{ var("production_amount") }} as "total_revenue_per_day"
+    profit."revenue_per_day" * {{ var("production_amount") }} as "revenue_per_day"
 from profit
 order by report_date asc
