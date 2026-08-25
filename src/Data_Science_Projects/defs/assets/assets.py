@@ -1,6 +1,11 @@
+import functools
+import inspect
 import json
+import logging
+import socket
 from collections.abc import Iterator
 from datetime import datetime
+from logging.handlers import SysLogHandler
 from pathlib import Path
 from typing import Any
 
@@ -23,20 +28,86 @@ from dagster_dbt import (
     dbt_assets,
 )
 
-# Base directory setup
+# ------------------------------------------------------------------
+# Direct SysLog Handler Setup (UDP Port 10514)
+# ------------------------------------------------------------------
+syslog_logger = logging.getLogger("dagster_syslog")
+syslog_logger.setLevel(logging.INFO)
+
+if not syslog_logger.handlers:
+    handler = SysLogHandler(address=("127.0.0.1", 10514), socktype=socket.SOCK_DGRAM)
+    handler.setFormatter(
+        logging.Formatter("%(asctime)s dagster[%(process)d]: %(levelname)s - %(message)s\n")
+    )
+    syslog_logger.addHandler(handler)
+
+# ------------------------------------------------------------------
+# Lineage-Safe Lifecycle Decorator
+# ------------------------------------------------------------------
+def log_rsyslog_lifecycle(fn):
+    if inspect.isgeneratorfunction(fn):
+        @functools.wraps(fn)
+        def gen_wrapper(*args, **kwargs):
+            context = kwargs.get("context")
+            if not context:
+                for arg in args:
+                    if hasattr(arg, "run_id"):
+                        context = arg
+                        break
+
+            run_id = context.run_id if context else "unknown_run"
+            asset_name = fn.__name__
+
+            syslog_logger.info(f"Asset STARTED | Asset: {asset_name} | Run ID: {run_id}")
+
+            try:
+                for item in fn(*args, **kwargs):
+                    yield item
+                syslog_logger.info(f"Asset SUCCESS | Asset: {asset_name} | Run ID: {run_id}")
+            except Exception as e:
+                syslog_logger.error(
+                    f"Asset FAILURE | Asset: {asset_name} | Run ID: {run_id} | Error: {str(e)}"
+                )
+                raise
+        return gen_wrapper
+    else:
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            context = kwargs.get("context")
+            if not context:
+                for arg in args:
+                    if hasattr(arg, "run_id"):
+                        context = arg
+                        break
+
+            run_id = context.run_id if context else "unknown_run"
+            asset_name = fn.__name__
+
+            syslog_logger.info(f"Asset STARTED | Asset: {asset_name} | Run ID: {run_id}")
+
+            try:
+                result = fn(*args, **kwargs)
+                syslog_logger.info(f"Asset SUCCESS | Asset: {asset_name} | Run ID: {run_id}")
+                return result
+            except Exception as e:
+                syslog_logger.error(
+                    f"Asset FAILURE | Asset: {asset_name} | Run ID: {run_id} | Error: {str(e)}"
+                )
+                raise
+        return wrapper
+
+# ------------------------------------------------------------------
+# Base Directories & Config
+# ------------------------------------------------------------------
 WORKING_DIR: Path = Path("/Users/jonathankee/Data-Science-Projects")
 DBT_PROJECT_DIR: Path = WORKING_DIR / "dbtproject"
 PROFILES_DIR: Path = Path.home() / ".dbt"
 
-# ------------------------------------------------------------------
-# dbt Configuration & Project Initialization
-# ------------------------------------------------------------------
 dbt_project: DbtProject = DbtProject(
     project_dir=DBT_PROJECT_DIR,
     profiles_dir=PROFILES_DIR,
 )
 
-# Define Daily Partitions (Includes today's ongoing date)
 daily_partitions_def: DailyPartitionsDefinition = DailyPartitionsDefinition(
     start_date="2026-01-01", 
     end_offset=1,
@@ -44,7 +115,7 @@ daily_partitions_def: DailyPartitionsDefinition = DailyPartitionsDefinition(
 )
 
 # ------------------------------------------------------------------
-# Custom Translator to Disconnect dbt Assets from Upstream Ingestion
+# Custom Translator & Output Builder
 # ------------------------------------------------------------------
 class CustomDagsterDbtTranslator(DagsterDbtTranslator):
     def get_group_name(self, dbt_resource_props: dict[str, Any]) -> str:
@@ -53,12 +124,8 @@ class CustomDagsterDbtTranslator(DagsterDbtTranslator):
     def get_asset_key(self, dbt_resource_props: dict[str, Any]) -> AssetKey:
         if dbt_resource_props.get("resource_type") == "source":
             return AssetKey(["dbt_raw_sources", dbt_resource_props["name"]])
-        
         return super().get_asset_key(dbt_resource_props)
 
-# ------------------------------------------------------------------
-# Helper Function for Multi-Asset Outputs
-# ------------------------------------------------------------------
 def build_asset_outs(table_names: list[str]) -> dict[str, AssetOut]:
     outs: dict[str, AssetOut] = {}
     for name in table_names:
@@ -66,30 +133,30 @@ def build_asset_outs(table_names: list[str]) -> dict[str, AssetOut]:
     return outs
 
 # ------------------------------------------------------------------
-# Ingestion Setup & Ticker Definitions
+# Tickers Configuration
 # ------------------------------------------------------------------
 SMELTOR_TICKERS: list[str] = [
     "AL.AI1", "AU.AI1", "CF.AI1", "CU.AI1", "FE.AI1", 
     "LI.AI1", "S.AI1", "STL.AI1", "TI.AI1", "SI.AI1", "RE.AI1"
 ]
-
 METALIST_TICKERS: list[str] = [
     "SEQ.AI1", "BGO.AI1", "MFK.AI1", "BRO.AI1", "BFR.AI1", "RGO.AI1", 
     "UTS.AI1", "BCO.AI1", "AFR.AI1", "SFK.AI1", "HCC.AI1", "BGC.AI1", "FLO.AI1"
 ]
-
 OTHER_TICKERS: list[str] = ["ALO.AI1"]
 ALL_TICKERS: list[str] = SMELTOR_TICKERS + METALIST_TICKERS + OTHER_TICKERS
 
+# ------------------------------------------------------------------
+# Pipeline Assets
+# ------------------------------------------------------------------
+
 @asset(group_name="kotlin_ingestion", partitions_def=daily_partitions_def)
+@log_rsyslog_lifecycle
 def kotlin_cli_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Any:
-    urls: list[str] = []
-    for t in ALL_TICKERS:
-        urls.append(f"https://rest.fnar.net/exchange/cxpc/{t}")
-    
+    urls: list[str] = [f"https://rest.fnar.net/exchange/cxpc/{t}" for t in ALL_TICKERS]
     urls.extend([
         "https://rest.fnar.net/building/HB2",
         "https://rest.fnar.net/building/FS",
@@ -99,9 +166,7 @@ def kotlin_cli_ingest(
         "https://rest.fnar.net/csv/workforce?apikey=0f11ac24-ef14-428f-8213-4438576837f4&username=jonathan_kee"
     ])
     
-    quoted_urls: list[str] = []
-    for u in urls:
-        quoted_urls.append(f'"{u}"')
+    quoted_urls: list[str] = [f'"{u}"' for u in urls]
     url_args: str = " ".join(quoted_urls)
     
     bash_script: str = f"""
@@ -116,12 +181,7 @@ def kotlin_cli_ingest(
     ).get_results()
 
 
-# ------------------------------------------------------------------
-# Step 2: Exchange Ingestion Multi-Asset
-# ------------------------------------------------------------------
-CXPC_TABLE_NAMES: list[str] = []
-for t in ALL_TICKERS:
-    CXPC_TABLE_NAMES.append(f"cxpc_{t.lower().replace('.', '_')}_raw")
+CXPC_TABLE_NAMES: list[str] = [f"cxpc_{t.lower().replace('.', '_')}_raw" for t in ALL_TICKERS]
 
 @multi_asset(
     outs=build_asset_outs(CXPC_TABLE_NAMES),
@@ -129,6 +189,7 @@ for t in ALL_TICKERS:
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
 )
+@log_rsyslog_lifecycle
 def cxpc_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
@@ -141,12 +202,10 @@ def cxpc_folder_ingest(
     ).get_results()
     
     for output_name in context.selected_output_names:
+        syslog_logger.info(f"Materialized asset prosperous_universe_sources/{output_name}")
         yield Output(result, output_name=output_name)
 
 
-# ------------------------------------------------------------------
-# Step 3: Building Ingestion Multi-Asset
-# ------------------------------------------------------------------
 BUILDING_TABLE_NAMES: list[str] = ["recipe_inputs_raw", "recipe_inputs_time_raw"]
 
 @multi_asset(
@@ -155,6 +214,7 @@ BUILDING_TABLE_NAMES: list[str] = ["recipe_inputs_raw", "recipe_inputs_time_raw"
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
 )
+@log_rsyslog_lifecycle
 def building_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
@@ -167,12 +227,10 @@ def building_folder_ingest(
     ).get_results()
     
     for output_name in context.selected_output_names:
+        syslog_logger.info(f"Materialized asset prosperous_universe_sources/{output_name}")
         yield Output(result, output_name=output_name)
 
 
-# ------------------------------------------------------------------
-# Step 4: CSV Ingestion Multi-Asset (Direct Python PostgreSQL Load)
-# ------------------------------------------------------------------
 CSV_TABLE_NAMES: list[str] = ["prices_raw", "inventory_raw", "recipe_inputs_raw_csv", "workforce_raw"]
 
 @multi_asset(
@@ -181,6 +239,7 @@ CSV_TABLE_NAMES: list[str] = ["prices_raw", "inventory_raw", "recipe_inputs_raw_
     partitions_def=daily_partitions_def,
     deps=[kotlin_cli_ingest]
 )
+@log_rsyslog_lifecycle
 def csv_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
@@ -193,34 +252,28 @@ def csv_folder_ingest(
     ).get_results()
     
     for output_name in context.selected_output_names:
+        syslog_logger.info(f"Materialized asset prosperous_universe_sources/{output_name}")
         yield Output(result, output_name=output_name)
 
 
-# ------------------------------------------------------------------
-# Step 5: Standalone dbt Assets Integration
-# ------------------------------------------------------------------
 @dbt_assets(
     manifest=dbt_project.manifest_path, 
     partitions_def=daily_partitions_def,
     dagster_dbt_translator=CustomDagsterDbtTranslator(),
     backfill_policy=BackfillPolicy.multi_run(),
-    pool="dbt_execution_pool"  # <-- Uses the native concurrency pool cleanly
+    pool="dbt_execution_pool"
 )
+@log_rsyslog_lifecycle
 def dbtproject_dbt_assets(
     context: AssetExecutionContext, 
     dbt: DbtCliResource
 ) -> Iterator[Any]:
     if context.has_partition_key:
-        start_date: str = context.partition_key
-        end_date: str = context.partition_key
-        date_part: str = context.partition_key
+        start_date = end_date = date_part = context.partition_key
     else:
         partition_range = context.partition_key_range
-        start_date = partition_range.start
-        end_date = partition_range.end
+        start_date, end_date = partition_range.start, partition_range.end
         date_part = start_date
-
-    context.log.info(f"Running dbt execution for date range: {start_date} to {end_date}")
 
     dbt_args: list[str] = [
         "run",
