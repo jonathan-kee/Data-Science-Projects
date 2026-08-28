@@ -1,11 +1,11 @@
 with
     report1 as (
-        select "materialinput", "total_days_left_per_building" as "days_left"
+        select 'days_to_support_recipe_recipe_report' as "report", "materialinput" ,"total_days_left_per_building" as "days_left"
         from {{ ref("days_to_support_recipe_report") }}
 
     ),
     report2 as (
-        select "material_ticker", "days_left"
+        select 'workforce_consumable_report' as "report","material_ticker", "days_left"
         from {{ ref("workforce_consumable_report") }}
     )
 select *
