@@ -467,6 +467,26 @@ WITH (FORMAT csv, HEADER true, NULL '');
 # Sysadmin commands
 Open rsyslog to see Dagster logs:
 /opt/homebrew/var/log/rsyslog-remote.log
+^
+The most common Log File location is:
+/var/log/messages 
+^
+To configure where the log file is written:
+/opt/homebrew/etc/rsyslog.conf
+^
+Restart services:
+brew services restart rsyslog
+^
+Open rsyslog to see Dagster logs:
+/opt/homebrew/var/log/messsages.log
+
+Each log to a file should have the following:
+■ Date and time: Every log message starts with a timestamp. For filtering purposes, the timestamp is written as military time.
+■ Host: The host the message originated from. This is relevant because rsyslogd
+can be configured to handle remote logging as well.
+■ Service or process name and PID: The name of the service or process that
+generated the message.
+■ Message content: The content of the message, which contains the exact message that has been logged
 
 # Finance terms
  Revenue is the total amount of money a business brings in from selling its goods or services before any expenses or costs are subtracted.
