@@ -480,6 +480,10 @@ brew services restart rsyslog
 Open rsyslog to see Dagster logs:
 /opt/homebrew/var/log/messsages.log
 
+Live log monitoring:
+tail -f /opt/homebrew/var/log/messages.log
+
+
 Each log to a file should have the following:
 ■ Date and time: Every log message starts with a timestamp. For filtering purposes, the timestamp is written as military time.
 ■ Host: The host the message originated from. This is relevant because rsyslogd
