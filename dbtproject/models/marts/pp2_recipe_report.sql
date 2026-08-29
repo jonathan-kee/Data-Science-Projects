@@ -24,11 +24,11 @@ select
         output."total_output_materials_AI1_BidPrice"
         - input."total_input_materials_AI1_AskPrice"
     ) as "profit_per_day"
-from {{ ref("wel_recipe_table_input_prices_from_report_aggregate") }} as input
+from {{ ref("pp2_recipe_table_input_prices_from_report_aggregate") }} as input
 join
-    {{ ref("wel_recipe_table_output_aggregate") }} as output
+    {{ ref("pp2_recipe_table_output_aggregate") }} as output
     on input.original_query = output.original_query
-where input.prefix = 'WEL'
+where input.prefix = 'PP2'
 order by
     "profit_per_total" desc
 

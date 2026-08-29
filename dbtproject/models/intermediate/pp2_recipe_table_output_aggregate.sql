@@ -11,7 +11,7 @@ with
         inner join
             {{ ref("stg_prices_partition_date") }} as stg_prices
             on stg_recipe_inputs_time."materialoutput" = stg_prices."ticker"
-        where prefix = 'WEL'
+        where prefix = 'PP2'
     ),
 
     -- FS:1xZR-1xAL=>1xAFR = 22000 "AI1-BidPrice"

@@ -24,7 +24,7 @@ with
                 )
             {% endif %}
             -- filter by SME
-            and prefix = 'WEL'
+            and prefix = 'PP2'
     ),
     group_by_total_input as (
         select
