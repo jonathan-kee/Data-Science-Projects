@@ -244,7 +244,7 @@ def csv_folder_ingest(
     context: AssetExecutionContext, 
     pipes_subprocess_client: PipesSubprocessClient
 ) -> Iterator[Output]:
-    bash_script: str = "python ingestion/csv/ingestFolderDuckModuleCompress.py"
+    bash_script: str = "python ingestion/csv/ingestFolderCompress.py"
     result = pipes_subprocess_client.run(
         command=["bash", "-c", bash_script], 
         context=context, 
