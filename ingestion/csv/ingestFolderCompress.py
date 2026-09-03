@@ -97,41 +97,38 @@ def main():
     engine = create_engine(DB_URL)
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Generate a unique batch name with the explicit csv label using the current timestamp
+    successful_files = []
+    
+    # --- Phase 1: Process and load to DB independently ---
+    print("Starting database ingestion...")
+    for file_path in csv_files:
+        try:
+            process_file(file_path, engine)
+            successful_files.append(file_path)
+            print(f"Successfully loaded to DB: {file_path.name}")
+        except Exception as e:
+            print(f"Failed to process {file_path.name}: {e}")
+
+    # Exit early if no files were successfully loaded
+    if not successful_files:
+        print("No files were processed successfully. Skipping archiving.")
+        return
+
+    # --- Phase 2: Bundle successfully processed files into a tar archive ---
     run_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     batch_tar_name = f"processed_batch_csv_{run_timestamp}.tar.gz"
     batch_tar_path = PROCESSED_DIR / batch_tar_name
 
-    processed_count = 0
-    
-    # Open the master tar archive once for the entire run
+    print(f"\nCreating archive {batch_tar_name}...")
     with tarfile.open(batch_tar_path, "w:gz") as tar:
-        for file_path in csv_files:
-            try:
-                # 1. Process and load to DB
-                process_file(file_path, engine)
-                
-                # 2. Add to the batch archive
-                tar.add(file_path, arcname=file_path.name)
-                
-                # 3. Delete the original CSV
-                file_path.unlink()
-                
-                processed_count += 1
-                print(f"Loaded and archived: {file_path.name}")
-            except Exception as e:
-                print(f"Failed to process {file_path.name}: {e}")
-
-    # Clean up empty tar file if the script ran but all files failed
-    if processed_count == 0:
-        batch_tar_path.unlink(missing_ok=True)
-        print("No files were processed successfully.")
-    else:
-        print(f"Successfully processed and bundled {processed_count} file(s) into {batch_tar_name}.")
+        for file_path in successful_files:
+            tar.add(file_path, arcname=file_path.name)
+            # Delete original CSV only after it's safely archived
+            file_path.unlink()
 
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
-    print(f"\nPipeline finished in {elapsed_time:.4f} seconds.")
+    print(f"\nPipeline finished successfully. Processed and archived {len(successful_files)} file(s) in {elapsed_time:.4f} seconds.")
 
 if __name__ == "__main__":
     main()
