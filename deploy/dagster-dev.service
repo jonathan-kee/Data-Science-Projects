@@ -1,0 +1,15 @@
+[Unit]
+Description=Dagster DG Dev Service
+After=network.target
+
+[Service]
+Type=simple
+User=your_username
+Group=your_group
+ExecStart=/path/to/your/venv/bin/dg dev
+Restart=on-failure
+RestartSec=5s
+Environment=PATH=/path/to/your/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+
+[Install]
+WantedBy=multi-user.target

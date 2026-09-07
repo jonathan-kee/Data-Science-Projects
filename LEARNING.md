@@ -737,6 +737,9 @@ nc -u -w 1 127.0.0.1 10514 <<< "<14>Test log entry on port 10514"
 ## Inspect the output file
 cat /opt/homebrew/var/log/rsyslog-remote.log
 
+# Sysadmin systemctl
+The systemd file is located in deploy/dagster-dev.service 
+
 # Extra Readme
 https://unix.stackexchange.com/questions/15348/writing-basic-systemd-service-files
 
