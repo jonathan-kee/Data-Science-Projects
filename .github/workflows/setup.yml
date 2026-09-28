@@ -1,0 +1,19 @@
+name: 2 Tier
+
+on:
+  workflow_dispatch:
+
+jobs:
+  job-one:
+    runs-on: [self-hosted, Linux, ARM64]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Output for the below command
+      # /home/vagrant/actions-runner/_work/DNS-Container/DNS-Container
+      - name: Print Working Directory
+        run: pwd
+
+      - name: Configure Virtual Machine's DNS resolver to reach internet
+        run: sudo sh -c 'printf "nameserver 8.8.8.8\nnameserver 1.1.1.1\n" > /etc/resolv.conf'
