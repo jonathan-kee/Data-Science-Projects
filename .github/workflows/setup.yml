@@ -1,4 +1,4 @@
-name: 2 Tier
+name: Setup
 
 on:
   workflow_dispatch:
