@@ -99,9 +99,11 @@ def log_rsyslog_lifecycle(fn):
 # ------------------------------------------------------------------
 # Base Directories & Config
 # ------------------------------------------------------------------
-# WORKING_DIR: Path = Path("/Users/jonathankee/Data-Science-Projects")
-# DBT_PROJECT_DIR: Path = WORKING_DIR / "dbtproject"
-DBT_PROJECT_DIR = Path("/home/vagrant/actions-runner/_work/Data-Science-Projects/Data-Science-Projects/dbtproject")
+#WORKING_DIR: Path = Path("/Users/jonathankee/Data-Science-Projects")
+#DBT_PROJECT_DIR: Path = WORKING_DIR / "dbtproject"
+
+WORKING_DIR: Path = Path("/home/vagrant/actions-runner/_work/Data-Science-Projects/Data-Science-Projects/")
+DBT_PROJECT_DIR: Path = WORKING_DIR / "dbtproject"
 
 PROFILES_DIR: Path = Path.home() / ".dbt"
 
